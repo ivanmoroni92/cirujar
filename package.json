@@ -1,0 +1,13 @@
+{
+  "name": "cirujar",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "front",
+    "back"
+  ],
+  "scripts": {
+    "dev:back": "npm run dev -w back",
+    "start:front": "npm start -w front"
+  }
+}

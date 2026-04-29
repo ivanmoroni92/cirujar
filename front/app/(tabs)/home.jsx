@@ -1,0 +1,222 @@
+import { useEffect, useMemo, useState } from 'react';
+import { FlatList, Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { IS_MOCK, MOCK_POSTS } from '@/_fake';
+import { IMAGE_PLACEHOLDER } from '@/_constants';
+
+const H_PADDING = 16;
+const COLUMN_GAP = 8;
+
+function isRemoteImageUrl(value) {
+  return typeof value === 'string' && /^https?:\/\//i.test(value);
+}
+
+function PostCardImage({ imageUri, style }) {
+  const [remoteFailed, setRemoteFailed] = useState(false);
+
+  useEffect(() => {
+    setRemoteFailed(false);
+  }, [imageUri]);
+
+  const useRemote = isRemoteImageUrl(imageUri) && !remoteFailed;
+  const source = useRemote ? { uri: imageUri } : IMAGE_PLACEHOLDER;
+  const resizeMode = useRemote ? 'cover' : 'contain';
+
+  return (
+    <View style={[styles.photoShell, style, !useRemote && styles.photoShellLocal]}>
+      <View style={[styles.photoInner, !useRemote && styles.photoPlaceholderInset]}>
+        <Image
+          style={styles.photoFill}
+          resizeMode={resizeMode}
+          source={source}
+          onError={() => {
+            if (useRemote) setRemoteFailed(true);
+          }}
+        />
+      </View>
+    </View>
+  );
+}
+
+export default function Home() {
+  const [posts, setPosts] = useState(IS_MOCK ? MOCK_POSTS : []);
+  useEffect(() => {
+    if (IS_MOCK) {
+      setPosts(MOCK_POSTS);
+    }
+  }, [IS_MOCK]);
+
+  const { width: windowWidth } = useWindowDimensions();
+  const cardWidth = useMemo(() => {
+    const totalGaps = COLUMN_GAP * 2;
+    return (windowWidth - H_PADDING * 2 - totalGaps) / 3;
+  }, [windowWidth]);
+
+  const renderItem = ({ item }) => (
+    <View style={[styles.card, { width: cardWidth }]}>
+      <PostCardImage imageUri={item.image} />
+      <Text style={styles.cardTitle} numberOfLines={2}>
+        {item.title}
+      </Text>
+      <View style={styles.descRow}>
+        <Text style={styles.description} numberOfLines={1}>
+          {item.description}
+        </Text>
+        <Text style={styles.time}>{"hace: " + item.creation.getHours() + "hs"}</Text>
+      </View>
+      <View style={styles.locationRow}>
+        <Text style={styles.pin}>📍</Text>
+        <Text style={styles.location} numberOfLines={1}>
+          {item.location}
+        </Text>
+      </View>
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.safe} edges={['top']}>
+      <View style={styles.header}>
+        <View style={styles.headerSpacer} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Agregar publicación"
+          onPress={() => {}}
+          style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}>
+          <Text style={styles.addButtonText}>+</Text>
+        </Pressable>
+      </View>
+
+      <FlatList
+        data={posts}
+        keyExtractor={(item) => item.id}
+        numColumns={3}
+        renderItem={renderItem}
+        columnWrapperStyle={styles.columnWrapper}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+      />
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  safe: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingHorizontal: H_PADDING,
+    paddingBottom: 12,
+    backgroundColor: '#f0f0f0',
+  },
+  photoShell: {
+    width: '100%',
+    aspectRatio: 1,
+    borderRadius: 4,
+    overflow: 'hidden',
+    backgroundColor: '#eaeaea',
+  },
+  photoShellLocal: {
+    backgroundColor: '#ececec',
+  },
+  photoInner: {
+    ...StyleSheet.absoluteFillObject,
+  },
+  photoPlaceholderInset: {
+    padding: 10,
+  },
+  photoFill: {
+    width: '100%',
+    height: '100%',
+  },
+  headerSpacer: {
+    flex: 1,
+  },
+  addButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#e8e8e8',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ccc',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addButtonPressed: {
+    opacity: 0.7,
+  },
+  addButtonText: {
+    fontSize: 28,
+    lineHeight: 32,
+    color: '#333',
+    fontWeight: '300',
+    marginTop: -2,
+  },
+  listContent: {
+    paddingHorizontal: H_PADDING,
+    paddingBottom: 24,
+  },
+  columnWrapper: {
+    gap: COLUMN_GAP,
+    marginBottom: COLUMN_GAP,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    padding: 8,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ddd',
+  },
+  photoPlaceholder: {
+    aspectRatio: 1,
+    width: '100%',
+    borderRadius: 4,
+    backgroundColor: '#b8dce8',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+  },
+  photoLabel: {
+    color: '#5a7a8a',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  cardTitle: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#111',
+    marginBottom: 6,
+  },
+  descRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 4,
+    marginBottom: 4,
+  },
+  description: {
+    flex: 1,
+    fontSize: 10,
+    color: '#444',
+  },
+  time: {
+    fontSize: 9,
+    color: '#666',
+    flexShrink: 0,
+  },
+  locationRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  pin: {
+    fontSize: 10,
+  },
+  location: {
+    flex: 1,
+    fontSize: 10,
+    color: '#555',
+  },
+});

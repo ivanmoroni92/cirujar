@@ -3,10 +3,11 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IProduct extends Document {
   titulo: string;
-  ubicacion: {
+  ubicacion?: {
     type: 'Point';
-    coordinates: [number, number]; // [longitud, latitud]
+    coordinates: [number, number];
   };
+  ubicacionTexto?: string;
   detalles: string;
   fotos: string[];
 }
@@ -18,15 +19,17 @@ const ProductSchema: Schema = new Schema(
       required: true,
       trim: true,
     },
+    ubicacionTexto: {
+      type: String,
+      trim: true,
+    },
     ubicacion: {
       type: {
         type: String,
-        enum: ['Point'], // GeoJSON exige que sea exactamente 'Point'
-        required: true,
+        enum: ['Point'],
       },
       coordinates: {
-        type: [Number], // [longitud, latitud]
-        required: true,
+        type: [Number],
       },
     },
     detalles: {
@@ -44,6 +47,6 @@ const ProductSchema: Schema = new Schema(
   }
 );
 
-ProductSchema.index({ ubicacion: '2dsphere' });
+ProductSchema.index({ ubicacion: '2dsphere' }, { sparse: true });
 
 export default mongoose.model<IProduct>('Product', ProductSchema);

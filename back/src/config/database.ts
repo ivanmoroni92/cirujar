@@ -1,8 +1,4 @@
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-
-// Cargar variables de entorno 
-dotenv.config();
 
 /**
  * conexión con MongoDB 

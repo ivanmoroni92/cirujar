@@ -7,7 +7,12 @@ class ProductService {
    * luego guarda el producto en MongoDB con las URLs resultantes.
    */
   async createProduct(
-    productData: { titulo: string; ubicacion: any; detalles?: string },
+    productData: {
+      titulo: string;
+      ubicacion?: { type: 'Point'; coordinates: [number, number] };
+      ubicacionTexto?: string;
+      detalles?: string;
+    },
     imageFiles: Express.Multer.File[] = []
   ) {
     // 1. Subir imágenes y obtener URLs públicas

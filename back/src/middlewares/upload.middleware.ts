@@ -4,7 +4,7 @@ import multer from 'multer';
  * Middleware de subida de archivos configurado con memoryStorage.
  * El archivo no toca el disco local: el buffer se envía directo a Supabase.
  * - Límite: 10 MB por archivo
- * - Solo acepta archivos de tipo imagen (image/*)
+ * - Solo acepta archivos de tipo imagen
  */
 const upload = multer({
   storage: multer.memoryStorage(),

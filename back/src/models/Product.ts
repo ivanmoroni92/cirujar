@@ -1,9 +1,6 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-/**
- * Interfaz TypeScript que describe la forma del documento Product.
- * Actúa como contrato tipado para todo el sistema de capas.
- */
+
 export interface IProduct extends Document {
   titulo: string;
   ubicacion: {
@@ -14,11 +11,6 @@ export interface IProduct extends Document {
   fotos: string[];
 }
 
-/**
- * Schema de Mongoose para la colección 'products'.
- * Usa el tipo GeoJSON Point para la ubicación,
- * lo que permite queries geoespaciales con $near, $geoWithin, etc.
- */
 const ProductSchema: Schema = new Schema(
   {
     titulo: {
@@ -48,11 +40,10 @@ const ProductSchema: Schema = new Schema(
     },
   },
   {
-    timestamps: true, // Agrega createdAt y updatedAt automáticamente
+    timestamps: true,
   }
 );
 
-// Índice geoespacial: permite consultas de cercanía en MongoDB
 ProductSchema.index({ ubicacion: '2dsphere' });
 
 export default mongoose.model<IProduct>('Product', ProductSchema);

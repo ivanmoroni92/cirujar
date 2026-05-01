@@ -1,9 +1,12 @@
+import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
   FlatList,
   Image,
   Pressable,
+  RefreshControl,
   StyleSheet,
   Text,
   useWindowDimensions,
@@ -70,18 +73,26 @@ function PostCardImage({ imageUri, style }) {
 }
 
 export default function Home() {
+  const router = useRouter();
   const [posts, setPosts] = useState(IS_MOCK ? MOCK_POSTS : []);
   const [loading, setLoading] = useState(!IS_MOCK);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
 
-  const loadPosts = useCallback(async () => {
+  const loadPosts = useCallback(async (options) => {
+    const isPullRefresh = Boolean(options?.refresh);
     if (IS_MOCK) {
       setPosts(MOCK_POSTS);
       setLoading(false);
+      setRefreshing(false);
       setError(null);
       return;
     }
-    setLoading(true);
+    if (isPullRefresh) {
+      setRefreshing(true);
+    } else {
+      setLoading(true);
+    }
     setError(null);
     try {
       const products = await fetchProducts();
@@ -90,13 +101,19 @@ export default function Home() {
       setError(e?.message ?? 'No se pudieron cargar los productos');
       setPosts([]);
     } finally {
-      setLoading(false);
+      if (isPullRefresh) {
+        setRefreshing(false);
+      } else {
+        setLoading(false);
+      }
     }
   }, []);
 
-  useEffect(() => {
-    loadPosts();
-  }, [loadPosts]);
+  useFocusEffect(
+    useCallback(() => {
+      loadPosts();
+    }, [loadPosts])
+  );
 
 
   const calculateTime = (creation) => {
@@ -104,6 +121,7 @@ export default function Home() {
     const diffDays = Math.floor(diff / (1000 * 60 * 60 * 24));
     const diffHours = Math.floor(diff / (1000 * 60 * 60));
     const diffMinutes = Math.floor(diff / (1000 * 60));
+    const diffSeconds = Math.floor(diff / 1000);
     const diffMonths = Math.floor(diffDays / 30);
     if (diffMinutes < 1) {
       return "hace: " + diffSeconds + "seg";
@@ -151,7 +169,9 @@ export default function Home() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Agregar publicación"
-          onPress={() => {}}
+          onPress={() => {
+            router.push('/add-post');
+          }}
           style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}>
           <Text style={styles.addButtonText}>+</Text>
         </Pressable>
@@ -181,6 +201,14 @@ export default function Home() {
           columnWrapperStyle={styles.columnWrapper}
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={() => loadPosts({ refresh: true })}
+              tintColor="#333"
+              colors={['#333']}
+            />
+          }
           ListEmptyComponent={
             !IS_MOCK ? (
               <Text style={styles.emptyText}>No hay productos.</Text>

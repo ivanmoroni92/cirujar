@@ -1,5 +1,5 @@
 import { Post } from "./_models";
-export const IS_MOCK = true;
+export const IS_MOCK = false;
 
 export const MOCK_IMAGES = [
     'https://uvn-brightspot.s3.amazonaws.com/assets/vixes/imj/hogartotal/I/Ideas-para-reciclar-muebles-viejos.jpg',

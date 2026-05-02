@@ -4,3 +4,6 @@
  * The asset is required from `assets/images/placeholder.ts` so Metro resolves the path reliably.
  */
 export { IMAGE_PLACEHOLDER } from './assets/images/placeholder';
+
+
+// Evaluar si borrar este archivo

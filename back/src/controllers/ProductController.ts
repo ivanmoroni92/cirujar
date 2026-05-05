@@ -66,6 +66,23 @@ class ProductController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  async getById(req: Request, res: Response): Promise<void> {
+    try {
+      const id = req.params.id as string;
+
+      const product = await ProductService.getProductById(id);
+
+      if (!product) {
+        res.status(404).json({ error: 'Producto no encontrado' });
+        return;
+      }
+
+      res.status(200).json(product);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message });
+    }
+  }
 }
 
 export default new ProductController();

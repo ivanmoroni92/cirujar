@@ -27,6 +27,10 @@ class ProductService {
   async getAllProducts() {
     return await ProductDAO.findAll();
   }
+
+  async getProductById(id: string) {
+      return await ProductDAO.findById(id);
+  }
 }
 
 export default new ProductService();

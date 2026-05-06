@@ -16,6 +16,13 @@ class ProductDAO {
     return await Product.find();
   }
 
+  /**
+   * Obtiene un producto específico por su ID
+   */
+  async findById(id: string): Promise<IProduct | null> {
+    return await Product.findById(id);
+  }
+
 }
 
 export default new ProductDAO();

@@ -10,4 +10,7 @@ router.post('/', upload.array('fotos', 4), ProductController.create);
 // GET /api/products
 router.get('/', ProductController.getAll);
 
+//GET /api/products/:id
+router.get('/:id', ProductController.getById);
+
 export default router;

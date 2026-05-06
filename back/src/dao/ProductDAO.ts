@@ -30,6 +30,10 @@ class ProductDAO {
     return await Product.findByIdAndUpdate(id, updateData, { returnDocument: 'after' });
   }
 
+  async delete(id: string): Promise<IProduct | null> {
+    return await Product.findByIdAndDelete(id);
+  }
+
 }
 
 export default new ProductDAO();

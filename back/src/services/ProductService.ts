@@ -31,6 +31,37 @@ class ProductService {
   async getProductById(id: string) {
       return await ProductDAO.findById(id);
   }
+
+  async updateProduct(
+      id: string,
+      data: { titulo?: string; detalles?: string },
+      fotosExistentes: string[],
+      newImageFiles: Express.Multer.File[] = []
+  ) {
+      // Debe existir al menos una imagen siempre
+      if (fotosExistentes.length === 0 && newImageFiles.length === 0) {
+          throw new Error('La publicación debe tener al menos una imagen.');
+      }
+
+      // Se suben las fotos a supabase
+      let nuevasFotosUrls: string[] = [];
+      if (newImageFiles.length > 0) {
+          nuevasFotosUrls = await StorageService.uploadImages(newImageFiles);
+      }
+
+      // Se juntan fotos viejas y nuevas
+      const fotosFinales = [...fotosExistentes, ...nuevasFotosUrls];
+
+      // Se arma el paquete para la BD ignorando ubicacion
+      const updatePayload: any = {
+          fotos: fotosFinales
+      };
+
+      if (data.titulo) updatePayload.titulo = data.titulo;
+      if (data.detalles) updatePayload.detalles = data.detalles;
+
+      return await ProductDAO.update(id, updatePayload);
+    }
 }
 
 export default new ProductService();

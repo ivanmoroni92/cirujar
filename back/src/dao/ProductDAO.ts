@@ -23,6 +23,13 @@ class ProductDAO {
     return await Product.findById(id);
   }
 
+  /**
+   * Actualiza parcialmente un producto por su ID
+   */
+  async update(id: string, updateData: any): Promise<IProduct | null> {
+    return await Product.findByIdAndUpdate(id, updateData, { returnDocument: 'after' });
+  }
+
 }
 
 export default new ProductDAO();

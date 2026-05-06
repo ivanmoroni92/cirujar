@@ -83,6 +83,42 @@ class ProductController {
       res.status(500).json({ error: error.message });
     }
   }
+
+  async update(req: Request, res: Response): Promise<void> {
+    try {
+      const id = req.params.id as string;
+      const { titulo, detalles, fotosMantenidas } = req.body;
+      const newFiles = req.files as Express.Multer.File[] ?? [];
+
+      // Como viene de FormData, fotosMantenidas puede llegar como string JSON
+      let arrayFotosMantenidas: string[] = [];
+      if (fotosMantenidas) {
+        try {
+          arrayFotosMantenidas = JSON.parse(fotosMantenidas);
+        } catch (e) {
+          arrayFotosMantenidas = Array.isArray(fotosMantenidas) ? fotosMantenidas : [fotosMantenidas];
+        }
+      }
+
+
+      const updatedProduct = await ProductService.updateProduct(
+          id,
+          { titulo, detalles },
+          arrayFotosMantenidas,
+          newFiles
+      );
+
+      if (!updatedProduct) {
+        res.status(404).json({ error: 'Producto no encontrado' });
+        return;
+      }
+
+      res.status(200).json(updatedProduct);
+
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  }
 }
 
 export default new ProductController();

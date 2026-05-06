@@ -98,3 +98,9 @@ export const put = async (resource: string, id: string, data: unknown) => {
       console.error(error);
     });
 };
+
+export async function fetchProductById(id: string): Promise<ApiProduct> {
+  const data = await get(`products/${id}`);
+  if (!data) throw new Error('No se pudo cargar el producto');
+  return data as ApiProduct;
+}

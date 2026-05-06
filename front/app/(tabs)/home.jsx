@@ -141,8 +141,15 @@ export default function Home() {
     return (windowWidth - H_PADDING * 2 - totalGaps) / 3;
   }, [windowWidth]);
 
-  const renderItem = ({ item }) => (
-    <View style={[styles.card, { width: cardWidth }]}>
+const renderItem = ({ item }) => (
+    <Pressable
+      style={({ pressed }) => [
+        styles.card,
+        { width: cardWidth },
+        pressed && { opacity: 0.75 }
+      ]}
+      onPress={() => router.push(`/product/${item.id}`)}
+    >
       <PostCardImage imageUri={item.image} />
       <Text style={styles.cardTitle} numberOfLines={2}>
         {item.title}
@@ -159,8 +166,8 @@ export default function Home() {
           {item.location}
         </Text>
       </View>
-    </View>
-  );
+    </Pressable>
+);
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>

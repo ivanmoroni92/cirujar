@@ -64,7 +64,17 @@ function Content() {
 
         <Text style={styles.headerTitle}>Detalle de la publicación</Text>
 
-        <View style={styles.headerSide} />
+        <Pressable
+          onPress={() =>
+            router.push({
+              pathname: '/edit/[id]',
+              params: { id },
+            })
+          }
+          style={({ pressed }) => [styles.headerBtn, pressed && styles.pressed]}
+        >
+          <Ionicons name="create-outline" size={22} color="#111" />
+        </Pressable>
       </View>
 
       {/* CONTENIDO */}
@@ -149,6 +159,38 @@ function Content() {
               <View style={styles.placeholder} />
             )}
 
+            {/* 🔥 MINIATURAS (AGREGADO) */}
+            {product.fotos?.length > 1 && (
+              <View style={styles.thumbsContainer}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.thumbsScroll}
+                >
+                  {product.fotos.map((uri, index) => {
+                    const isActive = index === photoIndex;
+
+                    return (
+                      <Pressable
+                        key={index}
+                        onPress={() => goTo(index)}
+                        style={[
+                          styles.thumbWrapper,
+                          isActive && styles.thumbWrapperActive,
+                        ]}
+                      >
+                        <Image
+                          source={{ uri }}
+                          style={styles.thumbImage}
+                          resizeMode="cover"
+                        />
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            )}
+
             {/* BODY */}
             <View style={styles.body}>
               <Text style={styles.title}>{product.titulo}</Text>
@@ -158,9 +200,7 @@ function Content() {
                 <View style={styles.descriptionDivider} />
 
                 {product.detalles ? (
-                  <Text style={styles.description}>
-                    {product.detalles}
-                  </Text>
+                  <Text style={styles.description}>{product.detalles}</Text>
                 ) : (
                   <View style={styles.emptyRow}>
                     <Ionicons
@@ -177,7 +217,7 @@ function Content() {
             </View>
           </ScrollView>
 
-          {/* META (AJUSTADA AL SAFE AREA BOTTOM) */}
+          {/* META */}
           <View
             style={[
               styles.metaContainer,
@@ -209,18 +249,9 @@ function Content() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-  },
+  safe: { flex: 1, backgroundColor: '#f0f0f0' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  // HEADER
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -229,30 +260,13 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#ddd',
-    backgroundColor: '#f0f0f0',
   },
 
-  headerBtn: {
-    width: 40,
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  headerSide: { width: 40 },
-
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#111',
-  },
-
+  headerBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+  headerTitle: { fontSize: 17, fontWeight: '600', color: '#111' },
   pressed: { opacity: 0.75 },
 
-  // CARRUSEL
-  carouselWrapper: {
-    position: 'relative',
-  },
+  carouselWrapper: { position: 'relative' },
 
   placeholder: {
     width,
@@ -272,14 +286,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  arrowLeft: {
-    left: PAD + 8,
-  },
-
-  arrowRight: {
-    right: PAD + 8,
-  },
+  arrowLeft: { left: PAD + 8 },
+  arrowRight: { right: PAD + 8 },
 
   dots: {
     position: 'absolute',
@@ -290,31 +298,16 @@ const styles = StyleSheet.create({
     gap: 5,
   },
 
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: 'rgba(119,119,119,0.5)',
-  },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#999' },
+  dotActive: { backgroundColor: '#fff' },
 
-  dotActive: {
-    backgroundColor: '#fff',
-  },
-
-  // BODY
   body: {
     padding: PAD,
-    marginTop: 16,
-    gap: 16,
+    gap: 12,
   },
 
-  title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#111',
-  },
+  title: { fontSize: 26, fontWeight: '800', color: '#111' },
 
- // DESCRIPCIÓN
   descriptionCard: {
     backgroundColor: '#f7f7f7',
     borderRadius: 14,
@@ -325,60 +318,57 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#999',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
     marginBottom: 10,
   },
 
   descriptionDivider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#ebebeb',
+    backgroundColor: '#ddd',
     marginBottom: 12,
   },
 
-  description: {
-    fontSize: 15,
-    color: '#333',
-    lineHeight: 24,
-  },
+  description: { fontSize: 15, color: '#333', lineHeight: 24 },
 
-  emptyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
+  emptyRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 
-  descriptionEmpty: {
-    fontSize: 14,
-    color: '#bbb',
-    fontStyle: 'italic',
-  },
+  descriptionEmpty: { fontSize: 14, color: '#bbb' },
 
-  // META
   metaContainer: {
     paddingHorizontal: PAD,
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#ddd',
-    backgroundColor: '#f0f0f0',
+  },
+
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  location: { fontSize: 13, color: '#666' },
+  time: { fontSize: 12, color: '#999' },
+
+  errorText: { color: '#a33' },
+
+  // 🔥 MINIATURAS
+  thumbsContainer: { marginTop: 10 },
+
+  thumbsScroll: {
+    paddingHorizontal: PAD,
     gap: 4,
   },
 
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
+  thumbWrapper: {
+    width: 46,
+    height: 46,
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
   },
 
-  location: {
-    fontSize: 13,
-    color: '#666',
+  thumbWrapperActive: {
+    borderColor: '#0a7ea4',
   },
 
-  time: {
-    fontSize: 12,
-    color: '#999',
+  thumbImage: {
+    width: '100%',
+    height: '100%',
   },
-
-  errorText: { color: '#a33' },
 });

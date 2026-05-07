@@ -119,6 +119,18 @@ class ProductController {
       res.status(400).json({ error: error.message });
     }
   }
+
+  async delete(req: Request, res: Response): Promise<void> {
+    try {
+      const id = req.params.id as string;
+      await ProductService.deleteProduct(id);
+
+      res.status(200).json({ message: 'Publicación eliminada correctamente.' });
+    } catch (error: any) {
+      const statusCode = error.message === 'El producto no existe.' ? 404 : 400;
+      res.status(statusCode).json({ error: error.message });
+    }
+  }
 }
 
 export default new ProductController();

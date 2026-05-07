@@ -58,7 +58,9 @@ class ProductService {
       };
 
       if (data.titulo) updatePayload.titulo = data.titulo;
-      if (data.detalles) updatePayload.detalles = data.detalles;
+      if (data.detalles !== undefined) {
+        updatePayload.detalles = data.detalles;
+      }
 
       return await ProductDAO.update(id, updatePayload);
     }

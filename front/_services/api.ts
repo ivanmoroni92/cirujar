@@ -1,5 +1,6 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 import { API_URL } from '../_config';
+import { Platform } from 'react-native';
 
 /** Product shape returned by GET /api/products */
 export interface ApiProduct {
@@ -104,3 +105,18 @@ export async function fetchProductById(id: string): Promise<ApiProduct> {
   if (!data) throw new Error('No se pudo cargar el producto');
   return data as ApiProduct;
 }
+
+export const updateProduct = async (id: string, data: FormData) => {
+  const res = await fetch(`${API_URL}/products/${id}`, {
+    method: 'PATCH', // ✅ era PUT
+    body: data,
+  });
+
+  if (!res.ok) {
+    const errorBody = await res.text();
+    console.error('Backend respondió:', res.status, errorBody);
+    throw new Error(`Error ${res.status}: ${errorBody}`);
+  }
+
+  return res.json();
+};

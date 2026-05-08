@@ -2,6 +2,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -12,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchProductById, type ApiProduct } from '@/_services/api';
+import { fetchProductById, deleteProduct, type ApiProduct } from '@/_services/api';
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
@@ -51,30 +52,76 @@ function Content() {
     setPhotoIndex(index);
   };
 
+  const handleDelete = () => {
+  const productId = Array.isArray(id) ? id[0] : id; 
+  if (!productId) return;
+
+  Alert.alert(
+    'Eliminar publicación',
+    '¿Estás seguro de que querés eliminar esta publicación?',
+    [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteProduct(productId); 
+            Alert.alert('Publicación eliminada', 'La publicación fue eliminada correctamente');
+            router.replace('/(tabs)/home');
+          } catch (e) {
+            Alert.alert('Error', 'No se pudo eliminar la publicación');
+          }
+        },
+      },
+    ]
+  );
+};
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* HEADER */}
       <View style={styles.header}>
         <Pressable
           onPress={() => router.back()}
-          style={({ pressed }) => [styles.headerBtn, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.headerBtn,
+            pressed && styles.pressed,
+          ]}
         >
           <Ionicons name="chevron-back" size={26} color="#111" />
         </Pressable>
 
-        <Text style={styles.headerTitle}>Detalle de la publicación</Text>
+        <Text style={styles.headerTitle}>
+          Detalle de la publicación
+        </Text>
 
-        <Pressable
-          onPress={() =>
-            router.push({
-              pathname: '/edit/[id]',
-              params: { id },
-            })
-          }
-          style={({ pressed }) => [styles.headerBtn, pressed && styles.pressed]}
-        >
-          <Ionicons name="create-outline" size={22} color="#111" />
-        </Pressable>
+        <View style={styles.headerActions}>
+          <Pressable
+            onPress={handleDelete}
+            style={({ pressed }) => [
+              styles.headerBtn,
+              pressed && styles.pressed,
+            ]}
+          >
+            <Ionicons name="trash-outline" size={22} color="#d11a2a" />
+          </Pressable>
+
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: '/edit/[id]',
+                params: { id },
+              })
+            }
+            style={({ pressed }) => [
+              styles.headerBtn,
+              pressed && styles.pressed,
+            ]}
+          >
+            <Ionicons name="create-outline" size={22} color="#111" />
+          </Pressable>
+        </View>
       </View>
 
       {/* CONTENIDO */}
@@ -263,7 +310,15 @@ const styles = StyleSheet.create({
   },
 
   headerBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+
   headerTitle: { fontSize: 17, fontWeight: '600', color: '#111' },
+
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+  },
+  
   pressed: { opacity: 0.75 },
 
   carouselWrapper: { position: 'relative' },

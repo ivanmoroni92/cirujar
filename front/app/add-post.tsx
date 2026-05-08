@@ -16,7 +16,9 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import MapView, { UrlTile, Marker } from 'react-native-maps';
 import { createProduct } from '@/_services/api';
+import * as Location from 'expo-location';
 
 const PAD = 16;
 const TITLE_MIN = 3;
@@ -43,12 +45,38 @@ export default function AddPostScreen() {
   const [extras, setExtras] = useState<(string | null)[]>(() =>
     Array.from({ length: MAX_EXTRAS }, () => null)
   );
+
+  //Ver si las cambio por coordenas desde el celular
+  const [coordenadas, setCoordenadas] = useState({
+    latitude: -34.6037,
+    longitude: -58.3816,
+  });
   const [submitting, setSubmitting] = useState(false);
   const [validationMessages, setValidationMessages] = useState<string[]>([]);
 
   useEffect(() => {
     setValidationMessages([]);
   }, [titulo, ubicacion, detalles, mainUri, extras]);
+
+  useEffect(() => {
+    (async () => {
+      let { status } = await Location.requestForegroundPermissionsAsync();
+
+      if (status !== 'granted') {
+        Alert.alert('Permiso denegado', 'No podemos centrar el mapa sin acceso a tu ubicación.');
+        return;
+      }
+
+      let location = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      });
+
+      setCoordenadas({
+        latitude: location.coords.latitude,
+        longitude: location.coords.longitude,
+      });
+    })();
+  }, []);
 
   const ensureLibraryPermission = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -124,6 +152,9 @@ export default function AddPostScreen() {
         titulo: titulo.trim(),
         detalles: detalles.trim(),
         ubicacionTexto: ubicacion.trim(),
+        //agregadas coordenadas
+        latitud: coordenadas.latitude,
+        longitud: coordenadas.longitude,
         imageUris: uris,
       });
       router.replace('/(tabs)/home');
@@ -133,7 +164,7 @@ export default function AddPostScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [validate, titulo, detalles, ubicacion, mainUri, extras, router]);
+  }, [validate, titulo, detalles, ubicacion, mainUri, extras, coordenadas, router]);
 
   const addPlusDisabled =
     submitting ||
@@ -261,6 +292,31 @@ export default function AddPostScreen() {
               maxLength={UBIC_MAX}
               editable={!submitting}
             />
+          </View>
+
+          <Text style={styles.label}>Posición exacta en el mapa</Text>
+          <Text style={styles.sectionHint}>Mantén presionado y arrastra el pin o toca en otro lugar para corregir la ubicación.</Text>
+          <View style={styles.mapContainer}>
+            <MapView
+                style={styles.map}
+                region={{
+                  latitude: coordenadas.latitude,
+                  longitude: coordenadas.longitude,
+                  latitudeDelta: 0.005,
+                  longitudeDelta: 0.005,
+                }}
+                onPress={(e) => setCoordenadas(e.nativeEvent.coordinate)}
+            >
+              <UrlTile
+                  urlTemplate="https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
+                  maximumZ={19}
+              />
+              <Marker
+                  draggable
+                  coordinate={coordenadas}
+                  onDragEnd={(e) => setCoordenadas(e.nativeEvent.coordinate)}
+              />
+            </MapView>
           </View>
 
           <Pressable
@@ -460,5 +516,20 @@ const styles = StyleSheet.create({
   },
   pressed: {
     opacity: 0.75,
+  },
+
+  // ESTILOS NUEVOS PARA EL MAPA
+  mapContainer: {
+    height: 250,
+    borderRadius: 8,
+    overflow: 'hidden',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ccc',
+    marginBottom: 20,
+    marginTop: 8,
+  },
+  map: {
+    width: '100%',
+    height: '100%',
   },
 });

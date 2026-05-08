@@ -26,6 +26,8 @@ export interface CreateProductPayload {
   titulo: string;
   detalles: string;
   ubicacionTexto: string;
+  latitud?: number;  // <-- NUEVO
+  longitud?: number; // <-- NUEVO
   /** Local URIs from expo-image-picker (file:// or content://) */
   imageUris: string[];
 }
@@ -40,6 +42,12 @@ export async function createProduct(payload: CreateProductPayload): Promise<ApiP
     form.append('detalles', payload.detalles.trim());
   }
   form.append('ubicacion', payload.ubicacionTexto.trim());
+
+  // NUEVO: Agregamos latitud y longitud si fueron seleccionadas en el mapa
+  if (payload.latitud !== undefined && payload.longitud !== undefined) {
+    form.append('latitud', payload.latitud.toString());
+    form.append('longitud', payload.longitud.toString());
+  }
 
   for (const uri of payload.imageUris) {
     const nameFromUri = uri.split('/').pop() ?? 'photo.jpg';

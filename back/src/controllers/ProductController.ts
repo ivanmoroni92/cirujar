@@ -14,6 +14,19 @@ function parseUbicacionFields(body: Record<string, string | undefined>): {
   const explicitText =
     typeof body.ubicacionTexto === 'string' ? body.ubicacionTexto.trim() : '';
 
+  //parseo de latitud y longitud
+  if (body.latitud && body.longitud) {
+    const lat = parseFloat(body.latitud);
+    const lng = parseFloat(body.longitud);
+
+    if (!isNaN(lat) && !isNaN(lng)) {
+      return {
+        ubicacion: { type: 'Point', coordinates: [lng, lat] },
+        ...(explicitText ? { ubicacionTexto: explicitText } : {}),
+      };
+    }
+  }
+
   const raw = body.ubicacion;
   if (raw === undefined || raw === '') {
     return explicitText ? { ubicacionTexto: explicitText } : {};

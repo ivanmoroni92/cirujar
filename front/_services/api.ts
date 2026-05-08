@@ -120,3 +120,17 @@ export const updateProduct = async (id: string, data: FormData) => {
 
   return res.json();
 };
+
+export async function deleteProduct(id: string): Promise<void> {
+ const response = await fetch(`${API_URL}/products/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Error ${response.status}: ${body}`);
+  }
+}

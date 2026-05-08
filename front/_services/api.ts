@@ -42,7 +42,7 @@ export async function createProduct(payload: CreateProductPayload): Promise<ApiP
   if (payload.detalles.trim()) {
     form.append('detalles', payload.detalles.trim());
   }
-  form.append('ubicacion', payload.ubicacionTexto.trim());
+  form.append('ubicacionTexto', payload.ubicacionTexto.trim());
 
   // NUEVO: Agregamos latitud y longitud si fueron seleccionadas en el mapa
   if (payload.latitud !== undefined && payload.longitud !== undefined) {

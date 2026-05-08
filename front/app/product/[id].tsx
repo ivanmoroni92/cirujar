@@ -2,6 +2,7 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -12,8 +13,8 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchProductById, type ApiProduct } from '@/_services/api';
 import MapView, { UrlTile, Marker } from 'react-native-maps';
+import { fetchProductById, deleteProduct, type ApiProduct } from '@/_services/api';
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
@@ -52,20 +53,76 @@ function Content() {
     setPhotoIndex(index);
   };
 
+  const handleDelete = () => {
+  const productId = Array.isArray(id) ? id[0] : id;
+  if (!productId) return;
+
+  Alert.alert(
+    'Eliminar publicación',
+    '¿Estás seguro de que querés eliminar esta publicación?',
+    [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Eliminar',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteProduct(productId);
+            Alert.alert('Publicación eliminada', 'La publicación fue eliminada correctamente');
+            router.replace('/(tabs)/home');
+          } catch (e) {
+            Alert.alert('Error', 'No se pudo eliminar la publicación');
+          }
+        },
+      },
+    ]
+  );
+};
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* HEADER */}
       <View style={styles.header}>
         <Pressable
           onPress={() => router.back()}
-          style={({ pressed }) => [styles.headerBtn, pressed && styles.pressed]}
+          style={({ pressed }) => [
+            styles.headerBtn,
+            pressed && styles.pressed,
+          ]}
         >
           <Ionicons name="chevron-back" size={26} color="#111" />
         </Pressable>
 
-        <Text style={styles.headerTitle}>Detalle de la publicación</Text>
+        <Text style={styles.headerTitle}>
+          Detalle de la publicación
+        </Text>
 
-        <View style={styles.headerSide} />
+        <View style={styles.headerActions}>
+          <Pressable
+            onPress={handleDelete}
+            style={({ pressed }) => [
+              styles.headerBtn,
+              pressed && styles.pressed,
+            ]}
+          >
+            <Ionicons name="trash-outline" size={22} color="#d11a2a" />
+          </Pressable>
+
+          <Pressable
+            onPress={() =>
+              router.push({
+                pathname: '/edit/[id]',
+                params: { id },
+              })
+            }
+            style={({ pressed }) => [
+              styles.headerBtn,
+              pressed && styles.pressed,
+            ]}
+          >
+            <Ionicons name="create-outline" size={22} color="#111" />
+          </Pressable>
+        </View>
       </View>
 
       {/* CONTENIDO */}
@@ -150,6 +207,38 @@ function Content() {
               <View style={styles.placeholder} />
             )}
 
+            {/* 🔥 MINIATURAS (AGREGADO) */}
+            {product.fotos?.length > 1 && (
+              <View style={styles.thumbsContainer}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.thumbsScroll}
+                >
+                  {product.fotos.map((uri, index) => {
+                    const isActive = index === photoIndex;
+
+                    return (
+                      <Pressable
+                        key={index}
+                        onPress={() => goTo(index)}
+                        style={[
+                          styles.thumbWrapper,
+                          isActive && styles.thumbWrapperActive,
+                        ]}
+                      >
+                        <Image
+                          source={{ uri }}
+                          style={styles.thumbImage}
+                          resizeMode="cover"
+                        />
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            )}
+
             {/* BODY */}
             <View style={styles.body}>
               <Text style={styles.title}>{product.titulo}</Text>
@@ -159,9 +248,7 @@ function Content() {
                 <View style={styles.descriptionDivider} />
 
                 {product.detalles ? (
-                  <Text style={styles.description}>
-                    {product.detalles}
-                  </Text>
+                  <Text style={styles.description}>{product.detalles}</Text>
                 ) : (
                   <View style={styles.emptyRow}>
                     <Ionicons
@@ -210,7 +297,7 @@ function Content() {
             </View>
           </ScrollView>
 
-          {/* META (AJUSTADA AL SAFE AREA BOTTOM) */}
+          {/* META */}
           <View
             style={[
               styles.metaContainer,
@@ -242,18 +329,9 @@ function Content() {
 }
 
 const styles = StyleSheet.create({
-  safe: {
-    flex: 1,
-    backgroundColor: '#f0f0f0',
-  },
+  safe: { flex: 1, backgroundColor: '#f0f0f0' },
+  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 
-  center: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  // HEADER
   header: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -262,30 +340,21 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#ddd',
-    backgroundColor: '#f0f0f0',
   },
 
-  headerBtn: {
-    width: 40,
-    height: 40,
+  headerBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+
+  headerTitle: { fontSize: 17, fontWeight: '600', color: '#111' },
+
+  headerActions: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-  },
-
-  headerSide: { width: 40 },
-
-  headerTitle: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#111',
+    gap: 2,
   },
 
   pressed: { opacity: 0.75 },
 
-  // CARRUSEL
-  carouselWrapper: {
-    position: 'relative',
-  },
+  carouselWrapper: { position: 'relative' },
 
   placeholder: {
     width,
@@ -305,14 +374,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
-  arrowLeft: {
-    left: PAD + 8,
-  },
-
-  arrowRight: {
-    right: PAD + 8,
-  },
+  arrowLeft: { left: PAD + 8 },
+  arrowRight: { right: PAD + 8 },
 
   dots: {
     position: 'absolute',
@@ -323,31 +386,16 @@ const styles = StyleSheet.create({
     gap: 5,
   },
 
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: 'rgba(119,119,119,0.5)',
-  },
+  dot: { width: 6, height: 6, borderRadius: 3, backgroundColor: '#999' },
+  dotActive: { backgroundColor: '#fff' },
 
-  dotActive: {
-    backgroundColor: '#fff',
-  },
-
-  // BODY
   body: {
     padding: PAD,
-    marginTop: 16,
-    gap: 16,
+    gap: 12,
   },
 
-  title: {
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#111',
-  },
+  title: { fontSize: 26, fontWeight: '800', color: '#111' },
 
- // DESCRIPCIÓN
   descriptionCard: {
     backgroundColor: '#f7f7f7',
     borderRadius: 14,
@@ -358,64 +406,61 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#999',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
     marginBottom: 10,
   },
 
   descriptionDivider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: '#ebebeb',
+    backgroundColor: '#ddd',
     marginBottom: 12,
   },
 
-  description: {
-    fontSize: 15,
-    color: '#333',
-    lineHeight: 24,
-  },
+  description: { fontSize: 15, color: '#333', lineHeight: 24 },
 
-  emptyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
+  emptyRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 
-  descriptionEmpty: {
-    fontSize: 14,
-    color: '#bbb',
-    fontStyle: 'italic',
-  },
+  descriptionEmpty: { fontSize: 14, color: '#bbb' },
 
-  // META
   metaContainer: {
     paddingHorizontal: PAD,
     paddingTop: 12,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: '#ddd',
-    backgroundColor: '#f0f0f0',
-    gap: 4,
   },
 
-  locationRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-
-  location: {
-    fontSize: 13,
-    color: '#666',
-  },
-
-  time: {
-    fontSize: 12,
-    color: '#999',
-  },
+  locationRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  location: { fontSize: 13, color: '#666' },
+  time: { fontSize: 12, color: '#999' },
 
   errorText: { color: '#a33' },
 
-  // Estilos del nuevo bloque de mapa
+  // 🔥 MINIATURAS
+  thumbsContainer: { marginTop: 10 },
+
+  thumbsScroll: {
+    paddingHorizontal: PAD,
+    gap: 4,
+  },
+
+  thumbWrapper: {
+    width: 46,
+    height: 46,
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+
+  thumbWrapperActive: {
+    borderColor: '#0a7ea4',
+  },
+
+  thumbImage: {
+    width: '100%',
+    height: '100%',
+  },
+
+    // Estilos del nuevo bloque de mapa
   mapCard: {
     backgroundColor: '#f7f7f7',
     borderRadius: 14,

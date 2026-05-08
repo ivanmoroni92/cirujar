@@ -58,10 +58,21 @@ class ProductService {
       };
 
       if (data.titulo) updatePayload.titulo = data.titulo;
-      if (data.detalles) updatePayload.detalles = data.detalles;
+      if (data.detalles !== undefined) {
+        updatePayload.detalles = data.detalles;
+      }
 
       return await ProductDAO.update(id, updatePayload);
     }
+
+  async deleteProduct(id: string) {
+      const deletedProduct = await ProductDAO.delete(id);
+      if (!deletedProduct) {
+          throw new Error('El producto no existe.');
+      }
+      return deletedProduct;
+  }
+
 }
 
 export default new ProductService();

@@ -16,4 +16,7 @@ router.get('/:id', ProductController.getById);
 //PATCH /api/products
 router.patch('/:id', upload.array('fotosNuevas', 4), ProductController.update);
 
+//DELETE /api/products/:id
+router.delete('/:id', ProductController.delete);
+
 export default router;

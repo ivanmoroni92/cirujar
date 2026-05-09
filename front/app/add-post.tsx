@@ -117,14 +117,10 @@ export default function AddPostScreen() {
   const validate = useCallback((): string[] => {
     const errs: string[] = [];
     const t = titulo.trim();
-    const u = ubicacion.trim();
     const d = detalles;
 
     if (!t || t.length < TITLE_MIN || t.length > TITLE_MAX) {
       errs.push(unresolvedMsg(LABEL_TITLE));
-    }
-    if (!u || u.length < UBIC_MIN || u.length > UBIC_MAX) {
-      errs.push(unresolvedMsg(LABEL_UBIC));
     }
     if (d.length > DESC_MAX) {
       errs.push(`La descripción no puede superar ${DESC_MAX} caracteres`);

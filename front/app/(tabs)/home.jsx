@@ -201,7 +201,7 @@ const renderItem = ({ item }) => (
         </View>
       ) : (
         <FlatList
-          data={posts}
+          data={posts.reverse()}
           keyExtractor={(item) => item.id}
           numColumns={3}
           renderItem={renderItem}

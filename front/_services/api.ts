@@ -134,3 +134,60 @@ export async function deleteProduct(id: string): Promise<void> {
     throw new Error(`Error ${response.status}: ${body}`);
   }
 }
+
+/** Same rule as backend: local@domain.tld */
+export function isValidEmailFormat(email: string): boolean {
+  const trimmed = email.trim();
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
+}
+
+export const REGISTER_EMAIL_ERROR = 'Ingresá un email válido';
+export const REGISTER_PASSWORD_ERROR = 'La contraseña debe tener al menos 6 caracteres';
+export const REGISTER_DUPLICATE_EMAIL_ERROR = 'Este email ya tiene una cuenta';
+
+export interface RegisterUserPayload {
+  alias: string;
+  email: string;
+  contraseña: string;
+}
+
+export interface ApiUser {
+  _id: string;
+  alias: string;
+  email: string;
+  imagenPerfil?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+/**
+ * POST /api/users — creates account (password hashed on server).
+ */
+export async function registerUser(payload: RegisterUserPayload): Promise<ApiUser> {
+  const res = await fetch(`${API_URL}/users`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      alias: payload.alias.trim(),
+      email: payload.email.trim(),
+      contraseña: payload.contraseña,
+    }),
+  });
+
+  if (res.status === 409) {
+    throw new Error(REGISTER_DUPLICATE_EMAIL_ERROR);
+  }
+
+  if (!res.ok) {
+    let message = res.statusText;
+    try {
+      const body = (await res.json()) as { error?: string };
+      if (body?.error) message = body.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<ApiUser>;
+}

@@ -172,7 +172,13 @@ const renderItem = ({ item }) => (
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <View style={styles.headerSpacer} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Iniciar sesión o registrarse"
+          onPress={() => router.push('/login')}
+          style={({ pressed }) => [styles.accountBtn, pressed && styles.accountBtnPressed]}>
+          <Text style={styles.accountBtnText}>Cuenta</Text>
+        </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Agregar publicación"
@@ -235,7 +241,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     paddingHorizontal: H_PADDING,
     paddingBottom: 12,
     backgroundColor: '#f0f0f0',
@@ -262,6 +268,22 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     flex: 1,
+  },
+  accountBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: '#e8e8e8',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ccc',
+  },
+  accountBtnPressed: {
+    opacity: 0.75,
+  },
+  accountBtnText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
   },
   addButton: {
     width: 40,

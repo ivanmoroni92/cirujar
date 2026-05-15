@@ -12,11 +12,53 @@
     }
   ],
   "tags": [
+    { "name": "auth", "description": "Login (JWT)" },
     { "name": "products", "description": "Publications / objects" },
     { "name": "storage", "description": "Image uploads (returns public URLs)" },
-    { "name": "users", "description": "User accounts (no JWT)" }
+    { "name": "users", "description": "User accounts" }
   ],
   "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Login",
+        "description": "Returns a JWT and public user fields. Use `Authorization: Bearer <token>` on protected routes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "contraseña"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "contraseña": { "type": "string", "format": "password" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT + user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["token", "user"],
+                  "properties": {
+                    "token": { "type": "string" },
+                    "user": { "$ref": "#/components/schemas/UserPublic" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
     "/products": {
       "get": {
         "tags": ["products"],
@@ -39,6 +81,7 @@
       "post": {
         "tags": ["products"],
         "summary": "Create a product",
+        "security": [{ "bearerAuth": [] }],
         "description": "Multipart form. `ubicacion` can be plain text (stored as ubicacionTexto) or JSON GeoJSON Point `{\"type\":\"Point\",\"coordinates\":[lng,lat]}`. Optional `ubicacionTexto` can be sent alongside JSON.",
         "requestBody": {
           "required": true,
@@ -107,6 +150,7 @@
       "patch": {
         "tags": ["products"],
         "summary": "Update a product",
+        "security": [{ "bearerAuth": [] }],
         "description": "Multipart. Send `fotosMantenidas` as JSON string array of URLs to keep, and new files in `fotosNuevas`. At least one photo (kept or new) is required.",
         "requestBody": {
           "content": {
@@ -146,6 +190,7 @@
       "delete": {
         "tags": ["products"],
         "summary": "Delete a product",
+        "security": [{ "bearerAuth": [] }],
         "responses": {
           "200": {
             "description": "Deleted",
@@ -169,6 +214,7 @@
       "post": {
         "tags": ["storage"],
         "summary": "Upload one image",
+        "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -205,6 +251,7 @@
       "post": {
         "tags": ["storage"],
         "summary": "Upload multiple images (max 10)",
+        "security": [{ "bearerAuth": [] }],
         "requestBody": {
           "required": true,
           "content": {
@@ -326,7 +373,8 @@
       "patch": {
         "tags": ["users"],
         "summary": "Update user (partial)",
-        "description": "Send at least one field. Password must be at least 6 characters if provided.",
+        "security": [{ "bearerAuth": [] }],
+        "description": "Send at least one field. Password must be at least 6 characters if provided. Token user id must match `:id`.",
         "requestBody": {
           "content": {
             "application/json": {
@@ -358,6 +406,14 @@
     }
   },
   "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "From POST /auth/login"
+      }
+    },
     "schemas": {
       "ErrorBody": {
         "type": "object",

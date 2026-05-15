@@ -1,6 +1,6 @@
 import axios, { type AxiosRequestConfig } from 'axios';
 import { API_URL } from '../_config';
-import { Platform } from 'react-native';
+import { getBearerAuthHeaders } from './authToken';
 
 /** Product shape returned by GET /api/products */
 export interface ApiProduct {
@@ -50,8 +50,10 @@ export async function createProduct(payload: CreateProductPayload): Promise<ApiP
     form.append('fotos', { uri, name: nameFromUri, type: mime } as unknown as Blob);
   }
 
+  const auth = await getBearerAuthHeaders();
   const res = await fetch(`${API_URL}/products`, {
     method: 'POST',
+    headers: auth,
     body: form,
   });
 
@@ -107,8 +109,10 @@ export async function fetchProductById(id: string): Promise<ApiProduct> {
 }
 
 export const updateProduct = async (id: string, data: FormData) => {
+  const auth = await getBearerAuthHeaders();
   const res = await fetch(`${API_URL}/products/${id}`, {
     method: 'PATCH', // ✅ era PUT
+    headers: auth,
     body: data,
   });
 
@@ -122,10 +126,12 @@ export const updateProduct = async (id: string, data: FormData) => {
 };
 
 export async function deleteProduct(id: string): Promise<void> {
- const response = await fetch(`${API_URL}/products/${id}`, {
+  const auth = await getBearerAuthHeaders();
+  const response = await fetch(`${API_URL}/products/${id}`, {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
+      ...auth,
     },
   });
 
@@ -190,4 +196,33 @@ export async function registerUser(payload: RegisterUserPayload): Promise<ApiUse
   }
 
   return res.json() as Promise<ApiUser>;
+}
+
+export interface LoginResponse {
+  token: string;
+  user: ApiUser;
+}
+
+/**
+ * POST /api/auth/login — returns JWT; store with {@link setStoredToken} from `./authToken`.
+ */
+export async function loginUser(email: string, contraseña: string): Promise<LoginResponse> {
+  const res = await fetch(`${API_URL}/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email: email.trim(), contraseña }),
+  });
+
+  if (!res.ok) {
+    let message = res.statusText;
+    try {
+      const body = (await res.json()) as { error?: string };
+      if (body?.error) message = body.error;
+    } catch {
+      /* ignore */
+    }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<LoginResponse>;
 }

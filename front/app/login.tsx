@@ -1,7 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter, type Href } from 'expo-router';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import {
+  ActivityIndicator,
+  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -12,15 +14,35 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { loginUser } from '@/_services/api';
+import { setStoredToken } from '@/_services/authToken';
+
 const PAD = 16;
 
-/**
- * Login screen (stub): no JWT per product scope; entry point after successful registration.
- */
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [contraseña, setContraseña] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+
+  const onLogin = useCallback(async () => {
+    const e = email.trim();
+    if (!e || !contraseña) {
+      Alert.alert('Faltan datos', 'Ingresá email y contraseña.');
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const { token } = await loginUser(e, contraseña);
+      await setStoredToken(token);
+      router.replace('/(tabs)/home' as Href);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'No se pudo iniciar sesión';
+      Alert.alert('Error', msg);
+    } finally {
+      setSubmitting(false);
+    }
+  }, [contraseña, email, router]);
 
   return (
     <>
@@ -42,7 +64,7 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.body}>
-            <Text style={styles.hint}>Ingresá con tu cuenta para continuar.</Text>
+            <Text style={styles.hint}>Ingresá con tu cuenta para publicar o editar.</Text>
 
             <Text style={styles.label}>Email</Text>
             <TextInput
@@ -64,11 +86,19 @@ export default function LoginScreen() {
             />
 
             <Pressable
-              onPress={() => router.replace('/(tabs)/home')}
-              style={({ pressed }) => [styles.primaryBtn, pressed && styles.primaryBtnPressed]}
+              onPress={onLogin}
+              disabled={submitting}
+              style={({ pressed }) => [
+                styles.primaryBtn,
+                (pressed || submitting) && styles.primaryBtnPressed,
+              ]}
               accessibilityRole="button"
               accessibilityLabel="Ingresar">
-              <Text style={styles.primaryBtnText}>Ingresar</Text>
+              {submitting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.primaryBtnText}>Ingresar</Text>
+              )}
             </Pressable>
 
             <Pressable

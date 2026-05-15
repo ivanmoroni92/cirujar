@@ -19,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { fetchProductById } from '@/_services/api';
 import { API_URL } from '@/_config';
+import { getBearerAuthHeaders } from '@/_services/authToken';
 
 const PAD = 16;
 const TITLE_MIN = 3;
@@ -168,8 +169,10 @@ export default function EditPostScreen() {
         }
       });
 
+      const auth = await getBearerAuthHeaders();
       const res = await fetch(`${API_URL}/products/${id}`, {
         method: 'PATCH',
+        headers: auth,
         body: formData,
       });
 

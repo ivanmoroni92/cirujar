@@ -1,0 +1,508 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Cirujar API",
+    "description": "REST API for the Cirujar academic app: products (publications), storage uploads, and users.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000/api",
+      "description": "Local development"
+    }
+  ],
+  "tags": [
+    { "name": "auth", "description": "Login (JWT)" },
+    { "name": "products", "description": "Publications / objects" },
+    { "name": "storage", "description": "Image uploads (returns public URLs)" },
+    { "name": "users", "description": "User accounts" }
+  ],
+  "paths": {
+    "/auth/login": {
+      "post": {
+        "tags": ["auth"],
+        "summary": "Login",
+        "description": "Returns a JWT and public user fields. Use `Authorization: Bearer <token>` on protected routes.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["email", "contraseña"],
+                "properties": {
+                  "email": { "type": "string", "format": "email" },
+                  "contraseña": { "type": "string", "format": "password" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "JWT + user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": ["token", "user"],
+                  "properties": {
+                    "token": { "type": "string" },
+                    "user": { "$ref": "#/components/schemas/UserPublic" }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "401": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": ["products"],
+        "summary": "List all products",
+        "responses": {
+          "200": {
+            "description": "Array of products",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Product" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "post": {
+        "tags": ["products"],
+        "summary": "Create a product",
+        "security": [{ "bearerAuth": [] }],
+        "description": "Multipart form. `ubicacion` can be plain text (stored as ubicacionTexto) or JSON GeoJSON Point `{\"type\":\"Point\",\"coordinates\":[lng,lat]}`. Optional `ubicacionTexto` can be sent alongside JSON.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["titulo"],
+                "properties": {
+                  "titulo": { "type": "string" },
+                  "detalles": { "type": "string" },
+                  "ubicacion": {
+                    "type": "string",
+                    "description": "Plain address text or JSON Point"
+                  },
+                  "ubicacionTexto": { "type": "string" },
+                  "fotos": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "binary" },
+                    "description": "Up to 4 images"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created product",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/products/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string" },
+          "description": "MongoDB ObjectId"
+        }
+      ],
+      "get": {
+        "tags": ["products"],
+        "summary": "Get product by id",
+        "responses": {
+          "200": {
+            "description": "Product",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "patch": {
+        "tags": ["products"],
+        "summary": "Update a product",
+        "security": [{ "bearerAuth": [] }],
+        "description": "Multipart. Send `fotosMantenidas` as JSON string array of URLs to keep, and new files in `fotosNuevas`. At least one photo (kept or new) is required.",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "titulo": { "type": "string" },
+                  "detalles": { "type": "string" },
+                  "fotosMantenidas": {
+                    "type": "string",
+                    "description": "JSON array string, e.g. [\"https://...\"]"
+                  },
+                  "fotosNuevas": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "binary" },
+                    "description": "Up to 4 new images"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated product",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/Product" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "delete": {
+        "tags": ["products"],
+        "summary": "Delete a product",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Deleted",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": { "type": "string", "example": "Publicación eliminada correctamente." }
+                  }
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/storage/imagen": {
+      "post": {
+        "tags": ["storage"],
+        "summary": "Upload one image",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["imagen"],
+                "properties": {
+                  "imagen": { "type": "string", "format": "binary" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Public URL",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": { "url": { "type": "string", "format": "uri" } },
+                  "required": ["url"]
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/storage/imagenes": {
+      "post": {
+        "tags": ["storage"],
+        "summary": "Upload multiple images (max 10)",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": ["imagenes"],
+                "properties": {
+                  "imagenes": {
+                    "type": "array",
+                    "items": { "type": "string", "format": "binary" },
+                    "maxItems": 10
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Public URLs",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "urls": {
+                      "type": "array",
+                      "items": { "type": "string", "format": "uri" }
+                    }
+                  },
+                  "required": ["urls"]
+                }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": ["users"],
+        "summary": "List all users",
+        "responses": {
+          "200": {
+            "description": "Users without passwords",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/UserPublic" }
+                }
+              }
+            }
+          },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "post": {
+        "tags": ["users"],
+        "summary": "Register a user",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserCreate" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Created user (password never returned)",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserPublic" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "409": {
+            "description": "Duplicate email",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorBody" },
+                "example": { "error": "Este email ya tiene una cuenta" }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "parameters": [
+        {
+          "name": "id",
+          "in": "path",
+          "required": true,
+          "schema": { "type": "string" }
+        }
+      ],
+      "get": {
+        "tags": ["users"],
+        "summary": "Get user by id",
+        "responses": {
+          "200": {
+            "description": "User",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserPublic" }
+              }
+            }
+          },
+          "404": { "$ref": "#/components/responses/Error" },
+          "500": { "$ref": "#/components/responses/Error" }
+        }
+      },
+      "patch": {
+        "tags": ["users"],
+        "summary": "Update user (partial)",
+        "security": [{ "bearerAuth": [] }],
+        "description": "Send at least one field. Password must be at least 6 characters if provided. Token user id must match `:id`.",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UserUpdate" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Updated user",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/UserPublic" }
+              }
+            }
+          },
+          "400": { "$ref": "#/components/responses/Error" },
+          "404": { "$ref": "#/components/responses/Error" },
+          "409": {
+            "description": "Duplicate email",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/ErrorBody" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "From POST /auth/login"
+      }
+    },
+    "schemas": {
+      "ErrorBody": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        },
+        "required": ["error"]
+      },
+      "GeoPoint": {
+        "type": "object",
+        "properties": {
+          "type": { "type": "string", "enum": ["Point"] },
+          "coordinates": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "items": { "type": "number" },
+            "description": "[longitude, latitude]"
+          }
+        },
+        "required": ["type", "coordinates"]
+      },
+      "Product": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "titulo": { "type": "string" },
+          "detalles": { "type": "string" },
+          "ubicacionTexto": { "type": "string" },
+          "ubicacion": { "$ref": "#/components/schemas/GeoPoint" },
+          "fotos": {
+            "type": "array",
+            "items": { "type": "string", "format": "uri" }
+          },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UserPublic": {
+        "type": "object",
+        "description": "User document as returned by the API (password is never included).",
+        "properties": {
+          "_id": { "type": "string" },
+          "alias": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "imagenPerfil": { "type": "string" },
+          "createdAt": { "type": "string", "format": "date-time" },
+          "updatedAt": { "type": "string", "format": "date-time" }
+        }
+      },
+      "UserCreate": {
+        "type": "object",
+        "required": ["alias", "email", "contraseña"],
+        "properties": {
+          "alias": { "type": "string" },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Must contain @ and a domain with a dot (server-validated)."
+          },
+          "contraseña": {
+            "type": "string",
+            "format": "password",
+            "minLength": 6,
+            "description": "Minimum 6 characters (enforced on server)."
+          },
+          "imagenPerfil": { "type": "string", "description": "Optional profile image URL" }
+        }
+      },
+      "UserUpdate": {
+        "type": "object",
+        "minProperties": 1,
+        "properties": {
+          "alias": { "type": "string" },
+          "email": { "type": "string", "format": "email" },
+          "contraseña": { "type": "string", "minLength": 6 },
+          "imagenPerfil": { "type": "string" }
+        }
+      }
+    },
+    "responses": {
+      "Error": {
+        "description": "Error",
+        "content": {
+          "application/json": {
+            "schema": { "$ref": "#/components/schemas/ErrorBody" }
+          }
+        }
+      }
+    }
+  }
+}

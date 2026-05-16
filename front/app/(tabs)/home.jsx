@@ -133,7 +133,7 @@ export default function Home() {
       return "hace: " + diffDays + "días";
     } else {
       return "hace: " + diffMonths + "meses";
-    } 
+    }
   }
   const { width: windowWidth } = useWindowDimensions();
   const cardWidth = useMemo(() => {
@@ -141,7 +141,7 @@ export default function Home() {
     return (windowWidth - H_PADDING * 2 - totalGaps) / 3;
   }, [windowWidth]);
 
-const renderItem = ({ item }) => (
+  const renderItem = ({ item }) => (
     <Pressable
       style={({ pressed }) => [
         styles.card,
@@ -167,18 +167,12 @@ const renderItem = ({ item }) => (
         </Text>
       </View>
     </Pressable>
-);
+  );
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Iniciar sesión o registrarse"
-          onPress={() => router.push('/login')}
-          style={({ pressed }) => [styles.accountBtn, pressed && styles.accountBtnPressed]}>
-          <Text style={styles.accountBtnText}>Cuenta</Text>
-        </Pressable>
+        <View style={styles.headerSpacer} />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Agregar publicación"
@@ -268,22 +262,6 @@ const styles = StyleSheet.create({
   },
   headerSpacer: {
     flex: 1,
-  },
-  accountBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#e8e8e8',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#ccc',
-  },
-  accountBtnPressed: {
-    opacity: 0.75,
-  },
-  accountBtnText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
   },
   addButton: {
     width: 40,

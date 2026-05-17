@@ -13,14 +13,16 @@ class ProductDAO {
    * Obtiene todos los productos
    */
   async findAll(): Promise<IProduct[]> {
-    return await Product.find();
+    return await Product.find()
+      .populate('usuario', 'alias imagenPerfil')
+      .sort({ createdAt: -1 });
   }
 
   /**
    * Obtiene un producto específico por su ID
    */
   async findById(id: string): Promise<IProduct | null> {
-    return await Product.findById(id);
+    return await Product.findById(id).populate('usuario', 'alias imagenPerfil');
   }
 
   /**

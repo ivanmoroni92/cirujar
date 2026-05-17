@@ -12,6 +12,7 @@ class ProductService {
       ubicacion?: { type: 'Point'; coordinates: [number, number] };
       ubicacionTexto?: string;
       detalles?: string;
+      usuario: string;
     },
     imageFiles: Express.Multer.File[] = []
   ) {
@@ -21,7 +22,12 @@ class ProductService {
       : [];
 
     // 2. Persistir el producto con las URLs ya resueltas
-    return await ProductDAO.create({ ...productData, fotos });
+    const created = await ProductDAO.create({ ...productData, fotos });
+    const populated = await ProductDAO.findById(String(created._id));
+    if (!populated) {
+      throw new Error('No se pudo cargar la publicación creada.');
+    }
+    return populated;
   }
 
   async getAllProducts() {

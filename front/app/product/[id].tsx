@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  ImageSourcePropType,
   Platform,
   Pressable,
   ScrollView,
@@ -256,6 +257,25 @@ function Content() {
             <View style={styles.body}>
               <Text style={styles.title}>{product.titulo}</Text>
 
+              <View style={styles.authorCard}>
+                <View style={styles.authorAvatarWrap}>
+                  {product.usuario?.imagenPerfil ? (
+                    <Image
+                      source={{ uri: product.usuario.imagenPerfil } as ImageSourcePropType}
+                      style={styles.authorAvatar}
+                    />
+                  ) : (
+                    <Ionicons name="person-outline" size={18} color="#5a6a84" />
+                  )}
+                </View>
+                <View style={styles.authorTextWrap}>
+                  <Text style={styles.authorLabel}>Publicado por</Text>
+                  <Text style={styles.authorAlias}>
+                    {product.usuario?.alias ? `@${product.usuario.alias}` : '@usuario'}
+                  </Text>
+                </View>
+              </View>
+
               <View style={styles.descriptionCard}>
                 <Text style={styles.descriptionLabel}>Descripción</Text>
                 <View style={styles.descriptionDivider} />
@@ -376,6 +396,44 @@ const styles = StyleSheet.create({
   },
 
   title: { fontSize: 26, fontWeight: '800', color: '#111' },
+
+  authorCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#f7f9fc',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#d7dfec',
+  },
+  authorAvatarWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e9eff8',
+  },
+  authorAvatar: {
+    width: '100%',
+    height: '100%',
+  },
+  authorTextWrap: {
+    flex: 1,
+  },
+  authorLabel: {
+    fontSize: 11,
+    color: '#6c7891',
+    marginBottom: 2,
+  },
+  authorAlias: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1b2940',
+  },
 
   descriptionCard: {
     backgroundColor: '#f7f7f7',

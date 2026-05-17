@@ -7,6 +7,11 @@ export interface ApiProduct {
   _id: string;
   titulo: string;
   detalles: string;
+  usuario?: {
+    _id: string;
+    alias: string;
+    imagenPerfil?: string;
+  };
   ubicacion?: {
     type: 'Point';
     coordinates: [number, number];

@@ -39,6 +39,7 @@ function mapProductToPost(product) {
     id: String(product._id),
     title: product.titulo ?? '',
     description: product.detalles ?? '',
+    publisherAlias: product.usuario?.alias?.trim() || 'Usuario desconocido',
     creation: product.createdAt ? new Date(product.createdAt) : new Date(),
     location,
     image: product.fotos?.[0] ?? '',
@@ -153,6 +154,9 @@ export default function Home() {
       <PostCardImage imageUri={item.image} />
       <Text style={styles.cardTitle} numberOfLines={2}>
         {item.title}
+      </Text>
+      <Text style={styles.publisher} numberOfLines={1}>
+        @{item.publisherAlias}
       </Text>
       <View style={styles.descRow}>
         <Text style={styles.description} numberOfLines={1}>
@@ -285,7 +289,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: H_PADDING,
-    paddingBottom: 24,
+    paddingBottom: 120, // espacio para la barra flotante (76px altura + 18px bottom + margen)
   },
   columnWrapper: {
     gap: COLUMN_GAP,
@@ -316,6 +320,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#111',
+    marginBottom: 4,
+  },
+  publisher: {
+    fontSize: 9,
+    color: '#2a6fd6',
+    fontWeight: '600',
     marginBottom: 6,
   },
   descRow: {

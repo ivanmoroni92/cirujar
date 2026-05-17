@@ -72,13 +72,13 @@ export async function createProduct(payload: CreateProductPayload): Promise<ApiP
 }
 
 export const get = async (resource: string, params?: AxiosRequestConfig['params']) => {
-    const url = `${API_URL}/${resource}`;
-  
-    return axios
-      .get(url, { params })
-      .then((response) => response.data)
-      .catch((error) => {
-        console.error(error);
+  const url = `${API_URL}/${resource}`;
+
+  return axios
+    .get(url, { params })
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error(error);
     });
 };
 
@@ -124,6 +124,97 @@ export const updateProduct = async (id: string, data: FormData) => {
 
   return res.json();
 };
+
+/**
+ * POST /api/storage/imagen — sube una imagen y devuelve la URL pública.
+ * @param imageUri URI local del archivo (file:// o content://)
+ * @param fileName Nombre de archivo explícito (recomendado, usar el que devuelve expo-image-picker)
+ * @param mimeType Tipo MIME explícito (recomendado, usar el que devuelve expo-image-picker)
+ */
+export async function uploadImage(
+  imageUri: string,
+  fileName?: string | null,
+  mimeType?: string | null,
+  webFile?: unknown,
+): Promise<string> {
+  const auth = await getBearerAuthHeaders();
+
+  // Preferir fileName/mimeType del picker (más confiables que parsear la URI)
+  const rawName = fileName ?? imageUri.split('/').pop() ?? 'photo.jpg';
+  // Limpiar el nombre: quitar query strings o fragmentos si los hubiera
+  const name = rawName.split('?')[0].split('#')[0] || 'photo.jpg';
+  const ext = name.includes('.') ? name.split('.').pop()?.toLowerCase() : 'jpg';
+  const mime = mimeType ?? (ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg');
+
+  const form = new FormData();
+  if (webFile) {
+    // Web: enviar File real del browser.
+    form.append('imagen', webFile as Blob);
+  } else {
+    // Native (Expo Go): enviar descriptor { uri, name, type }.
+    form.append('imagen', { uri: imageUri, name, type: mime } as any);
+  }
+
+  try {
+    const response = await axios.post(
+      `${API_URL}/storage/imagen`,
+      form,
+      {
+        headers: {
+          ...auth,
+        },
+      }
+    );
+
+    const data = response.data as { url?: string };
+    if (!data?.url) {
+      throw new Error('El backend no devolvió la URL de la imagen.');
+    }
+    return data.url;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      const status = error.response?.status;
+      const payload = error.response?.data;
+      const message =
+        typeof payload?.error === 'string'
+          ? payload.error
+          : typeof payload === 'string'
+            ? payload
+            : error.message;
+
+      throw new Error(`Error al subir imagen: ${status ?? 'network'} ${message}`);
+    }
+
+    throw error;
+  }
+}
+
+/**
+ * PATCH /api/users/:id — actualiza campos del usuario.
+ * Requiere que el JWT pertenezca al mismo usuario (requireAuthSelf).
+ */
+export async function updateUser(
+  id: string,
+  data: { imagenPerfil?: string; alias?: string; email?: string }
+): Promise<ApiUser> {
+  const auth = await getBearerAuthHeaders();
+  const res = await fetch(`${API_URL}/users/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...auth },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    let message = res.statusText;
+    try {
+      const body = (await res.json()) as { error?: string };
+      if (body?.error) message = body.error;
+    } catch { /* ignore */ }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<ApiUser>;
+}
 
 export async function deleteProduct(id: string): Promise<void> {
   const auth = await getBearerAuthHeaders();

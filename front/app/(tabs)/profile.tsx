@@ -1,10 +1,14 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
+import * as ImagePicker from 'expo-image-picker';
 import { useRouter, type Href } from 'expo-router';
 import { useCallback, useMemo, useRef, useState } from 'react';
 import {
+    ActivityIndicator,
+    Alert,
     Animated,
     Easing,
+    Image,
     KeyboardAvoidingView,
     Platform,
     Pressable,
@@ -15,8 +19,8 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import type { ApiUser } from '@/_services/api';
-import { clearAuth, getStoredToken, getStoredUser } from '@/_services/authToken';
+import { uploadImage, updateUser, type ApiUser } from '@/_services/api';
+import { clearAuth, getStoredToken, getStoredUser, setStoredUser } from '@/_services/authToken';
 
 const PAD = 24;
 const AVATAR_SIZE = 120;
@@ -28,6 +32,7 @@ export default function ProfileScreen() {
     const [user, setUser] = useState<ApiUser | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [uploading, setUploading] = useState(false);
 
     const avatarAnim = useRef(new Animated.Value(0)).current;
     const contentAnim = useRef(new Animated.Value(0)).current;
@@ -130,6 +135,52 @@ export default function ProfileScreen() {
         router.replace('/login' as Href);
     }, [router]);
 
+    const handleAvatarPress = useCallback(async () => {
+        if (!user) return;
+
+        const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+        if (!permission.granted) return;
+
+        const result = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [1, 1],
+            quality: 0.8,
+        });
+
+        if (result.canceled || !result.assets?.[0]?.uri) return;
+
+        // Usar fileName y mimeType del asset directamente para evitar problemas
+        // con URIs content:// en Android que no se parsean bien desde la ruta
+        const asset = result.assets[0];
+        const uri = asset.uri;
+        const fileName = asset.fileName ?? null;
+        const mimeType = asset.mimeType ?? null;
+        const webFile = 'file' in asset ? asset.file : undefined;
+
+        try {
+            setUploading(true);
+            const url = await uploadImage(uri, fileName, mimeType, webFile);
+            console.log('[avatar] URL subida:', url);
+
+            // Actualizar backend
+            const updated = await updateUser(user._id, { imagenPerfil: url });
+            console.log('[avatar] Usuario actualizado por backend:', updated);
+
+            // Usar la URL confirmada para garantizar que el estado local refleje el cambio
+            // aunque el backend no devuelva imagenPerfil en la respuesta
+            const finalUser: ApiUser = { ...user, ...updated, imagenPerfil: url };
+            await setStoredUser(finalUser);
+            setUser(finalUser);
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Error al subir la foto';
+            // Mostrar como alerta en lugar de setError para no ocultar el perfil
+            Alert.alert('Error al subir foto', msg);
+        } finally {
+            setUploading(false);
+        }
+    }, [user]);
+
     if (loading) {
         return (
             <SafeAreaView style={styles.safe} edges={['top']}>
@@ -175,10 +226,26 @@ export default function ProfileScreen() {
                         <Animated.View style={[styles.avatarSection, avatarStyle]}>
                             <View style={styles.avatarContainer}>
                                 <View style={styles.avatar}>
-                                    <Ionicons name="person" size={AVATAR_ICON_SIZE} color={SOFT_BLUE} />
+                                    {user.imagenPerfil ? (
+                                        <Image
+                                            key={user.imagenPerfil}
+                                            source={{ uri: user.imagenPerfil }}
+                                            style={styles.avatarImage}
+                                            onError={(e) => console.log('[avatar] Error cargando imagen:', e.nativeEvent)}
+                                        />
+                                    ) : (
+                                        <Ionicons name="person" size={AVATAR_ICON_SIZE} color={SOFT_BLUE} />
+                                    )}
                                 </View>
-                                <Pressable style={styles.editAvatarBtn}>
-                                    <Ionicons name="camera" size={20} color="#fff" />
+                                <Pressable
+                                    style={[styles.editAvatarBtn, uploading && styles.editAvatarBtnDisabled]}
+                                    onPress={handleAvatarPress}
+                                    disabled={uploading}>
+                                    {uploading ? (
+                                        <ActivityIndicator size="small" color="#fff" />
+                                    ) : (
+                                        <Ionicons name="camera" size={20} color="#fff" />
+                                    )}
                                 </Pressable>
                             </View>
                         </Animated.View>
@@ -238,7 +305,7 @@ const styles = StyleSheet.create({
         flexGrow: 1,
         paddingHorizontal: PAD,
         paddingTop: 40,
-        paddingBottom: 34,
+        paddingBottom: 120, // espacio para la barra flotante (76px altura + 18px bottom + margen)
     },
     bgBlobTop: {
         position: 'absolute',
@@ -304,11 +371,17 @@ const styles = StyleSheet.create({
         borderColor: SOFT_BLUE,
         alignItems: 'center',
         justifyContent: 'center',
+        overflow: 'hidden',
         shadowColor: '#245aa8',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.15,
         shadowRadius: 16,
         elevation: 6,
+    },
+    avatarImage: {
+        width: AVATAR_SIZE,
+        height: AVATAR_SIZE,
+        borderRadius: AVATAR_SIZE / 2,
     },
     editAvatarBtn: {
         position: 'absolute',
@@ -325,6 +398,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.3,
         shadowRadius: 8,
         elevation: 4,
+    },
+    editAvatarBtnDisabled: {
+        opacity: 0.6,
     },
     contentSection: {
         flex: 1,

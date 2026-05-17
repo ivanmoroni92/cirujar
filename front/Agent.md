@@ -23,7 +23,7 @@ front/
 │   ├── add-post.tsx       # Crear publicación
 │   ├── modal.tsx          # Modal overlay
 │   ├── (tabs)/            # Stack con tabs navigation
-│   │   ├── _layout.tsx    # Tab navigation (Home + Profile)
+│   │   ├── _layout.tsx    # Floating tab navigation premium (Home + Profile center action)
 │   │   ├── home.jsx       # Feed de productos (grid 3 col)
 │   │   └── profile.tsx    # Perfil usuario (CONTROL PRINCIPAL)
 │   ├── edit/              # Stack dinámico
@@ -92,8 +92,8 @@ redirect "/(tabs)/home" → entra al tab navigation
 ### 4. **Tab Navigation (app/(tabs)/_layout.tsx)**
 ```
 Dos tabs disponibles:
-├─ Tab 1: "home" (icon: search) → app/(tabs)/home.jsx
-└─ Tab 2: "profile" (icon: person-circle) → app/(tabs)/profile.tsx
+├─ Tab 1: "home" (icon: home-outline, lado izquierdo) → app/(tabs)/home.jsx
+└─ Tab 2: "profile" (icon: person-outline, botón central elevado) → app/(tabs)/profile.tsx
 ```
 
 ---
@@ -219,15 +219,13 @@ export default function TabLayout() {
       <Tabs.Screen
         name="home"
         options={{
-          title: "Inicio",
-          tabBarIcon: ({ color }) => <Ionicons name="search" ... />
+          tabBarIcon: ({ color }) => <Ionicons name="home-outline" ... />
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: "Perfil",
-          tabBarIcon: ({ color }) => <Ionicons name="person-circle" ... />
+          tabBarIcon: ({ color }) => <Ionicons name="person-outline" ... />
         }}
       />
     </Tabs>
@@ -236,9 +234,14 @@ export default function TabLayout() {
 ```
 
 **Estilos**:
-- Border superior minimalista (#e9f0fc)
-- Iconos de Ionicons
-- Labels visibles
+- Barra flotante con bordes muy redondeados (look iOS premium)
+- Fondo claro con estilo glassmorphism suave (`rgba(248, 251, 255, 0.94)`)
+- Sombras modernas para efecto de profundidad y estética tecnológica
+- Solo 2 iconos visibles, sin labels (`tabBarShowLabel: false`)
+- Home minimalista en la izquierda dentro de cápsula suave
+- Botón de Profile central elevado, circular y más grande, color azul principal
+- Estado activo con realce vertical: el tab seleccionado sobresale hacia arriba
+- Microinteracciones: escalado suave + elevación para Home activo; glow, escala y elevación para Profile activo
 
 ---
 
@@ -632,20 +635,22 @@ DELETE /api/products/:id        → 204 No Content
 
 ---
 
-## ❌ Problemas Conocidos
+## ✅ Incidencias Resueltas
 
-### **Problema**: Profile muestra "Cargando..." infinito
-**Solución Implementada**:
-- ✅ Logging en `getStoredUser()` + `setStoredUser()` para rastrear AsyncStorage
-- ✅ Fallback: si no hay usuario en storage pero hay token → fetch backend
-- ✅ Error state: muestra mensaje de error en lugar de carga infinita
-- ✅ Validación: redirige a login si no hay token
+### **Resuelto**: Profile mostraba "Cargando..." infinito
+**Resultado actual**:
+- ✅ Perfil funcional y estable en navegación por tabs
+- ✅ Persistencia de usuario en AsyncStorage operativa
+- ✅ Carga de perfil correcta al enfocar tab
+- ✅ Manejo de error y fallback implementado
 
-**Debugging Next**:
-1. Abre console del emulador/dispositivo
-2. Login y verifica logs de `[setStoredUser]` y `[getStoredUser]`
-3. Si logs muestran null → investigar serialización de ApiUser
-4. Si logs ok pero profile aún vacío → verificar componentes de renderizado
+### **En progreso**: Upload de avatar en Profile
+**Estado técnico actual**:
+- ✅ Selección de imagen desde galería implementada
+- ✅ Flujo de persistencia implementado: `POST /api/storage/imagen` + `PATCH /api/users/:id`
+- ✅ Actualización local de estado y AsyncStorage implementada
+- ✅ Transporte de multipart ajustado a Axios para mejorar compatibilidad en Expo/Android
+- ✅ Ajuste Web: se envía `File` real del navegador (no descriptor `uri`) para evitar `No se recibió ningún archivo`
 
 ---
 
@@ -653,7 +658,7 @@ DELETE /api/products/:id        → 204 No Content
 
 - [ ] **Validar AsyncStorage**: Correr app en emulador/device y revisar console logs
 - [ ] **Stats en Profile**: Implementar conteos (publicaciones, seguidores, siguiendo) desde backend
-- [ ] **Avatar Upload**: Permitir usuario cambiar avatar (multipart form)
+- [x] **Avatar Upload**: Permitir usuario cambiar avatar (multipart form)
 - [ ] **Edición Perfil**: Pantalla para editar nombre, email, bio
 - [ ] **Imagen Productos**: Implementar upload en add-post.tsx (camera/gallery)
 - [ ] **Detalles Producto**: Completar product/[id].tsx con opciones editar/eliminar
@@ -674,8 +679,24 @@ DELETE /api/products/:id        → 204 No Content
 5. **Ve a _services/api.ts** si agregas nuevos endpoints
 6. **Verifica los console.log()** para debugging
 
+### Comandos útiles de arranque (Expo)
+- `npm run start:tunnel`: recomendado para probar en celular físico con Expo Go cuando LAN falla
+- `npm run start:lan`: usar solo si PC y celular están en la misma Wi-Fi sin VPN/datos móviles
+
+### Error frecuente en Expo Go
+**Mensaje**: `Uncaught Error: java.io.IOException: Failed to download remote update`
+
+**Causa típica**:
+- Expo Go no logra descargar el bundle JS desde el host local (red, firewall o modo LAN)
+
+**Resolución recomendada**:
+1. Cerrar Expo Go
+2. Ejecutar `npm run start:tunnel`
+3. Escanear el nuevo QR en Expo Go
+4. Si persiste: actualizar Expo Go desde Play Store y limpiar cache de la app
+
 ---
 
-**Última Actualización**: 16 Mayo 2026  
-**Estado**: Autenticación + Profile + Feed implementados  
-**Próximo Check**: Validar AsyncStorage persistence con console logs
+**Última Actualización**: 17 Mayo 2026 (fix multipart web + native para avatar)  
+**Estado**: Autenticación + Profile estable + Avatar upload en marcha + Feed + Tab bar premium flotante implementados  
+**Próximo Check**: Validación E2E de subida de avatar en Expo Go (dispositivo físico)

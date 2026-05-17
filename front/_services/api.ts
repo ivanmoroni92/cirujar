@@ -161,35 +161,35 @@ export async function uploadImage(
   }
 
   try {
-    const response = await axios.post(
-      `${API_URL}/storage/imagen`,
-      form,
-      {
-        headers: {
-          ...auth,
-        },
-      }
-    );
+    const response = await fetch(`${API_URL}/storage/imagen`, {
+      method: 'POST',
+      headers: {
+        ...auth,
+      },
+      body: form,
+    });
 
-    const data = response.data as { url?: string };
+    if (!response.ok) {
+      let message = response.statusText;
+      try {
+        const body = (await response.json()) as { error?: string };
+        if (body?.error) message = body.error;
+      } catch {
+        try {
+          message = await response.text();
+        } catch {
+          /* ignore */
+        }
+      }
+      throw new Error(`Error al subir imagen: ${response.status} ${message}`);
+    }
+
+    const data = (await response.json()) as { url?: string };
     if (!data?.url) {
       throw new Error('El backend no devolvió la URL de la imagen.');
     }
     return data.url;
   } catch (error: unknown) {
-    if (axios.isAxiosError(error)) {
-      const status = error.response?.status;
-      const payload = error.response?.data;
-      const message =
-        typeof payload?.error === 'string'
-          ? payload.error
-          : typeof payload === 'string'
-            ? payload
-            : error.message;
-
-      throw new Error(`Error al subir imagen: ${status ?? 'network'} ${message}`);
-    }
-
     throw error;
   }
 }

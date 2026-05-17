@@ -184,6 +184,20 @@ const handleLogin = async () => {
 - Email inválido → "Email inválido"
 - Error backend → muestra mensaje del servidor
 
+### **app/register.tsx** - Pantalla de Registro
+**Propósito**: Alta de usuario
+
+**Diseño**:
+- Unificado con login: mismos blobs de fondo, card blanca, tipografía y jerarquía visual
+- Inputs con íconos inline, bordes azules redondeados y errores inline en rojo suave
+- Botón principal con gradiente azul y microinteracción de escala
+- Logo y animaciones de entrada consistentes con login
+
+**Flujo**:
+- Validación de alias/email/contraseña
+- `registerUser(...)` al backend
+- Redirección a `/login` al registrarse correctamente
+
 ---
 
 ### **app/(tabs)/home.jsx** - Feed de Productos
@@ -700,6 +714,6 @@ DELETE /api/products/:id        → 204 No Content
 
 ---
 
-**Última Actualización**: 17 Mayo 2026 (alias editable inline en profile)  
-**Estado**: Autenticación + Profile estable + Avatar upload + Alias editable + Avatar visible en tabs + Feed + Tab bar premium flotante implementados  
+**Última Actualización**: 17 Mayo 2026 (estilo de register unificado con login)  
+**Estado**: Autenticación + Login/Register visualmente unificados + Profile estable + Avatar upload + Alias editable + Avatar visible en tabs + Feed + Tab bar premium flotante implementados  
 **Próximo Check**: Validación E2E de subida de avatar en Expo Go (dispositivo físico)

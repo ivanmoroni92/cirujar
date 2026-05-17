@@ -13,7 +13,15 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchProductById, deleteProduct, type ApiProduct } from '@/_services/api';
+import { PostAuthorRow } from '@/components/post-author-row';
+import {
+  fetchProductById,
+  deleteProduct,
+  getProductAuthor,
+  getProductOwnerId,
+  type ApiProduct,
+} from '@/_services/api';
+import { getStoredUserId } from '@/_services/authToken';
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
@@ -36,6 +44,7 @@ function Content() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const carouselRef = useRef<ScrollView>(null);
 
@@ -46,6 +55,10 @@ function Content() {
       .catch((e) => setError(e?.message ?? 'Error al cargar el producto'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  useEffect(() => {
+    getStoredUserId().then(setCurrentUserId);
+  }, []);
 
   const goTo = (index: number) => {
     carouselRef.current?.scrollTo({ x: index * width, animated: true });
@@ -78,6 +91,11 @@ function Content() {
   );
 };
 
+  const author = product ? getProductAuthor(product) : null;
+  const ownerId = product ? getProductOwnerId(product) : null;
+  const isOwnPost =
+    Boolean(currentUserId && ownerId && currentUserId === ownerId);
+
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       {/* HEADER */}
@@ -96,32 +114,38 @@ function Content() {
           Detalle de la publicación
         </Text>
 
-        <View style={styles.headerActions}>
-          <Pressable
-            onPress={handleDelete}
-            style={({ pressed }) => [
-              styles.headerBtn,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons name="trash-outline" size={22} color="#d11a2a" />
-          </Pressable>
+        {isOwnPost ? (
+          <View style={styles.headerActions}>
+            <Pressable
+              onPress={handleDelete}
+              style={({ pressed }) => [
+                styles.headerBtn,
+                pressed && styles.pressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Eliminar publicación">
+              <Ionicons name="trash-outline" size={22} color="#d11a2a" />
+            </Pressable>
 
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: '/edit/[id]',
-                params: { id },
-              })
-            }
-            style={({ pressed }) => [
-              styles.headerBtn,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons name="create-outline" size={22} color="#111" />
-          </Pressable>
-        </View>
+            <Pressable
+              onPress={() =>
+                router.push({
+                  pathname: '/edit/[id]',
+                  params: { id },
+                })
+              }
+              style={({ pressed }) => [
+                styles.headerBtn,
+                pressed && styles.pressed,
+              ]}
+              accessibilityRole="button"
+              accessibilityLabel="Editar publicación">
+              <Ionicons name="create-outline" size={22} color="#111" />
+            </Pressable>
+          </View>
+        ) : (
+          <View style={styles.headerSide} />
+        )}
       </View>
 
       {/* CONTENIDO */}
@@ -241,6 +265,12 @@ function Content() {
             {/* BODY */}
             <View style={styles.body}>
               <Text style={styles.title}>{product.titulo}</Text>
+              {author ? (
+                <PostAuthorRow
+                  alias={author.alias}
+                  imagenPerfil={author.imagenPerfil}
+                />
+              ) : null}
 
               <View style={styles.descriptionCard}>
                 <Text style={styles.descriptionLabel}>Descripción</Text>
@@ -310,6 +340,8 @@ const styles = StyleSheet.create({
   },
 
   headerBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
+
+  headerSide: { width: 40 },
 
   headerTitle: { fontSize: 17, fontWeight: '600', color: '#111' },
 

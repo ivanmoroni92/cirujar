@@ -16,6 +16,7 @@ import {
     ScrollView,
     StyleSheet,
     Text,
+    TextInput,
     View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -34,6 +35,9 @@ export default function ProfileScreen() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [uploading, setUploading] = useState(false);
+    const [isEditingAlias, setIsEditingAlias] = useState(false);
+    const [aliasInput, setAliasInput] = useState('');
+    const [savingAlias, setSavingAlias] = useState(false);
 
     const avatarAnim = useRef(new Animated.Value(0)).current;
     const contentAnim = useRef(new Animated.Value(0)).current;
@@ -68,6 +72,7 @@ export default function ProfileScreen() {
                     if (!active) return;
 
                     setUser(storedUser);
+                    setAliasInput(storedUser.alias ?? '');
                     setError(null);
                     setLoading(false);
 
@@ -184,6 +189,43 @@ export default function ProfileScreen() {
         }
     }, [user]);
 
+    const handleAliasButtonPress = useCallback(async () => {
+        if (!user) return;
+
+        if (!isEditingAlias) {
+            setAliasInput(user.alias ?? '');
+            setIsEditingAlias(true);
+            return;
+        }
+
+        const nextAlias = aliasInput.trim();
+        if (!nextAlias) {
+            Alert.alert('Alias inválido', 'El alias no puede estar vacío.');
+            return;
+        }
+
+        if (nextAlias === user.alias) {
+            setIsEditingAlias(false);
+            return;
+        }
+
+        try {
+            setSavingAlias(true);
+            const updated = await updateUser(user._id, { alias: nextAlias });
+            const finalUser: ApiUser = { ...user, ...updated, alias: nextAlias };
+            await setStoredUser(finalUser);
+            setUser(finalUser);
+            setAliasInput(nextAlias);
+            setIsEditingAlias(false);
+            DeviceEventEmitter.emit('cirujar:auth-user-updated');
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : 'Error al actualizar alias';
+            Alert.alert('Error al actualizar alias', msg);
+        } finally {
+            setSavingAlias(false);
+        }
+    }, [aliasInput, isEditingAlias, user]);
+
     if (loading) {
         return (
             <SafeAreaView style={styles.safe} edges={['top']}>
@@ -255,9 +297,33 @@ export default function ProfileScreen() {
 
                         <Animated.View style={[styles.contentSection, contentStyle]}>
                             <View style={styles.usernameRow}>
-                                <Text style={styles.username}>@{user.alias}</Text>
-                                <Pressable style={styles.editUsernameBtn}>
-                                    <Ionicons name="pencil" size={16} color={SOFT_BLUE} />
+                                {isEditingAlias ? (
+                                    <TextInput
+                                        value={aliasInput}
+                                        onChangeText={setAliasInput}
+                                        style={styles.usernameInput}
+                                        autoCapitalize="none"
+                                        autoCorrect={false}
+                                        maxLength={30}
+                                        returnKeyType="done"
+                                        onSubmitEditing={handleAliasButtonPress}
+                                    />
+                                ) : (
+                                    <Text style={styles.username}>@{user.alias}</Text>
+                                )}
+                                <Pressable
+                                    style={[styles.editUsernameBtn, savingAlias && styles.editUsernameBtnDisabled]}
+                                    onPress={handleAliasButtonPress}
+                                    disabled={savingAlias}>
+                                    {savingAlias ? (
+                                        <ActivityIndicator size="small" color={SOFT_BLUE} />
+                                    ) : (
+                                        <Ionicons
+                                            name={isEditingAlias ? 'checkmark' : 'pencil'}
+                                            size={16}
+                                            color={SOFT_BLUE}
+                                        />
+                                    )}
                                 </Pressable>
                             </View>
 
@@ -423,6 +489,21 @@ const styles = StyleSheet.create({
     },
     editUsernameBtn: {
         padding: 6,
+    },
+    editUsernameBtnDisabled: {
+        opacity: 0.65,
+    },
+    usernameInput: {
+        minWidth: 150,
+        maxWidth: 240,
+        fontSize: 22,
+        fontWeight: '700',
+        color: '#192334',
+        textAlign: 'center',
+        borderBottomWidth: 2,
+        borderBottomColor: '#9cbcf0',
+        paddingVertical: 2,
+        paddingHorizontal: 6,
     },
     email: {
         fontSize: 14,

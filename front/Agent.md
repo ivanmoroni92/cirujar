@@ -652,6 +652,7 @@ DELETE /api/products/:id        → 204 No Content
 - ✅ Transporte de multipart ajustado a Axios para mejorar compatibilidad en Expo/Android
 - ✅ Ajuste Web: se envía `File` real del navegador (no descriptor `uri`) para evitar `No se recibió ningún archivo`
 - ✅ Tabs muestran el avatar subido en el icono de Perfil y se refrescan al cambiar la foto
+- ✅ Alias editable en Profile: lápiz habilita edición inline y check guarda en backend + AsyncStorage
 
 ---
 
@@ -661,6 +662,7 @@ DELETE /api/products/:id        → 204 No Content
 - [ ] **Stats en Profile**: Implementar conteos (publicaciones, seguidores, siguiendo) desde backend
 - [x] **Avatar Upload**: Permitir usuario cambiar avatar (multipart form)
 - [ ] **Edición Perfil**: Pantalla para editar nombre, email, bio
+- [x] **Edición Perfil**: Alias editable inline en profile.tsx
 - [ ] **Imagen Productos**: Implementar upload en add-post.tsx (camera/gallery)
 - [ ] **Detalles Producto**: Completar product/[id].tsx con opciones editar/eliminar
 - [ ] **Búsqueda**: Implementar filtro/búsqueda en home.jsx
@@ -698,6 +700,6 @@ DELETE /api/products/:id        → 204 No Content
 
 ---
 
-**Última Actualización**: 17 Mayo 2026 (avatar visible también en tabs)  
-**Estado**: Autenticación + Profile estable + Avatar upload en marcha + Avatar visible en tabs + Feed + Tab bar premium flotante implementados  
+**Última Actualización**: 17 Mayo 2026 (alias editable inline en profile)  
+**Estado**: Autenticación + Profile estable + Avatar upload + Alias editable + Avatar visible en tabs + Feed + Tab bar premium flotante implementados  
 **Próximo Check**: Validación E2E de subida de avatar en Expo Go (dispositivo físico)

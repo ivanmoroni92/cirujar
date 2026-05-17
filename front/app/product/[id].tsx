@@ -4,6 +4,7 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,7 +12,7 @@ import {
   View,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchProductById, deleteProduct, type ApiProduct } from '@/_services/api';
 
@@ -53,30 +54,43 @@ function Content() {
   };
 
   const handleDelete = () => {
-  const productId = Array.isArray(id) ? id[0] : id; 
-  if (!productId) return;
+    const productId = Array.isArray(id) ? id[0] : id;
+    if (!productId) return;
 
-  Alert.alert(
-    'Eliminar publicación',
-    '¿Estás seguro de que querés eliminar esta publicación?',
-    [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteProduct(productId); 
-            Alert.alert('Publicación eliminada', 'La publicación fue eliminada correctamente');
-            router.replace('/(tabs)/home');
-          } catch (e) {
-            Alert.alert('Error', 'No se pudo eliminar la publicación');
-          }
-        },
-      },
-    ]
-  );
-};
+    const doDelete = async () => {
+      try {
+        await deleteProduct(productId);
+        if (Platform.OS === 'web') {
+          window.alert('La publicación fue eliminada correctamente');
+        } else {
+          Alert.alert('Publicación eliminada', 'La publicación fue eliminada correctamente');
+        }
+        router.replace('/(tabs)/home');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'No se pudo eliminar la publicación';
+        if (Platform.OS === 'web') {
+          window.alert(`Error: ${msg}`);
+        } else {
+          Alert.alert('Error', msg);
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('¿Estás seguro de que querés eliminar esta publicación?')) {
+        doDelete();
+      }
+    } else {
+      Alert.alert(
+        'Eliminar publicación',
+        '¿Estás seguro de que querés eliminar esta publicación?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Eliminar', style: 'destructive', onPress: doDelete },
+        ]
+      );
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -318,7 +332,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 2,
   },
-  
+
   pressed: { opacity: 0.75 },
 
   carouselWrapper: { position: 'relative' },

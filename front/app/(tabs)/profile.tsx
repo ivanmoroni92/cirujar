@@ -38,6 +38,7 @@ export default function ProfileScreen() {
     const [isEditingAlias, setIsEditingAlias] = useState(false);
     const [aliasInput, setAliasInput] = useState('');
     const [savingAlias, setSavingAlias] = useState(false);
+    const [aliasError, setAliasError] = useState<string | null>(null);
 
     const avatarAnim = useRef(new Animated.Value(0)).current;
     const contentAnim = useRef(new Animated.Value(0)).current;
@@ -194,13 +195,14 @@ export default function ProfileScreen() {
 
         if (!isEditingAlias) {
             setAliasInput(user.alias ?? '');
+            setAliasError(null);
             setIsEditingAlias(true);
             return;
         }
 
         const nextAlias = aliasInput.trim();
         if (!nextAlias) {
-            Alert.alert('Alias inválido', 'El alias no puede estar vacío.');
+            setAliasError('El nombre no puede estar vacío');
             return;
         }
 
@@ -216,6 +218,7 @@ export default function ProfileScreen() {
             await setStoredUser(finalUser);
             setUser(finalUser);
             setAliasInput(nextAlias);
+            setAliasError(null);
             setIsEditingAlias(false);
             DeviceEventEmitter.emit('cirujar:auth-user-updated');
         } catch (err) {
@@ -300,8 +303,8 @@ export default function ProfileScreen() {
                                 {isEditingAlias ? (
                                     <TextInput
                                         value={aliasInput}
-                                        onChangeText={setAliasInput}
-                                        style={styles.usernameInput}
+                                        onChangeText={(v) => { setAliasInput(v); if (aliasError) setAliasError(null); }}
+                                        style={[styles.usernameInput, aliasError ? styles.usernameInputError : null]}
                                         autoCapitalize="none"
                                         autoCorrect={false}
                                         maxLength={30}
@@ -326,6 +329,9 @@ export default function ProfileScreen() {
                                     )}
                                 </Pressable>
                             </View>
+                            {aliasError ? (
+                                <Text style={styles.aliasErrorText}>{aliasError}</Text>
+                            ) : null}
 
                             <Text style={styles.email}>{user.email}</Text>
 
@@ -504,6 +510,16 @@ const styles = StyleSheet.create({
         borderBottomColor: '#9cbcf0',
         paddingVertical: 2,
         paddingHorizontal: 6,
+    },
+    usernameInputError: {
+        borderBottomColor: '#d11a2a',
+    },
+    aliasErrorText: {
+        fontSize: 12,
+        color: '#d11a2a',
+        textAlign: 'center',
+        marginTop: 4,
+        marginBottom: -8,
     },
     email: {
         fontSize: 14,

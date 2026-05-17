@@ -19,12 +19,14 @@ function ProfileAvatarIcon({ color, focused, user }: { color: string; focused: b
   const avatarUri = user?.imagenPerfil?.trim();
 
   return (
-    <View style={[styles.profileAvatarWrap, focused && styles.profileAvatarWrapFocused]}>
-      {avatarUri ? (
-        <Image source={{ uri: avatarUri }} style={styles.profileAvatarImage} />
-      ) : (
-        <Ionicons name="person-outline" size={28} color={color} />
-      )}
+    <View style={[styles.profileAvatarShadow, focused && styles.profileAvatarShadowFocused]}>
+      <View style={styles.profileAvatarClip}>
+        {avatarUri ? (
+          <Image source={{ uri: avatarUri }} style={styles.profileAvatarImage} />
+        ) : (
+          <Ionicons name="person-outline" size={26} color={color} />
+        )}
+      </View>
     </View>
   );
 }
@@ -242,26 +244,41 @@ const styles = StyleSheet.create({
     borderRadius: 36,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#2a6fd6',
-    shadowColor: '#3e63ff',
+    backgroundColor: '#ffffff',
+    shadowColor: '#1a3a6b',
     shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.3,
-    shadowRadius: 18,
+    shadowOpacity: 0.18,
+    shadowRadius: 20,
     elevation: 10,
   },
-  profileAvatarWrap: {
-    width: 58,
-    height: 58,
-    borderRadius: 29,
+  profileAvatarShadow: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: '#eef2fb',
+    borderWidth: 1.5,
+    borderColor: 'rgba(41, 111, 214, 0.18)',
+    shadowColor: '#1a3a6b',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  profileAvatarShadowFocused: {
+    borderColor: 'rgba(41, 111, 214, 0.45)',
+    borderWidth: 2,
+    shadowOpacity: 0.28,
+    shadowRadius: 12,
+    elevation: 9,
+  },
+  profileAvatarClip: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f3f7ff',
-    borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.85)',
-    overflow: 'hidden',
-  },
-  profileAvatarWrapFocused: {
-    borderColor: 'rgba(255, 255, 255, 1)',
+    backgroundColor: '#eef2fb',
   },
   profileAvatarImage: {
     width: '100%',

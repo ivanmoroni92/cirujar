@@ -2,52 +2,24 @@ import axios, { type AxiosRequestConfig } from 'axios';
 import { API_URL } from '../_config';
 import { getBearerAuthHeaders } from './authToken';
 
-export interface ApiProductAuthor {
-  _id: string;
-  alias: string;
-  imagenPerfil?: string;
-}
-
-export interface ProductAuthorInfo {
-  alias: string;
-  imagenPerfil?: string;
-}
-
 /** Product shape returned by GET /api/products */
 export interface ApiProduct {
   _id: string;
   titulo: string;
   detalles: string;
+  usuario?: {
+    _id: string;
+    alias: string;
+    imagenPerfil?: string;
+  };
   ubicacion?: {
     type: 'Point';
     coordinates: [number, number];
   };
   ubicacionTexto?: string;
   fotos: string[];
-  usuario?: ApiProductAuthor | string;
   createdAt?: string;
   updatedAt?: string;
-}
-
-/** Mongo id of the user who created the product. */
-export function getProductOwnerId(product: ApiProduct): string | null {
-  const u = product.usuario;
-  if (!u) return null;
-  if (typeof u === 'string') return u;
-  return u._id ? String(u._id) : null;
-}
-
-/** Author fields when `usuario` is populated from the API. */
-export function getProductAuthor(product: ApiProduct): ProductAuthorInfo | null {
-  const u = product.usuario;
-  if (!u || typeof u === 'string') return null;
-  const alias = u.alias?.trim();
-  if (!alias) return null;
-  const imagen = u.imagenPerfil?.trim();
-  return {
-    alias,
-    imagenPerfil: imagen && /^https?:\/\//i.test(imagen) ? imagen : undefined,
-  };
 }
 
 
@@ -105,13 +77,13 @@ export async function createProduct(payload: CreateProductPayload): Promise<ApiP
 }
 
 export const get = async (resource: string, params?: AxiosRequestConfig['params']) => {
-    const url = `${API_URL}/${resource}`;
-  
-    return axios
-      .get(url, { params })
-      .then((response) => response.data)
-      .catch((error) => {
-        console.error(error);
+  const url = `${API_URL}/${resource}`;
+
+  return axios
+    .get(url, { params })
+    .then((response) => response.data)
+    .catch((error) => {
+      console.error(error);
     });
 };
 
@@ -157,6 +129,97 @@ export const updateProduct = async (id: string, data: FormData) => {
 
   return res.json();
 };
+
+/**
+ * POST /api/storage/imagen — sube una imagen y devuelve la URL pública.
+ * @param imageUri URI local del archivo (file:// o content://)
+ * @param fileName Nombre de archivo explícito (recomendado, usar el que devuelve expo-image-picker)
+ * @param mimeType Tipo MIME explícito (recomendado, usar el que devuelve expo-image-picker)
+ */
+export async function uploadImage(
+  imageUri: string,
+  fileName?: string | null,
+  mimeType?: string | null,
+  webFile?: unknown,
+): Promise<string> {
+  const auth = await getBearerAuthHeaders();
+
+  // Preferir fileName/mimeType del picker (más confiables que parsear la URI)
+  const rawName = fileName ?? imageUri.split('/').pop() ?? 'photo.jpg';
+  // Limpiar el nombre: quitar query strings o fragmentos si los hubiera
+  const name = rawName.split('?')[0].split('#')[0] || 'photo.jpg';
+  const ext = name.includes('.') ? name.split('.').pop()?.toLowerCase() : 'jpg';
+  const mime = mimeType ?? (ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg');
+
+  const form = new FormData();
+  if (webFile) {
+    // Web: enviar File real del browser.
+    form.append('imagen', webFile as Blob);
+  } else {
+    // Native (Expo Go): enviar descriptor { uri, name, type }.
+    form.append('imagen', { uri: imageUri, name, type: mime } as any);
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/storage/imagen`, {
+      method: 'POST',
+      headers: {
+        ...auth,
+      },
+      body: form,
+    });
+
+    if (!response.ok) {
+      let message = response.statusText;
+      try {
+        const body = (await response.json()) as { error?: string };
+        if (body?.error) message = body.error;
+      } catch {
+        try {
+          message = await response.text();
+        } catch {
+          /* ignore */
+        }
+      }
+      throw new Error(`Error al subir imagen: ${response.status} ${message}`);
+    }
+
+    const data = (await response.json()) as { url?: string };
+    if (!data?.url) {
+      throw new Error('El backend no devolvió la URL de la imagen.');
+    }
+    return data.url;
+  } catch (error: unknown) {
+    throw error;
+  }
+}
+
+/**
+ * PATCH /api/users/:id — actualiza campos del usuario.
+ * Requiere que el JWT pertenezca al mismo usuario (requireAuthSelf).
+ */
+export async function updateUser(
+  id: string,
+  data: { imagenPerfil?: string; alias?: string; email?: string }
+): Promise<ApiUser> {
+  const auth = await getBearerAuthHeaders();
+  const res = await fetch(`${API_URL}/users/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...auth },
+    body: JSON.stringify(data),
+  });
+
+  if (!res.ok) {
+    let message = res.statusText;
+    try {
+      const body = (await res.json()) as { error?: string };
+      if (body?.error) message = body.error;
+    } catch { /* ignore */ }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<ApiUser>;
+}
 
 export async function deleteProduct(id: string): Promise<void> {
   const auth = await getBearerAuthHeaders();

@@ -15,9 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IS_MOCK, MOCK_POSTS } from '@/_fake';
 import { IMAGE_PLACEHOLDER } from '@/_constants';
-import { PostAuthorRow } from '@/components/post-author-row';
-import { fetchProducts, getProductAuthor } from '@/_services/api';
-import { getStoredToken } from '@/_services/authToken';
+import { fetchProducts } from '@/_services/api';
 
 const H_PADDING = 16;
 const COLUMN_GAP = 8;
@@ -37,16 +35,14 @@ function mapProductToPost(product) {
   const location =
     (product.ubicacionTexto && String(product.ubicacionTexto).trim()) || fromCoords || '—';
 
-  const author = getProductAuthor(product);
   return {
     id: String(product._id),
     title: product.titulo ?? '',
     description: product.detalles ?? '',
+    authorAlias: product.usuario?.alias ? `@${product.usuario.alias}` : '@usuario',
     creation: product.createdAt ? new Date(product.createdAt) : new Date(),
     location,
     image: product.fotos?.[0] ?? '',
-    authorAlias: author?.alias,
-    authorImagenPerfil: author?.imagenPerfil,
   };
 }
 
@@ -138,7 +134,7 @@ export default function Home() {
       return "hace: " + diffDays + "días";
     } else {
       return "hace: " + diffMonths + "meses";
-    } 
+    }
   }
   const { width: windowWidth } = useWindowDimensions();
   const cardWidth = useMemo(() => {
@@ -146,7 +142,7 @@ export default function Home() {
     return (windowWidth - H_PADDING * 2 - totalGaps) / 3;
   }, [windowWidth]);
 
-const renderItem = ({ item }) => (
+  const renderItem = ({ item }) => (
     <Pressable
       style={({ pressed }) => [
         styles.card,
@@ -159,13 +155,9 @@ const renderItem = ({ item }) => (
       <Text style={styles.cardTitle} numberOfLines={2}>
         {item.title}
       </Text>
-      {item.authorAlias ? (
-        <PostAuthorRow
-          alias={item.authorAlias}
-          imagenPerfil={item.authorImagenPerfil}
-          compact
-        />
-      ) : null}
+      <Text style={styles.authorText} numberOfLines={1}>
+        {item.authorAlias}
+      </Text>
       <View style={styles.descRow}>
         <Text style={styles.description} numberOfLines={1}>
           {item.description}
@@ -179,27 +171,16 @@ const renderItem = ({ item }) => (
         </Text>
       </View>
     </Pressable>
-);
+  );
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Iniciar sesión o registrarse"
-          onPress={() => router.push('/login')}
-          style={({ pressed }) => [styles.accountBtn, pressed && styles.accountBtnPressed]}>
-          <Text style={styles.accountBtnText}>Cuenta</Text>
-        </Pressable>
+        <View style={styles.headerSpacer} />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Agregar publicación"
-          onPress={async () => {
-            const token = await getStoredToken();
-            if (!token) {
-              router.push('/login');
-              return;
-            }
+          onPress={() => {
             router.push('/add-post');
           }}
           style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}>
@@ -286,22 +267,6 @@ const styles = StyleSheet.create({
   headerSpacer: {
     flex: 1,
   },
-  accountBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    backgroundColor: '#e8e8e8',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#ccc',
-  },
-  accountBtnPressed: {
-    opacity: 0.75,
-  },
-  accountBtnText: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#333',
-  },
   addButton: {
     width: 40,
     height: 40,
@@ -324,7 +289,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: H_PADDING,
-    paddingBottom: 24,
+    paddingBottom: 120, // espacio para la barra flotante (76px altura + 18px bottom + margen)
   },
   columnWrapper: {
     gap: COLUMN_GAP,
@@ -355,6 +320,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#111',
+    marginBottom: 2,
+  },
+  authorText: {
+    fontSize: 10,
+    color: '#5d6b86',
     marginBottom: 4,
   },
   descRow: {

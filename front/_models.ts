@@ -5,6 +5,4 @@ export interface Post {
     creation: Date;
     location: string;
     image: string;
-    authorAlias?: string;
-    authorImagenPerfil?: string;
 }

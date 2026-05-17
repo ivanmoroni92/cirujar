@@ -182,7 +182,7 @@ export default function EditPostScreen() {
         throw new Error('Error update');
       }
 
-      router.replace(`/product/${id}`);
+      router.replace('/(tabs)/home');
     } catch (err) {
       console.error(err);
       Alert.alert('Error', 'No se pudo actualizar');

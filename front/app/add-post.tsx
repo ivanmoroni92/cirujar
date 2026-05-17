@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useFocusEffect, useRouter, type Href } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
 import {
   ActivityIndicator,
@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { createProduct } from '@/_services/api';
-import { getStoredToken } from '@/_services/authToken';
 
 const PAD = 16;
 const TITLE_MIN = 3;
@@ -50,27 +49,6 @@ export default function AddPostScreen() {
   useEffect(() => {
     setValidationMessages([]);
   }, [titulo, ubicacion, detalles, mainUri, extras]);
-
-  useFocusEffect(
-    useCallback(() => {
-      let active = true;
-      (async () => {
-        const token = await getStoredToken();
-        if (!active || token) return;
-        Alert.alert(
-          'Iniciá sesión',
-          'Tenés que iniciar sesión para publicar un objeto.',
-          [
-            { text: 'Cancelar', style: 'cancel', onPress: () => router.back() },
-            { text: 'Iniciar sesión', onPress: () => router.replace('/login' as Href) },
-          ]
-        );
-      })();
-      return () => {
-        active = false;
-      };
-    }, [router])
-  );
 
   const ensureLibraryPermission = useCallback(async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -138,14 +116,6 @@ export default function AddPostScreen() {
     if (mainUri) uris.push(mainUri);
     for (const x of extras) {
       if (x) uris.push(x);
-    }
-
-    const token = await getStoredToken();
-    if (!token) {
-      Alert.alert('Iniciá sesión', 'Tenés que iniciar sesión para publicar.', [
-        { text: 'Ir a login', onPress: () => router.replace('/login' as Href) },
-      ]);
-      return;
     }
 
     setSubmitting(true);

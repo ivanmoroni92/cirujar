@@ -16,6 +16,7 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { fetchProductById, deleteProduct, type ApiProduct } from '@/_services/api';
+import { getStoredUser } from '@/_services/authToken';
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
@@ -35,11 +36,18 @@ function Content() {
   const insets = useSafeAreaInsets();
 
   const [product, setProduct] = useState<ApiProduct | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
 
   const carouselRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    getStoredUser().then((storedUser) => {
+      setCurrentUserId(storedUser?._id ?? null);
+    });
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -49,12 +57,16 @@ function Content() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const isOwner = !!product?.usuario?._id && product.usuario._id === currentUserId;
+
   const goTo = (index: number) => {
     carouselRef.current?.scrollTo({ x: index * width, animated: true });
     setPhotoIndex(index);
   };
 
   const handleDelete = () => {
+    if (!isOwner) return;
+
     const productId = Array.isArray(id) ? id[0] : id;
     if (!productId) return;
 
@@ -112,30 +124,34 @@ function Content() {
         </Text>
 
         <View style={styles.headerActions}>
-          <Pressable
-            onPress={handleDelete}
-            style={({ pressed }) => [
-              styles.headerBtn,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons name="trash-outline" size={22} color="#d11a2a" />
-          </Pressable>
+          {isOwner ? (
+            <>
+              <Pressable
+                onPress={handleDelete}
+                style={({ pressed }) => [
+                  styles.headerBtn,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons name="trash-outline" size={22} color="#d11a2a" />
+              </Pressable>
 
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: '/edit/[id]',
-                params: { id },
-              })
-            }
-            style={({ pressed }) => [
-              styles.headerBtn,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons name="create-outline" size={22} color="#111" />
-          </Pressable>
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: '/edit/[id]',
+                    params: { id },
+                  })
+                }
+                style={({ pressed }) => [
+                  styles.headerBtn,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons name="create-outline" size={22} color="#111" />
+              </Pressable>
+            </>
+          ) : null}
         </View>
       </View>
 
@@ -351,6 +367,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
+    minWidth: 82,
+    justifyContent: 'flex-end',
   },
 
   pressed: { opacity: 0.75 },

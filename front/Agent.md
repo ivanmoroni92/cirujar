@@ -667,6 +667,7 @@ DELETE /api/products/:id        → 204 No Content
 - ✅ Ajuste Web: se envía `File` real del navegador (no descriptor `uri`) para evitar `No se recibió ningún archivo`
 - ✅ Tabs muestran el avatar subido en el icono de Perfil y se refrescan al cambiar la foto
 - ✅ Alias editable en Profile: lápiz habilita edición inline y check guarda en backend + AsyncStorage
+- ✅ Detalle de publicación: los íconos de editar/eliminar solo se muestran si `product.usuario._id === getStoredUser()._id`
 
 ---
 

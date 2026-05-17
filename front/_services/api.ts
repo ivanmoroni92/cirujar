@@ -29,6 +29,14 @@ export interface ApiProduct {
   updatedAt?: string;
 }
 
+/** Mongo id of the user who created the product. */
+export function getProductOwnerId(product: ApiProduct): string | null {
+  const u = product.usuario;
+  if (!u) return null;
+  if (typeof u === 'string') return u;
+  return u._id ? String(u._id) : null;
+}
+
 /** Author fields when `usuario` is populated from the API. */
 export function getProductAuthor(product: ApiProduct): ProductAuthorInfo | null {
   const u = product.usuario;

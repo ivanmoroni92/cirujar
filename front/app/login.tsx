@@ -15,7 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { loginUser } from '@/_services/api';
-import { setStoredToken } from '@/_services/authToken';
+import { setStoredSession } from '@/_services/authToken';
 
 const PAD = 16;
 
@@ -33,8 +33,8 @@ export default function LoginScreen() {
     }
     setSubmitting(true);
     try {
-      const { token } = await loginUser(e, contraseña);
-      await setStoredToken(token);
+      const { token, user } = await loginUser(e, contraseña);
+      await setStoredSession(token, user._id);
       router.replace('/(tabs)/home' as Href);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'No se pudo iniciar sesión';

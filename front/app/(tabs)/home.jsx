@@ -15,7 +15,9 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { IS_MOCK, MOCK_POSTS } from '@/_fake';
 import { IMAGE_PLACEHOLDER } from '@/_constants';
-import { fetchProducts } from '@/_services/api';
+import { PostAuthorRow } from '@/components/post-author-row';
+import { fetchProducts, getProductAuthor } from '@/_services/api';
+import { getStoredToken } from '@/_services/authToken';
 
 const H_PADDING = 16;
 const COLUMN_GAP = 8;
@@ -35,6 +37,7 @@ function mapProductToPost(product) {
   const location =
     (product.ubicacionTexto && String(product.ubicacionTexto).trim()) || fromCoords || '—';
 
+  const author = getProductAuthor(product);
   return {
     id: String(product._id),
     title: product.titulo ?? '',
@@ -42,6 +45,8 @@ function mapProductToPost(product) {
     creation: product.createdAt ? new Date(product.createdAt) : new Date(),
     location,
     image: product.fotos?.[0] ?? '',
+    authorAlias: author?.alias,
+    authorImagenPerfil: author?.imagenPerfil,
   };
 }
 
@@ -154,6 +159,13 @@ const renderItem = ({ item }) => (
       <Text style={styles.cardTitle} numberOfLines={2}>
         {item.title}
       </Text>
+      {item.authorAlias ? (
+        <PostAuthorRow
+          alias={item.authorAlias}
+          imagenPerfil={item.authorImagenPerfil}
+          compact
+        />
+      ) : null}
       <View style={styles.descRow}>
         <Text style={styles.description} numberOfLines={1}>
           {item.description}
@@ -182,7 +194,12 @@ const renderItem = ({ item }) => (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Agregar publicación"
-          onPress={() => {
+          onPress={async () => {
+            const token = await getStoredToken();
+            if (!token) {
+              router.push('/login');
+              return;
+            }
             router.push('/add-post');
           }}
           style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}>
@@ -338,7 +355,7 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#111',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   descRow: {
     flexDirection: 'row',

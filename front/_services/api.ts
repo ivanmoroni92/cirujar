@@ -2,6 +2,17 @@ import axios, { type AxiosRequestConfig } from 'axios';
 import { API_URL } from '../_config';
 import { getBearerAuthHeaders } from './authToken';
 
+export interface ApiProductAuthor {
+  _id: string;
+  alias: string;
+  imagenPerfil?: string;
+}
+
+export interface ProductAuthorInfo {
+  alias: string;
+  imagenPerfil?: string;
+}
+
 /** Product shape returned by GET /api/products */
 export interface ApiProduct {
   _id: string;
@@ -13,8 +24,22 @@ export interface ApiProduct {
   };
   ubicacionTexto?: string;
   fotos: string[];
+  usuario?: ApiProductAuthor | string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+/** Author fields when `usuario` is populated from the API. */
+export function getProductAuthor(product: ApiProduct): ProductAuthorInfo | null {
+  const u = product.usuario;
+  if (!u || typeof u === 'string') return null;
+  const alias = u.alias?.trim();
+  if (!alias) return null;
+  const imagen = u.imagenPerfil?.trim();
+  return {
+    alias,
+    imagenPerfil: imagen && /^https?:\/\//i.test(imagen) ? imagen : undefined,
+  };
 }
 
 

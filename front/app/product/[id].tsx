@@ -13,7 +13,13 @@ import {
 } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { fetchProductById, deleteProduct, type ApiProduct } from '@/_services/api';
+import { PostAuthorRow } from '@/components/post-author-row';
+import {
+  fetchProductById,
+  deleteProduct,
+  getProductAuthor,
+  type ApiProduct,
+} from '@/_services/api';
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
@@ -77,6 +83,8 @@ function Content() {
     ]
   );
 };
+
+  const author = product ? getProductAuthor(product) : null;
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -241,6 +249,12 @@ function Content() {
             {/* BODY */}
             <View style={styles.body}>
               <Text style={styles.title}>{product.titulo}</Text>
+              {author ? (
+                <PostAuthorRow
+                  alias={author.alias}
+                  imagenPerfil={author.imagenPerfil}
+                />
+              ) : null}
 
               <View style={styles.descriptionCard}>
                 <Text style={styles.descriptionLabel}>Descripción</Text>

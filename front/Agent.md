@@ -651,6 +651,7 @@ DELETE /api/products/:id        → 204 No Content
 - ✅ Actualización local de estado y AsyncStorage implementada
 - ✅ Transporte de multipart ajustado a Axios para mejorar compatibilidad en Expo/Android
 - ✅ Ajuste Web: se envía `File` real del navegador (no descriptor `uri`) para evitar `No se recibió ningún archivo`
+- ✅ Tabs muestran el avatar subido en el icono de Perfil y se refrescan al cambiar la foto
 
 ---
 
@@ -697,6 +698,6 @@ DELETE /api/products/:id        → 204 No Content
 
 ---
 
-**Última Actualización**: 17 Mayo 2026 (fix multipart web + native para avatar)  
-**Estado**: Autenticación + Profile estable + Avatar upload en marcha + Feed + Tab bar premium flotante implementados  
+**Última Actualización**: 17 Mayo 2026 (avatar visible también en tabs)  
+**Estado**: Autenticación + Profile estable + Avatar upload en marcha + Avatar visible en tabs + Feed + Tab bar premium flotante implementados  
 **Próximo Check**: Validación E2E de subida de avatar en Expo Go (dispositivo físico)

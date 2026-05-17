@@ -1,9 +1,10 @@
 import { Tabs } from 'expo-router';
-import React, { useEffect, useRef } from 'react';
-import { Animated, Pressable, StyleSheet, View } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { Animated, DeviceEventEmitter, Image, Pressable, StyleSheet, View } from 'react-native';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { Ionicons } from '@expo/vector-icons';
+import { getStoredUser } from '@/_services/authToken';
 
 type TabButtonProps = {
   accessibilityState?: { selected?: boolean };
@@ -11,6 +12,22 @@ type TabButtonProps = {
   onLongPress?: () => void;
   children?: React.ReactNode;
 };
+
+type StoredUser = Awaited<ReturnType<typeof getStoredUser>>;
+
+function ProfileAvatarIcon({ color, focused, user }: { color: string; focused: boolean; user: StoredUser }) {
+  const avatarUri = user?.imagenPerfil?.trim();
+
+  return (
+    <View style={[styles.profileAvatarWrap, focused && styles.profileAvatarWrapFocused]}>
+      {avatarUri ? (
+        <Image source={{ uri: avatarUri }} style={styles.profileAvatarImage} />
+      ) : (
+        <Ionicons name="person-outline" size={28} color={color} />
+      )}
+    </View>
+  );
+}
 
 function HomeTabButton({ accessibilityState, onPress, onLongPress, children }: TabButtonProps) {
   const focused = !!accessibilityState?.selected;
@@ -112,6 +129,21 @@ function ProfileTabButton({ accessibilityState, onPress, onLongPress, children }
 
 export default function TabLayout() {
   const colorScheme = useColorScheme();
+  const [storedUser, setStoredUser] = useState<StoredUser>(null);
+
+  const refreshStoredUser = useCallback(async () => {
+    const user = await getStoredUser();
+    setStoredUser(user);
+  }, []);
+
+  useEffect(() => {
+    refreshStoredUser();
+
+    const subscription = DeviceEventEmitter.addListener('cirujar:auth-user-updated', refreshStoredUser);
+    return () => {
+      subscription.remove();
+    };
+  }, [refreshStoredUser]);
 
   return (
     <Tabs
@@ -139,7 +171,9 @@ export default function TabLayout() {
         options={{
           tabBarButton: (props) => <ProfileTabButton {...props} />,
           tabBarItemStyle: styles.profileTabItem,
-          tabBarIcon: ({ color }) => <Ionicons name="person-outline" size={28} color={color} />,
+          tabBarIcon: ({ color, focused }) => (
+            <ProfileAvatarIcon color={color} focused={focused} user={storedUser} />
+          ),
         }}
       />
     </Tabs>
@@ -214,6 +248,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.3,
     shadowRadius: 18,
     elevation: 10,
+  },
+  profileAvatarWrap: {
+    width: 58,
+    height: 58,
+    borderRadius: 29,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f3f7ff',
+    borderWidth: 2,
+    borderColor: 'rgba(255, 255, 255, 0.85)',
+    overflow: 'hidden',
+  },
+  profileAvatarWrapFocused: {
+    borderColor: 'rgba(255, 255, 255, 1)',
+  },
+  profileAvatarImage: {
+    width: '100%',
+    height: '100%',
   },
 });
 

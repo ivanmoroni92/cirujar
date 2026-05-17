@@ -7,6 +7,7 @@ import {
     ActivityIndicator,
     Alert,
     Animated,
+    DeviceEventEmitter,
     Easing,
     Image,
     KeyboardAvoidingView,
@@ -132,6 +133,7 @@ export default function ProfileScreen() {
 
     const handleLogout = useCallback(async () => {
         await clearAuth();
+        DeviceEventEmitter.emit('cirujar:auth-user-updated');
         router.replace('/login' as Href);
     }, [router]);
 
@@ -172,6 +174,7 @@ export default function ProfileScreen() {
             const finalUser: ApiUser = { ...user, ...updated, imagenPerfil: url };
             await setStoredUser(finalUser);
             setUser(finalUser);
+            DeviceEventEmitter.emit('cirujar:auth-user-updated');
         } catch (err) {
             const msg = err instanceof Error ? err.message : 'Error al subir la foto';
             // Mostrar como alerta en lugar de setError para no ocultar el perfil

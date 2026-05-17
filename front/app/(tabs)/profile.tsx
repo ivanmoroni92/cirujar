@@ -21,7 +21,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { uploadImage, updateUser, type ApiUser } from '@/_services/api';
+import { uploadImage, updateUser, fetchProducts, type ApiUser } from '@/_services/api';
 import { clearAuth, getStoredToken, getStoredUser, setStoredUser } from '@/_services/authToken';
 
 const PAD = 24;
@@ -39,6 +39,7 @@ export default function ProfileScreen() {
     const [aliasInput, setAliasInput] = useState('');
     const [savingAlias, setSavingAlias] = useState(false);
     const [aliasError, setAliasError] = useState<string | null>(null);
+    const [publicationCount, setPublicationCount] = useState(0);
 
     const avatarAnim = useRef(new Animated.Value(0)).current;
     const contentAnim = useRef(new Animated.Value(0)).current;
@@ -76,6 +77,29 @@ export default function ProfileScreen() {
                     setAliasInput(storedUser.alias ?? '');
                     setError(null);
                     setLoading(false);
+
+                    // Load publication count
+                    try {
+                        const products = await fetchProducts();
+                        console.log('[profile] storedUser completo:', JSON.stringify(storedUser, null, 2));
+                        console.log('[profile] storedUser._id:', storedUser._id, 'tipo:', typeof storedUser._id);
+                        console.log('[profile] productos traídos:', products.length);
+                        if (products.length > 0) {
+                            console.log('[profile] primer producto:', JSON.stringify(products[0], null, 2));
+                        }
+                        const userPublications = products.filter((p) => {
+                            const match = p.usuario?._id === storedUser._id;
+                            console.log(`[profile] comparando ${p.usuario?._id} === ${storedUser._id} → ${match}`);
+                            return match;
+                        });
+                        console.log('[profile] publicaciones del usuario después de filtrar:', userPublications.length);
+                        if (active) {
+                            setPublicationCount(userPublications.length);
+                        }
+                    } catch (err) {
+                        console.error('[profile] Error al cargar publicaciones:', err);
+                        // No mostrar error, solo dejar el conteo como 0
+                    }
 
                     // Animate in
                     Animated.parallel([
@@ -137,11 +161,45 @@ export default function ProfileScreen() {
         [contentAnim]
     );
 
-    const handleLogout = useCallback(async () => {
+    const performLogout = useCallback(async () => {
         await clearAuth();
         DeviceEventEmitter.emit('cirujar:auth-user-updated');
         router.replace('/login' as Href);
     }, [router]);
+
+    const showSecondLogoutConfirmation = useCallback(() => {
+        Alert.alert('Confirmación', '¿Estás seguro de que querés cerrar sesión?', [
+            {
+                text: 'Cancelar',
+                style: 'cancel',
+            },
+            {
+                text: 'Cerrar sesión',
+                style: 'destructive',
+                onPress: () => {
+                    void performLogout();
+                },
+            },
+        ]);
+    }, [performLogout]);
+
+    const handleLogout = useCallback(() => {
+        Alert.alert('Confirmación', '¿Querés cerrar sesión?', [
+            {
+                text: 'Cancelar',
+                style: 'cancel',
+            },
+            {
+                text: 'Cerrar sesión',
+                style: 'destructive',
+                onPress: () => {
+                    // En Android, abrir un segundo Alert inmediatamente puede fallar
+                    // si el primero todavía se está cerrando.
+                    setTimeout(showSecondLogoutConfirmation, 50);
+                },
+            },
+        ]);
+    }, [showSecondLogoutConfirmation]);
 
     const handleAvatarPress = useCallback(async () => {
         if (!user) return;
@@ -338,7 +396,7 @@ export default function ProfileScreen() {
                             <View style={styles.infoCard}>
                                 <View style={styles.infoItem}>
                                     <Text style={styles.infoLabel}>Publicaciones</Text>
-                                    <Text style={styles.infoValue}>0</Text>
+                                    <Text style={styles.infoValue}>{publicationCount}</Text>
                                 </View>
                                 <View style={styles.infoDivider} />
                                 <View style={styles.infoItem}>

@@ -9,7 +9,7 @@ class AuthService {
   async login(email: string, password: string) {
     const user = await UserDAO.findByEmailWithPassword(email);
     if (!user || !verifyPassword(password, user.contraseña)) {
-      throw new Error('Credenciales inválidas');
+      throw new Error('Email o contraseña incorrectos');
     }
 
     const token = signAccessToken(String(user._id), user.email);

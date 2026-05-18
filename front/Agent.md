@@ -131,10 +131,12 @@ useFocusEffect(useCallback(() => {
   // 3. Renderiza según estado
 }))
 
-// Logout
+// Logout con confirmación
 const handleLogout = () => {
-  clearAuth();  // Limpia token + user de AsyncStorage
-  router.replace('/login');
+  Alert.alert('Confirmación', '¿Querés cerrar sesión?', [
+    { text: 'Cancelar', style: 'cancel' },
+    { text: 'Cerrar sesión', onPress: performLogout }
+  ]);
 }
 ```
 
@@ -548,11 +550,12 @@ getStoredUser()            ← lee 'cirujar_auth_user' (JSON.parse)
 ### **Flujo 3: Profile → Logout**
 ```
 1. Usuario presiona botón "Cerrar Sesión"
-2. handleLogout() → clearAuth()
-3. clearAuth() → limpia token + user de AsyncStorage
-4. router.replace('/login')
-5. _layout.tsx detecta sin token → permite login.tsx
-6. Usuario vuelve a pantalla de login
+2. Se muestra confirmación: "¿Querés cerrar sesión?"
+3. Si confirma, performLogout() → clearAuth()
+4. clearAuth() → limpia token + user de AsyncStorage
+5. router.replace('/login')
+6. _layout.tsx detecta sin token → permite login.tsx
+7. Usuario vuelve a pantalla de login
 ```
 
 ### **Flujo 4: Home → Crear Publicación**

@@ -28,7 +28,7 @@ class AuthController {
       res.status(200).json(result);
     } catch (error: unknown) {
       const message = error instanceof Error ? error.message : 'Error al iniciar sesión';
-      if (message === 'Credenciales inválidas') {
+      if (message === 'Credenciales inválidas' || message === 'Email o contraseña incorrectos') {
         res.status(401).json({ error: message });
         return;
       }

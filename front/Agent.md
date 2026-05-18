@@ -131,17 +131,11 @@ useFocusEffect(useCallback(() => {
   // 3. Renderiza según estado
 }))
 
-// Logout con doble confirmación
+// Logout con confirmación
 const handleLogout = () => {
   Alert.alert('Confirmación', '¿Querés cerrar sesión?', [
     { text: 'Cancelar', style: 'cancel' },
-    {
-      text: 'Cerrar sesión',
-      onPress: () => Alert.alert('Confirmación', '¿Estás seguro de que querés cerrar sesión?', [
-        { text: 'Cancelar', style: 'cancel' },
-        { text: 'Cerrar sesión', onPress: performLogout }
-      ])
-    }
+    { text: 'Cerrar sesión', onPress: performLogout }
   ]);
 }
 ```
@@ -557,12 +551,11 @@ getStoredUser()            ← lee 'cirujar_auth_user' (JSON.parse)
 ```
 1. Usuario presiona botón "Cerrar Sesión"
 2. Se muestra confirmación: "¿Querés cerrar sesión?"
-3. Si confirma, se muestra segunda confirmación de seguridad
-4. performLogout() → clearAuth()
-5. clearAuth() → limpia token + user de AsyncStorage
-6. router.replace('/login')
-7. _layout.tsx detecta sin token → permite login.tsx
-8. Usuario vuelve a pantalla de login
+3. Si confirma, performLogout() → clearAuth()
+4. clearAuth() → limpia token + user de AsyncStorage
+5. router.replace('/login')
+6. _layout.tsx detecta sin token → permite login.tsx
+7. Usuario vuelve a pantalla de login
 ```
 
 ### **Flujo 4: Home → Crear Publicación**

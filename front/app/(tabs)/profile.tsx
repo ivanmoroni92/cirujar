@@ -167,8 +167,8 @@ export default function ProfileScreen() {
         router.replace('/login' as Href);
     }, [router]);
 
-    const showSecondLogoutConfirmation = useCallback(() => {
-        Alert.alert('Confirmación', '¿Estás seguro de que querés cerrar sesión?', [
+    const handleLogout = useCallback(() => {
+        Alert.alert('Confirmación', '¿Querés cerrar sesión?', [
             {
                 text: 'Cancelar',
                 style: 'cancel',
@@ -182,24 +182,6 @@ export default function ProfileScreen() {
             },
         ]);
     }, [performLogout]);
-
-    const handleLogout = useCallback(() => {
-        Alert.alert('Confirmación', '¿Querés cerrar sesión?', [
-            {
-                text: 'Cancelar',
-                style: 'cancel',
-            },
-            {
-                text: 'Cerrar sesión',
-                style: 'destructive',
-                onPress: () => {
-                    // En Android, abrir un segundo Alert inmediatamente puede fallar
-                    // si el primero todavía se está cerrando.
-                    setTimeout(showSecondLogoutConfirmation, 50);
-                },
-            },
-        ]);
-    }, [showSecondLogoutConfirmation]);
 
     const handleAvatarPress = useCallback(async () => {
         if (!user) return;

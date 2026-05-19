@@ -60,8 +60,13 @@ class ProductController {
 
       const imageFiles = req.files as Express.Multer.File[] ?? [];
 
+      if (!req.auth?.userId) {
+        res.status(401).json({ error: 'Se requiere autenticación.' });
+        return;
+      }
+
       const product = await ProductService.createProduct(
-        { titulo, ubicacion, ubicacionTexto, detalles },
+        { titulo, ubicacion, ubicacionTexto, detalles, usuario: req.auth.userId },
         imageFiles
       );
 

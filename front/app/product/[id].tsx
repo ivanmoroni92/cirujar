@@ -4,6 +4,8 @@ import {
   ActivityIndicator,
   Alert,
   Image,
+  ImageSourcePropType,
+  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -11,10 +13,11 @@ import {
   View,
   Dimensions,
 } from 'react-native';
-import { SafeAreaView, useSafeAreaInsets} from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { UrlTile, Marker } from 'react-native-maps';
 import { fetchProductById, deleteProduct, type ApiProduct } from '@/_services/api';
+import { getStoredUser } from '@/_services/authToken';
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
@@ -34,11 +37,18 @@ function Content() {
   const insets = useSafeAreaInsets();
 
   const [product, setProduct] = useState<ApiProduct | null>(null);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
 
   const carouselRef = useRef<ScrollView>(null);
+
+  useEffect(() => {
+    getStoredUser().then((storedUser) => {
+      setCurrentUserId(storedUser?._id ?? null);
+    });
+  }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -48,36 +58,53 @@ function Content() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  const isOwner = !!product?.usuario?._id && product.usuario._id === currentUserId;
+
   const goTo = (index: number) => {
     carouselRef.current?.scrollTo({ x: index * width, animated: true });
     setPhotoIndex(index);
   };
 
   const handleDelete = () => {
-  const productId = Array.isArray(id) ? id[0] : id;
-  if (!productId) return;
+    if (!isOwner) return;
 
-  Alert.alert(
-    'Eliminar publicación',
-    '¿Estás seguro de que querés eliminar esta publicación?',
-    [
-      { text: 'Cancelar', style: 'cancel' },
-      {
-        text: 'Eliminar',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            await deleteProduct(productId);
-            Alert.alert('Publicación eliminada', 'La publicación fue eliminada correctamente');
-            router.replace('/(tabs)/home');
-          } catch (e) {
-            Alert.alert('Error', 'No se pudo eliminar la publicación');
-          }
-        },
-      },
-    ]
-  );
-};
+    const productId = Array.isArray(id) ? id[0] : id;
+    if (!productId) return;
+
+    const doDelete = async () => {
+      try {
+        await deleteProduct(productId);
+        if (Platform.OS === 'web') {
+          window.alert('La publicación fue eliminada correctamente');
+        } else {
+          Alert.alert('Publicación eliminada', 'La publicación fue eliminada correctamente');
+        }
+        router.replace('/(tabs)/home');
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : 'No se pudo eliminar la publicación';
+        if (Platform.OS === 'web') {
+          window.alert(`Error: ${msg}`);
+        } else {
+          Alert.alert('Error', msg);
+        }
+      }
+    };
+
+    if (Platform.OS === 'web') {
+      if (window.confirm('¿Estás seguro de que querés eliminar esta publicación?')) {
+        doDelete();
+      }
+    } else {
+      Alert.alert(
+        'Eliminar publicación',
+        '¿Estás seguro de que querés eliminar esta publicación?',
+        [
+          { text: 'Cancelar', style: 'cancel' },
+          { text: 'Eliminar', style: 'destructive', onPress: doDelete },
+        ]
+      );
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -98,30 +125,34 @@ function Content() {
         </Text>
 
         <View style={styles.headerActions}>
-          <Pressable
-            onPress={handleDelete}
-            style={({ pressed }) => [
-              styles.headerBtn,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons name="trash-outline" size={22} color="#d11a2a" />
-          </Pressable>
+          {isOwner ? (
+            <>
+              <Pressable
+                onPress={handleDelete}
+                style={({ pressed }) => [
+                  styles.headerBtn,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons name="trash-outline" size={22} color="#d11a2a" />
+              </Pressable>
 
-          <Pressable
-            onPress={() =>
-              router.push({
-                pathname: '/edit/[id]',
-                params: { id },
-              })
-            }
-            style={({ pressed }) => [
-              styles.headerBtn,
-              pressed && styles.pressed,
-            ]}
-          >
-            <Ionicons name="create-outline" size={22} color="#111" />
-          </Pressable>
+              <Pressable
+                onPress={() =>
+                  router.push({
+                    pathname: '/edit/[id]',
+                    params: { id },
+                  })
+                }
+                style={({ pressed }) => [
+                  styles.headerBtn,
+                  pressed && styles.pressed,
+                ]}
+              >
+                <Ionicons name="create-outline" size={22} color="#111" />
+              </Pressable>
+            </>
+          ) : null}
         </View>
       </View>
 
@@ -243,6 +274,25 @@ function Content() {
             <View style={styles.body}>
               <Text style={styles.title}>{product.titulo}</Text>
 
+              <View style={styles.authorCard}>
+                <View style={styles.authorAvatarWrap}>
+                  {product.usuario?.imagenPerfil ? (
+                    <Image
+                      source={{ uri: product.usuario.imagenPerfil } as ImageSourcePropType}
+                      style={styles.authorAvatar}
+                    />
+                  ) : (
+                    <Ionicons name="person-outline" size={18} color="#5a6a84" />
+                  )}
+                </View>
+                <View style={styles.authorTextWrap}>
+                  <Text style={styles.authorLabel}>Publicado por</Text>
+                  <Text style={styles.authorAlias}>
+                    {product.usuario?.alias ? `@${product.usuario.alias}` : '@usuario'}
+                  </Text>
+                </View>
+              </View>
+
               <View style={styles.descriptionCard}>
                 <Text style={styles.descriptionLabel}>Descripción</Text>
                 <View style={styles.descriptionDivider} />
@@ -350,6 +400,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: 2,
+    minWidth: 82,
+    justifyContent: 'flex-end',
   },
 
   pressed: { opacity: 0.75 },
@@ -395,6 +447,44 @@ const styles = StyleSheet.create({
   },
 
   title: { fontSize: 26, fontWeight: '800', color: '#111' },
+
+  authorCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    backgroundColor: '#f7f9fc',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: '#d7dfec',
+  },
+  authorAvatarWrap: {
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    overflow: 'hidden',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#e9eff8',
+  },
+  authorAvatar: {
+    width: '100%',
+    height: '100%',
+  },
+  authorTextWrap: {
+    flex: 1,
+  },
+  authorLabel: {
+    fontSize: 11,
+    color: '#6c7891',
+    marginBottom: 2,
+  },
+  authorAlias: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#1b2940',
+  },
 
   descriptionCard: {
     backgroundColor: '#f7f7f7',

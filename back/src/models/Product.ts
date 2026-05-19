@@ -1,5 +1,10 @@
-import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document, Types } from 'mongoose';
 
+export interface IProductUsuario {
+  _id: Types.ObjectId;
+  alias: string;
+  imagenPerfil?: string;
+}
 
 export interface IProduct extends Document {
   titulo: string;
@@ -10,6 +15,7 @@ export interface IProduct extends Document {
   ubicacionTexto?: string;
   detalles: string;
   fotos: string[];
+  usuario?: Types.ObjectId | IProductUsuario;
 }
 
 const ProductSchema: Schema = new Schema(
@@ -40,6 +46,11 @@ const ProductSchema: Schema = new Schema(
     fotos: {
       type: [String], // Array de URLs
       default: [],
+    },
+    usuario: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
     },
   },
   {

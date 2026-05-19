@@ -39,6 +39,7 @@ function mapProductToPost(product) {
     id: String(product._id),
     title: product.titulo ?? '',
     description: product.detalles ?? '',
+    authorAlias: product.usuario?.alias ? `@${product.usuario.alias}` : '@usuario',
     creation: product.createdAt ? new Date(product.createdAt) : new Date(),
     location,
     image: product.fotos?.[0] ?? '',
@@ -133,7 +134,7 @@ export default function Home() {
       return "hace: " + diffDays + "días";
     } else {
       return "hace: " + diffMonths + "meses";
-    } 
+    }
   }
   const { width: windowWidth } = useWindowDimensions();
   const cardWidth = useMemo(() => {
@@ -141,7 +142,7 @@ export default function Home() {
     return (windowWidth - H_PADDING * 2 - totalGaps) / 3;
   }, [windowWidth]);
 
-const renderItem = ({ item }) => (
+  const renderItem = ({ item }) => (
     <Pressable
       style={({ pressed }) => [
         styles.card,
@@ -153,6 +154,9 @@ const renderItem = ({ item }) => (
       <PostCardImage imageUri={item.image} />
       <Text style={styles.cardTitle} numberOfLines={2}>
         {item.title}
+      </Text>
+      <Text style={styles.authorText} numberOfLines={1}>
+        {item.authorAlias}
       </Text>
       <View style={styles.descRow}>
         <Text style={styles.description} numberOfLines={1}>
@@ -167,7 +171,7 @@ const renderItem = ({ item }) => (
         </Text>
       </View>
     </Pressable>
-);
+  );
 
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
@@ -201,7 +205,7 @@ const renderItem = ({ item }) => (
         </View>
       ) : (
         <FlatList
-          data={posts}
+          data={posts.reverse()}
           keyExtractor={(item) => item.id}
           numColumns={3}
           renderItem={renderItem}
@@ -235,7 +239,7 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'flex-end',
+    justifyContent: 'space-between',
     paddingHorizontal: H_PADDING,
     paddingBottom: 12,
     backgroundColor: '#f0f0f0',
@@ -285,7 +289,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: H_PADDING,
-    paddingBottom: 24,
+    paddingBottom: 120, // espacio para la barra flotante (76px altura + 18px bottom + margen)
   },
   columnWrapper: {
     gap: COLUMN_GAP,
@@ -316,7 +320,12 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#111',
-    marginBottom: 6,
+    marginBottom: 2,
+  },
+  authorText: {
+    fontSize: 10,
+    color: '#5d6b86',
+    marginBottom: 4,
   },
   descRow: {
     flexDirection: 'row',

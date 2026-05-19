@@ -1,4 +1,4 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Animated, DeviceEventEmitter, Image, Pressable, StyleSheet, View } from 'react-native';
 import { Colors } from '@/constants/theme';
@@ -7,9 +7,9 @@ import { Ionicons } from '@expo/vector-icons';
 import { getStoredUser } from '@/_services/authToken';
 
 type TabButtonProps = {
-  accessibilityState?: { selected?: boolean };
-  onPress?: () => void;
-  onLongPress?: () => void;
+  accessibilityState?: any;
+  onPress?: ((...args: any[]) => void) | null;
+  onLongPress?: ((...args: any[]) => void) | null;
   children?: React.ReactNode;
 };
 
@@ -132,6 +132,7 @@ function ProfileTabButton({ accessibilityState, onPress, onLongPress, children }
 export default function TabLayout() {
   const colorScheme = useColorScheme();
   const [storedUser, setStoredUser] = useState<StoredUser>(null);
+  const router = useRouter();
 
   const refreshStoredUser = useCallback(async () => {
     const user = await getStoredUser();
@@ -156,18 +157,21 @@ export default function TabLayout() {
         tabBarShowLabel: false,
         tabBarStyle: styles.tabBar,
       }}>
+
+      {/* BOTÓN IZQUIERDO: Vista Mapa */}
       <Tabs.Screen
-        name="home"
-        options={{
-          tabBarButton: (props) => <HomeTabButton {...props} />,
-          tabBarItemStyle: styles.homeTabItem,
-          tabBarIcon: ({ color, focused }) => (
-            <View style={[styles.homeIconWrap, focused && styles.homeIconWrapFocused]}>
-              <Ionicons name="home-outline" size={22} color={color} />
-            </View>
-          ),
-        }}
+          name="home"
+          options={{
+            tabBarButton: (props) => <HomeTabButton {...props} />,
+            tabBarItemStyle: styles.homeTabItem,
+            tabBarIcon: ({ color, focused }) => (
+                <View style={[styles.homeIconWrap, focused && styles.homeIconWrapFocused]}>
+                  <Ionicons name="map-outline" size={22} color={color} />
+                </View>
+            ),
+          }}
       />
+      {/* BOTÓN CENTRAL: Perfil Ciruja (Avatar flotante) */}
       <Tabs.Screen
         name="profile"
         options={{
@@ -177,6 +181,19 @@ export default function TabLayout() {
             <ProfileAvatarIcon color={color} focused={focused} user={storedUser} />
           ),
         }}
+      />
+      {/* BOTÓN DERECHO: Vista Listado  */}
+      <Tabs.Screen
+          name="list-products"
+          options={{
+            tabBarButton: (props) => <HomeTabButton {...props} />,
+            tabBarItemStyle: styles.listTabItem,
+            tabBarIcon: ({ color, focused }) => (
+                <View style={[styles.homeIconWrap, focused && styles.homeIconWrapFocused]}>
+                  <Ionicons name="list-outline" size={22} color={color} />
+                </View>
+            ),
+          }}
       />
     </Tabs>
   );
@@ -202,6 +219,11 @@ const styles = StyleSheet.create({
   homeTabItem: {
     maxWidth: 72,
     marginLeft: 4,
+  },
+  listTabItem: {
+    maxWidth: 72,
+    marginRight: 4,
+    marginLeft: 'auto',
   },
   profileTabItem: {
     position: 'absolute',

@@ -18,6 +18,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { IS_MOCK, MOCK_POSTS } from '@/_fake';
 import { IMAGE_PLACEHOLDER } from '@/_constants';
 import { fetchProducts } from '@/_services/api';
+import MainHeader from '@/components/MainHeader';
 
 // 1. DEFINICIÓN DE TIPOS (INTERFACES)
 interface ProductLocation {
@@ -223,19 +224,11 @@ export default function ListProducts() {
 
     return (
         <SafeAreaView style={styles.safe} edges={['top']}>
-            <View style={styles.header}>
-                <View style={styles.headerSpacer} />
-                <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Agregar publicación"
-                    onPress={() => {
-                        router.push('/add-post');
-                    }}
-                    style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}>
-                    <Text style={styles.addButtonText}>+</Text>
-                </Pressable>
-            </View>
 
+            {/* 1. HEADER GLOBAL*/}
+            <MainHeader />
+
+            {/* 2. CONTENIDO PRINCIPAL */}
             {error ? (
                 <View style={styles.feedbackBox}>
                     <Text style={styles.errorText}>{error}</Text>
@@ -287,14 +280,6 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#f0f0f0',
     },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: H_PADDING,
-        paddingBottom: 12,
-        backgroundColor: '#f0f0f0',
-    },
     photoShell: {
         width: '100%',
         aspectRatio: 1,
@@ -315,32 +300,9 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
-    headerSpacer: {
-        flex: 1,
-    },
-    addButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#e8e8e8',
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: '#ccc',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    addButtonPressed: {
-        opacity: 0.7,
-    },
-    addButtonText: {
-        fontSize: 28,
-        lineHeight: 32,
-        color: '#333',
-        fontWeight: '300',
-        marginTop: -2,
-    },
     listContent: {
         paddingHorizontal: H_PADDING,
-        paddingBottom: 120,
+        paddingBottom: 120, // Espacio para la tab bar flotante
     },
     columnWrapper: {
         gap: COLUMN_GAP,

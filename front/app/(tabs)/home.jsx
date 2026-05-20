@@ -6,6 +6,7 @@ import MapView, { Marker } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { fetchProducts } from '@/_services/api';
 import { IS_MOCK, MOCK_POSTS } from '@/_fake';
+import MainHeader from '@/components/MainHeader';
 
 export default function HomeMap() {
   const router = useRouter();
@@ -75,17 +76,18 @@ export default function HomeMap() {
     loadMapData();
   }, [loadMapData]);
 
-  return (
-      <View style={styles.container}>
 
-        {/* 1. MODAL DE CARGA (Tapa todo mientras procesa) */}
+  return (
+      <SafeAreaView style={styles.safeArea} edges={['top']}>
+
+        {/* 1. MODAL DE CARGA */}
         <Modal visible={permissionGranted === null || loading} animationType="none" transparent={false}>
           <View style={styles.center}>
             <ActivityIndicator size="large" color="#333" />
           </View>
         </Modal>
 
-        {/* 2. MODAL BLOQUEANTE (Tapa todo si denegó el permiso) */}
+        {/* 2. MODAL BLOQUEANTE */}
         <Modal visible={permissionGranted === false} animationType="fade" transparent={false}>
           <SafeAreaView style={styles.blockedContainer}>
             <Text style={styles.blockedText}>Necesitas dar permiso a tu ubicación para continuar</Text>
@@ -95,59 +97,67 @@ export default function HomeMap() {
           </SafeAreaView>
         </Modal>
 
-        {/* 3. VISTA PRINCIPAL (Solo interactiva cuando los modales están ocultos) */}
+        {/* --- PANTALLA PRINCIPAL --- */}
+
+        {/* 3. HEADER GLOBAL*/}
+        <MainHeader />
+
+        {/* 4. MAP FRAME */}
         {userLocation && (
-            <MapView
-                style={styles.map}
-                initialRegion={userLocation}
-                showsUserLocation={true}
-                showsMyLocationButton={false}
-                scrollEnabled={true}
-                zoomEnabled={true}
-            >
-              {posts.map((post) => {
-                const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
-                const lng = post.ubicacion?.coordinates?.[0] || post.longitude;
+            <View style={styles.mapFrame}>
+              <MapView
+                  style={styles.map}
+                  initialRegion={userLocation}
+                  showsUserLocation={true}
+                  showsMyLocationButton={true}
+                  scrollEnabled={true}
+                  zoomEnabled={true}
+              >
+                {posts.map((post) => {
+                  const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
+                  const lng = post.ubicacion?.coordinates?.[0] || post.longitude;
 
-                if (!lat || !lng) return null;
+                  if (!lat || !lng) return null;
 
-                return (
-                    <Marker
-                        key={post._id || post.id}
-                        coordinate={{ latitude: lat, longitude: lng }}
-                        title={post.titulo || post.title}
-                        description={post.detalles || post.description}
-                        pinColor="red"
-                        onCalloutPress={() => router.push(`/product/${post._id || post.id}`)}
-                    />
-                );
-              })}
-            </MapView>
+                  return (
+                      <Marker
+                          key={post._id || post.id}
+                          coordinate={{ latitude: lat, longitude: lng }}
+                          title={post.titulo || post.title}
+                          description={post.detalles || post.description}
+                          pinColor="red"
+                          onCalloutPress={() => router.push(`/product/${post._id || post.id}`)}
+                      />
+                  );
+                })}
+              </MapView>
+            </View>
         )}
 
-        <View style={styles.headerAbsolute}>
-          <Pressable
-              accessibilityRole="button"
-              onPress={() => router.push('/add-post')}
-              style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
-          >
-            <Text style={styles.addButtonText}>+</Text>
-          </Pressable>
-        </View>
-
-      </View>
+      </SafeAreaView>
   );
 }
 
+
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f0f0f0',
+  },
   center: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
   },
-  container: {
+  mapFrame: {
     flex: 1,
+    marginHorizontal: 0,
+    marginTop: 0,
+    marginBottom: 0,
+    borderRadius: 0,
+    overflow: 'hidden',
+    backgroundColor: '#eaeaea',
   },
   map: {
     width: '100%',
@@ -168,7 +178,7 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   button: {
-    backgroundColor: '#4A90E2', // Ajustar al color exacto si es necesario
+    backgroundColor: '#4A90E2',
     paddingVertical: 12,
     paddingHorizontal: 24,
     borderRadius: 6,
@@ -177,36 +187,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
-  },
-  headerAbsolute: {
-    position: 'absolute',
-    top: 50,
-    right: 16,
-    zIndex: 10,
-  },
-  addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#e8e8e8',
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: '#ccc',
-    alignItems: 'center',
-    justifyContent: 'center',
-    elevation: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-  },
-  addButtonPressed: {
-    opacity: 0.7,
-  },
-  addButtonText: {
-    fontSize: 28,
-    lineHeight: 32,
-    color: '#333',
-    fontWeight: '300',
-    marginTop: -2,
   },
 });

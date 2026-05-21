@@ -79,6 +79,33 @@ class ProductService {
       return deletedProduct;
   }
 
+  async retirarProduct(id: string, userId: string) {
+    const product = await ProductDAO.findById(id);
+    if (!product) {
+      throw new Error('El producto no existe.');
+    }
+
+    const ownerId = String(
+      typeof product.usuario === 'object' && product.usuario !== null && '_id' in product.usuario
+        ? (product.usuario as any)._id
+        : product.usuario
+    );
+
+    if (ownerId === userId) {
+      const err: any = new Error('No podés retirar tu propia publicación.');
+      err.statusCode = 403;
+      throw err;
+    }
+
+    if (product.estado === 'retirado') {
+      const err: any = new Error('La publicación ya fue retirada.');
+      err.statusCode = 400;
+      throw err;
+    }
+
+    return await ProductDAO.markAsRetirado(id);
+  }
+
 }
 
 export default new ProductService();

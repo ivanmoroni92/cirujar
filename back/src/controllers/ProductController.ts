@@ -149,6 +149,22 @@ class ProductController {
       res.status(statusCode).json({ error: error.message });
     }
   }
+
+  async retirar(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.auth?.userId) {
+        res.status(401).json({ error: 'Se requiere autenticación.' });
+        return;
+      }
+
+      const id = req.params.id as string;
+      const updated = await ProductService.retirarProduct(id, req.auth.userId);
+      res.status(200).json(updated);
+    } catch (error: any) {
+      const statusCode = error.statusCode ?? (error.message === 'El producto no existe.' ? 404 : 400);
+      res.status(statusCode).json({ error: error.message });
+    }
+  }
 }
 
 export default new ProductController();

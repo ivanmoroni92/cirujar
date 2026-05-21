@@ -16,6 +16,7 @@ export interface IProduct extends Document {
   detalles: string;
   fotos: string[];
   usuario?: Types.ObjectId | IProductUsuario;
+  estado: 'disponible' | 'retirado';
 }
 
 const ProductSchema: Schema = new Schema(
@@ -51,6 +52,11 @@ const ProductSchema: Schema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
+    },
+    estado: {
+      type: String,
+      enum: ['disponible', 'retirado'],
+      default: 'disponible',
     },
   },
   {

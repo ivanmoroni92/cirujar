@@ -16,7 +16,8 @@ import {
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import MapView, { UrlTile, Marker } from 'react-native-maps';
-import { fetchProductById, deleteProduct, type ApiProduct } from '@/_services/api';
+import * as Location from 'expo-location';
+import { fetchProductById, deleteProduct, retirarProduct, type ApiProduct } from '@/_services/api';
 import { getStoredUser } from '@/_services/authToken';
 
 const { width } = Dimensions.get('window');
@@ -41,6 +42,8 @@ function Content() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [photoIndex, setPhotoIndex] = useState(0);
+  const [retirando, setRetirando] = useState(false);
+  const [retirarError, setRetirarError] = useState<string | null>(null);
 
   const carouselRef = useRef<ScrollView>(null);
 
@@ -103,6 +106,61 @@ function Content() {
           { text: 'Eliminar', style: 'destructive', onPress: doDelete },
         ]
       );
+    }
+  };
+
+  const haversineMeters = (
+    lat1: number, lon1: number,
+    lat2: number, lon2: number
+  ): number => {
+    const R = 6371000;
+    const toRad = (deg: number) => (deg * Math.PI) / 180;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  };
+
+  const handleRetirar = async () => {
+    if (!product || retirando) return;
+    setRetirarError(null);
+    setRetirando(true);
+
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        setRetirarError('Necesitamos acceso a tu ubicación para validar que estás cerca.');
+        return;
+      }
+
+      const loc = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+
+      if (product.ubicacion?.coordinates) {
+        const pubLat = product.ubicacion.coordinates[1];
+        const pubLon = product.ubicacion.coordinates[0];
+        const distancia = haversineMeters(
+          loc.coords.latitude, loc.coords.longitude,
+          pubLat, pubLon
+        );
+
+        if (distancia > 200) {
+          setRetirarError('Debes estar cerca del lugar para retirar el objeto.');
+          return;
+        }
+      }
+
+      const productId = Array.isArray(id) ? id[0] : id;
+      if (!productId) return;
+
+      const updated = await retirarProduct(productId);
+      setProduct(updated);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'No se pudo retirar la publicación.';
+      setRetirarError(msg);
+    } finally {
+      setRetirando(false);
     }
   };
 
@@ -371,6 +429,34 @@ function Content() {
                 })}
               </Text>
             )}
+
+            {!isOwner && product.estado !== 'retirado' && (
+              <View style={styles.retirarSection}>
+                {retirarError && (
+                  <Text style={styles.retirarErrorText}>{retirarError}</Text>
+                )}
+                <Pressable
+                  onPress={handleRetirar}
+                  disabled={retirando}
+                  style={({ pressed }) => [
+                    styles.retirarBtn,
+                    (pressed || retirando) && styles.retirarBtnPressed,
+                  ]}
+                >
+                  <Ionicons name="checkmark-circle-outline" size={18} color="#fff" />
+                  <Text style={styles.retirarBtnText}>
+                    {retirando ? 'Validando...' : 'Retirar'}
+                  </Text>
+                </Pressable>
+              </View>
+            )}
+
+            {product.estado === 'retirado' && (
+              <View style={styles.retiradoBadge}>
+                <Ionicons name="checkmark-done-circle" size={16} color="#fff" />
+                <Text style={styles.retiradoBadgeText}>Retirado</Text>
+              </View>
+            )}
           </View>
         </View>
       )}
@@ -548,6 +634,50 @@ const styles = StyleSheet.create({
   thumbImage: {
     width: '100%',
     height: '100%',
+  },
+
+  retirarSection: {
+    marginTop: 12,
+    gap: 6,
+  },
+  retirarErrorText: {
+    fontSize: 12,
+    color: '#d11a2a',
+    textAlign: 'center',
+  },
+  retirarBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#2a9d5c',
+    borderRadius: 12,
+    paddingVertical: 13,
+    paddingHorizontal: 20,
+  },
+  retirarBtnPressed: {
+    opacity: 0.7,
+  },
+  retirarBtnText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
+  },
+  retiradoBadge: {
+    marginTop: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    backgroundColor: '#d11a2a',
+    borderRadius: 12,
+    paddingVertical: 13,
+    paddingHorizontal: 20,
+  },
+  retiradoBadgeText: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fff',
   },
 
     // Estilos del nuevo bloque de mapa

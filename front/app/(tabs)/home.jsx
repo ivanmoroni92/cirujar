@@ -1,9 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert, Linking, Modal } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator, Alert, Linking, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Callout } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { fetchProducts } from '@/_services/api';
 import { IS_MOCK, MOCK_POSTS } from '@/_fake';
@@ -129,11 +129,28 @@ export default function HomeMap() {
                       <Marker
                           key={post._id || post.id}
                           coordinate={{ latitude: lat, longitude: lng }}
-                          title={post.titulo || post.title}
-                          description={post.detalles || post.description}
                           pinColor="red"
-                          onCalloutPress={() => router.push(`/product/${post._id || post.id}`)}
-                      />
+                      >
+                        <Callout
+                          tooltip={true}
+                          onPress={() => router.push(`/product/${post._id || post.id}`)}
+                        >
+                          <View style={styles.calloutCard}>
+                            {post.fotos?.[0] ? (
+                              <Image
+                                source={{ uri: post.fotos[0] }}
+                                style={styles.calloutPhoto}
+                                resizeMode="cover"
+                              />
+                            ) : (
+                              <View style={styles.calloutPhotoPlaceholder} />
+                            )}
+                            <View style={styles.calloutBtn}>
+                              <Text style={styles.calloutBtnText}>Ver detalle</Text>
+                            </View>
+                          </View>
+                        </Callout>
+                      </Marker>
                   );
                 })}
               </MapView>
@@ -193,5 +210,35 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  calloutCard: {
+    width: 140,
+    borderRadius: 12,
+    overflow: 'hidden',
+    backgroundColor: '#fff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  calloutPhoto: {
+    width: '100%',
+    height: 110,
+  },
+  calloutPhotoPlaceholder: {
+    width: '100%',
+    height: 110,
+    backgroundColor: '#ddd',
+  },
+  calloutBtn: {
+    backgroundColor: '#0a7ea4',
+    paddingVertical: 8,
+    alignItems: 'center',
+  },
+  calloutBtnText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '700',
   },
 });

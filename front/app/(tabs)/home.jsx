@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert, Linking, Modal } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator, Alert, Linking, Modal } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
@@ -16,6 +17,7 @@ export default function HomeMap() {
   const [userLocation, setUserLocation] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPost, setSelectedPost] = useState(null);
 
   const requestLocationPermission = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -118,6 +120,7 @@ export default function HomeMap() {
                   showsMyLocationButton={true}
                   scrollEnabled={true}
                   zoomEnabled={true}
+                  onPress={() => setSelectedPost(null)}
               >
                 {posts.map((post) => {
                   const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
@@ -129,14 +132,54 @@ export default function HomeMap() {
                       <Marker
                           key={post._id || post.id}
                           coordinate={{ latitude: lat, longitude: lng }}
-                          title={post.titulo || post.title}
-                          description={post.detalles || post.description}
                           pinColor="red"
-                          onCalloutPress={() => router.push(`/product/${post._id || post.id}`)}
+                          onPress={() => setSelectedPost(post)}
                       />
                   );
                 })}
               </MapView>
+
+              {selectedPost && (
+                <View style={styles.previewCard}>
+                  <Pressable
+                    style={styles.previewCloseBtn}
+                    onPress={() => setSelectedPost(null)}
+                    hitSlop={8}
+                  >
+                    <Ionicons name="close" size={18} color="#666" />
+                  </Pressable>
+
+                  {selectedPost.fotos?.[0] ? (
+                    <Image
+                      source={{ uri: selectedPost.fotos[0] }}
+                      style={styles.previewPhoto}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View style={styles.previewPhotoPlaceholder}>
+                      <Ionicons name="image-outline" size={36} color="#ccc" />
+                    </View>
+                  )}
+
+                  <View style={styles.previewBody}>
+                    <Text style={styles.previewTitle} numberOfLines={2}>
+                      {selectedPost.titulo || selectedPost.title}
+                    </Text>
+                    <Pressable
+                      style={({ pressed }) => [
+                        styles.previewBtn,
+                        pressed && styles.previewBtnPressed,
+                      ]}
+                      onPress={() =>
+                        router.push(`/product/${selectedPost._id || selectedPost.id}`)
+                      }
+                    >
+                      <Text style={styles.previewBtnText}>Ver detalle</Text>
+                      <Ionicons name="chevron-forward" size={14} color="#fff" />
+                    </Pressable>
+                  </View>
+                </View>
+              )}
             </View>
         )}
 
@@ -193,5 +236,68 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 14,
     fontWeight: 'bold',
+  },
+  previewCard: {
+    position: 'absolute',
+    bottom: 20,
+    left: 16,
+    right: 16,
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  previewCloseBtn: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    zIndex: 10,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewPhoto: {
+    width: '100%',
+    height: 160,
+  },
+  previewPhotoPlaceholder: {
+    width: '100%',
+    height: 160,
+    backgroundColor: '#eaeaea',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewBody: {
+    padding: 12,
+    gap: 10,
+  },
+  previewTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#111',
+  },
+  previewBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 4,
+    backgroundColor: '#0a7ea4',
+    borderRadius: 10,
+    paddingVertical: 10,
+  },
+  previewBtnPressed: {
+    opacity: 0.75,
+  },
+  previewBtnText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#fff',
   },
 });

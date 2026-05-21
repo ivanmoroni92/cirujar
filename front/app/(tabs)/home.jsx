@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, StyleSheet, Pressable, ActivityIndicator, Alert, Linking, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
@@ -73,8 +74,13 @@ export default function HomeMap() {
 
   useEffect(() => {
     requestLocationPermission();
-    loadMapData();
-  }, [loadMapData]);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadMapData();
+    }, [loadMapData])
+  );
 
 
   return (

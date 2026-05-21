@@ -13,7 +13,7 @@ class ProductDAO {
    * Obtiene todos los productos
    */
   async findAll(): Promise<IProduct[]> {
-    return await Product.find()
+    return await Product.find({ estado: { $ne: 'retirado' } })
       .populate('usuario', 'alias imagenPerfil')
       .sort({ createdAt: -1 });
   }
@@ -34,6 +34,14 @@ class ProductDAO {
 
   async delete(id: string): Promise<IProduct | null> {
     return await Product.findByIdAndDelete(id);
+  }
+
+  async markAsRetirado(id: string): Promise<IProduct | null> {
+    return await Product.findByIdAndUpdate(
+      id,
+      { estado: 'retirado' },
+      { new: true }
+    ).populate('usuario', 'alias imagenPerfil');
   }
 
 }

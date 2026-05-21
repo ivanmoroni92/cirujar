@@ -20,4 +20,7 @@ router.patch('/:id', requireAuth, upload.array('fotosNuevas', 4), ProductControl
 //DELETE /api/products/:id
 router.delete('/:id', requireAuth, ProductController.delete);
 
+//PATCH /api/products/:id/retirar
+router.patch('/:id/retirar', requireAuth, ProductController.retirar);
+
 export default router;

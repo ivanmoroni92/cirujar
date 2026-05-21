@@ -18,6 +18,7 @@ export interface ApiProduct {
   };
   ubicacionTexto?: string;
   fotos: string[];
+  estado?: 'disponible' | 'retirado';
   createdAt?: string;
   updatedAt?: string;
 }
@@ -227,6 +228,25 @@ export async function updateUser(
   }
 
   return res.json() as Promise<ApiUser>;
+}
+
+export async function retirarProduct(id: string): Promise<ApiProduct> {
+  const auth = await getBearerAuthHeaders();
+  const response = await fetch(`${API_URL}/products/${id}/retirar`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...auth },
+  });
+
+  if (!response.ok) {
+    let message = response.statusText;
+    try {
+      const body = (await response.json()) as { error?: string };
+      if (body?.error) message = body.error;
+    } catch { /* ignore */ }
+    throw new Error(message);
+  }
+
+  return response.json() as Promise<ApiProduct>;
 }
 
 export async function deleteProduct(id: string): Promise<void> {

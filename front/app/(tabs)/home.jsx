@@ -13,6 +13,9 @@ export default function HomeMap() {
   const router = useRouter();
 
   const mapRef = useRef(null);
+  const selectedPostRef = useRef(null);
+  const currentRegion = useRef(null);
+  const mapDimensions = useRef({ width: 0, height: 0 });
   const [permissionGranted, setPermissionGranted] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [posts, setPosts] = useState([]);
@@ -23,6 +26,15 @@ export default function HomeMap() {
   const CARD_WIDTH = 140;
   const CARD_HEIGHT = 150;
   const SCREEN_WIDTH = Dimensions.get('window').width;
+
+  const calcCardPos = (lat, lng, region, dims) => {
+    const { width, height } = dims;
+    const x = (lng - region.longitude) / region.longitudeDelta * width + width / 2;
+    const y = (region.latitude - lat) / region.latitudeDelta * height + height / 2;
+    if (x < 0 || x > width || y < 0 || y > height) return null;
+    const left = Math.max(8, Math.min(x - CARD_WIDTH / 2, width - CARD_WIDTH - 8));
+    return { left, top: Math.max(8, y - CARD_HEIGHT - 48) };
+  };
 
   const requestLocationPermission = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -126,7 +138,22 @@ export default function HomeMap() {
                   showsMyLocationButton={true}
                   scrollEnabled={true}
                   zoomEnabled={true}
-                  onPress={() => { setSelectedPost(null); setCardPos(null); }}
+                  onLayout={(e) => {
+                    mapDimensions.current = {
+                      width: e.nativeEvent.layout.width,
+                      height: e.nativeEvent.layout.height,
+                    };
+                  }}
+                  onPress={() => { setSelectedPost(null); setCardPos(null); selectedPostRef.current = null; }}
+                  onRegionChange={(region) => {
+                    currentRegion.current = region;
+                    const post = selectedPostRef.current;
+                    if (!post) return;
+                    const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
+                    const lng = post.ubicacion?.coordinates?.[0] || post.longitude;
+                    if (!lat || !lng) return;
+                    setCardPos(calcCardPos(lat, lng, region, mapDimensions.current));
+                  }}
               >
                 {posts.map((post) => {
                   const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
@@ -139,11 +166,12 @@ export default function HomeMap() {
                           key={post._id || post.id}
                           coordinate={{ latitude: lat, longitude: lng }}
                           pinColor="red"
-                          onPress={async () => {
+                          onPress={() => {
                             setSelectedPost(post);
-                            const point = await mapRef.current.pointForCoordinate({ latitude: lat, longitude: lng });
-                            const left = Math.max(8, Math.min(point.x - CARD_WIDTH / 2, SCREEN_WIDTH - CARD_WIDTH - 8));
-                            setCardPos({ left, top: point.y - CARD_HEIGHT - 48 });
+                            selectedPostRef.current = post;
+                            if (currentRegion.current) {
+                              setCardPos(calcCardPos(lat, lng, currentRegion.current, mapDimensions.current));
+                            }
                           }}
                       />
                   );

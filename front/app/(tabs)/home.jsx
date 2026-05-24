@@ -1,9 +1,9 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator, Alert, Linking, Modal } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator, Alert, Linking, Modal, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
-import MapView, { Marker, Callout } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { fetchProducts } from '@/_services/api';
 import { IS_MOCK, MOCK_POSTS } from '@/_fake';
@@ -12,10 +12,17 @@ import MainHeader from '@/components/MainHeader';
 export default function HomeMap() {
   const router = useRouter();
 
+  const mapRef = useRef(null);
   const [permissionGranted, setPermissionGranted] = useState(null);
   const [userLocation, setUserLocation] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [cardPos, setCardPos] = useState(null);
+
+  const CARD_WIDTH = 140;
+  const CARD_HEIGHT = 150;
+  const SCREEN_WIDTH = Dimensions.get('window').width;
 
   const requestLocationPermission = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
@@ -112,12 +119,14 @@ export default function HomeMap() {
         {userLocation && (
             <View style={styles.mapFrame}>
               <MapView
+                  ref={mapRef}
                   style={styles.map}
                   initialRegion={userLocation}
                   showsUserLocation={true}
                   showsMyLocationButton={true}
                   scrollEnabled={true}
                   zoomEnabled={true}
+                  onPress={() => { setSelectedPost(null); setCardPos(null); }}
               >
                 {posts.map((post) => {
                   const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
@@ -130,30 +139,39 @@ export default function HomeMap() {
                           key={post._id || post.id}
                           coordinate={{ latitude: lat, longitude: lng }}
                           pinColor="red"
-                      >
-                        <Callout
-                          tooltip={true}
-                          onPress={() => router.push(`/product/${post._id || post.id}`)}
-                        >
-                          <View style={styles.calloutCard}>
-                            {post.fotos?.[0] ? (
-                              <Image
-                                source={{ uri: post.fotos[0] }}
-                                style={styles.calloutPhoto}
-                                resizeMode="cover"
-                              />
-                            ) : (
-                              <View style={styles.calloutPhotoPlaceholder} />
-                            )}
-                            <View style={styles.calloutBtn}>
-                              <Text style={styles.calloutBtnText}>Ver detalle</Text>
-                            </View>
-                          </View>
-                        </Callout>
-                      </Marker>
+                          onPress={async () => {
+                            setSelectedPost(post);
+                            const point = await mapRef.current.pointForCoordinate({ latitude: lat, longitude: lng });
+                            const left = Math.max(8, Math.min(point.x - CARD_WIDTH / 2, SCREEN_WIDTH - CARD_WIDTH - 8));
+                            setCardPos({ left, top: point.y - CARD_HEIGHT - 48 });
+                          }}
+                      />
                   );
                 })}
               </MapView>
+
+              {selectedPost && cardPos && (
+                <View style={[styles.previewCard, { left: cardPos.left, top: cardPos.top }]}>
+                  {selectedPost.fotos?.[0] ? (
+                    <Image
+                      source={{ uri: selectedPost.fotos[0] }}
+                      style={styles.previewPhoto}
+                      resizeMode="cover"
+                    />
+                  ) : (
+                    <View style={styles.previewPhotoPlaceholder} />
+                  )}
+                  <Pressable
+                    style={styles.previewBtn}
+                    onPress={() => router.push(`/product/${selectedPost._id || selectedPost.id}`)}
+                  >
+                    <Text style={styles.previewBtnText}>Ver detalle</Text>
+                  </Pressable>
+                  <Pressable style={styles.previewClose} onPress={() => { setSelectedPost(null); setCardPos(null); }}>
+                    <Text style={styles.previewCloseText}>✕</Text>
+                  </Pressable>
+                </View>
+              )}
             </View>
         )}
 
@@ -211,34 +229,51 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: 'bold',
   },
-  calloutCard: {
+  previewCard: {
+    position: 'absolute',
     width: 140,
+    backgroundColor: '#fff',
     borderRadius: 12,
     overflow: 'hidden',
-    backgroundColor: '#fff',
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.22,
+    shadowRadius: 8,
+    elevation: 8,
   },
-  calloutPhoto: {
-    width: '100%',
+  previewPhoto: {
+    width: 140,
     height: 110,
   },
-  calloutPhotoPlaceholder: {
-    width: '100%',
+  previewPhotoPlaceholder: {
+    width: 140,
     height: 110,
     backgroundColor: '#ddd',
   },
-  calloutBtn: {
+  previewBtn: {
     backgroundColor: '#0a7ea4',
     paddingVertical: 8,
     alignItems: 'center',
   },
-  calloutBtnText: {
+  previewBtnText: {
     color: '#fff',
     fontSize: 13,
     fontWeight: '700',
+  },
+  previewClose: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    borderRadius: 10,
+    width: 20,
+    height: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  previewCloseText: {
+    fontSize: 11,
+    color: '#fff',
+    lineHeight: 14,
   },
 });

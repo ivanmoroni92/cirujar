@@ -32,9 +32,9 @@ export async function fetchProducts(): Promise<ApiProduct[]> {
 export interface CreateProductPayload {
   titulo: string;
   detalles: string;
-  ubicacionTexto: string;
-  latitud?: number;  // <-- NUEVO
-  longitud?: number; // <-- NUEVO
+  ubicacionTexto?: string; // ya no es requerido
+  latitud?: number;
+  longitud?: number;
   /** Local URIs from expo-image-picker (file:// or content://) */
   imageUris: string[];
 }
@@ -48,9 +48,10 @@ export async function createProduct(payload: CreateProductPayload): Promise<ApiP
   if (payload.detalles.trim()) {
     form.append('detalles', payload.detalles.trim());
   }
-  form.append('ubicacionTexto', payload.ubicacionTexto.trim());
+  if (payload.ubicacionTexto?.trim()) {
+    form.append('ubicacionTexto', payload.ubicacionTexto.trim());
+  }
 
-  // NUEVO: Agregamos latitud y longitud si fueron seleccionadas en el mapa
   if (payload.latitud !== undefined && payload.longitud !== undefined) {
     form.append('latitud', payload.latitud.toString());
     form.append('longitud', payload.longitud.toString());
@@ -125,7 +126,7 @@ export async function fetchProductById(id: string): Promise<ApiProduct> {
 export const updateProduct = async (id: string, data: FormData) => {
   const auth = await getBearerAuthHeaders();
   const res = await fetch(`${API_URL}/products/${id}`, {
-    method: 'PATCH', // ✅ era PUT
+    method: 'PATCH',
     headers: auth,
     body: data,
   });
@@ -153,19 +154,15 @@ export async function uploadImage(
 ): Promise<string> {
   const auth = await getBearerAuthHeaders();
 
-  // Preferir fileName/mimeType del picker (más confiables que parsear la URI)
   const rawName = fileName ?? imageUri.split('/').pop() ?? 'photo.jpg';
-  // Limpiar el nombre: quitar query strings o fragmentos si los hubiera
   const name = rawName.split('?')[0].split('#')[0] || 'photo.jpg';
   const ext = name.includes('.') ? name.split('.').pop()?.toLowerCase() : 'jpg';
   const mime = mimeType ?? (ext === 'png' ? 'image/png' : ext === 'webp' ? 'image/webp' : 'image/jpeg');
 
   const form = new FormData();
   if (webFile) {
-    // Web: enviar File real del browser.
     form.append('imagen', webFile as Blob);
   } else {
-    // Native (Expo Go): enviar descriptor { uri, name, type }.
     form.append('imagen', { uri: imageUri, name, type: mime } as any);
   }
 

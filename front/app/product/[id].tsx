@@ -32,6 +32,36 @@ export default function ProductDetail() {
   );
 }
 
+async function reverseGeocode(lat: number, lon: number): Promise<string> {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json&addressdetails=1`;
+    const res = await fetch(url, {
+      headers: {
+        'Accept-Language': 'es',
+        'User-Agent': 'CirujaApp/1.0',
+      },
+    });
+    if (!res.ok) {
+      return 'Sin ubicación';
+    }
+    const data = await res.json();
+    const addr = data?.address;
+    if (!addr) return 'Sin ubicación';
+
+    const localidad =
+      addr.city ?? addr.town ?? addr.village ?? addr.suburb ?? addr.municipality ?? '';
+    const provincia = addr.state ?? '';
+
+    if (localidad && provincia) return `${provincia}, ${localidad}`;
+    if (provincia) return provincia;
+    if (localidad) return localidad;
+    return 'Sin ubicación';
+  } catch (e) {
+    console.error('[reverseGeocode] error:', e);
+    return 'Sin ubicación';
+  }
+}
+
 function Content() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -44,6 +74,7 @@ function Content() {
   const [photoIndex, setPhotoIndex] = useState(0);
   const [retirando, setRetirando] = useState(false);
   const [retirarError, setRetirarError] = useState<string | null>(null);
+  const [ubicacionLabel, setUbicacionLabel] = useState<string>('...');
 
   const carouselRef = useRef<ScrollView>(null);
 
@@ -60,6 +91,19 @@ function Content() {
       .catch((e) => setError(e?.message ?? 'Error al cargar el producto'))
       .finally(() => setLoading(false));
   }, [id]);
+
+  // Reverse geocoding cuando el producto carga
+  useEffect(() => {
+    if (!product) return;
+
+    if (product.ubicacion?.coordinates) {
+      const lat = product.ubicacion.coordinates[1];
+      const lon = product.ubicacion.coordinates[0];
+      reverseGeocode(lat, lon).then(setUbicacionLabel);
+    } else {
+      setUbicacionLabel('Sin ubicación');
+    }
+  }, [product]);
 
   const isOwner = !!product?.usuario?._id && product.usuario._id === currentUserId;
 
@@ -296,7 +340,7 @@ function Content() {
               <View style={styles.placeholder} />
             )}
 
-            {/* 🔥 MINIATURAS (AGREGADO) */}
+            {/* MINIATURAS */}
             {product.fotos?.length > 1 && (
               <View style={styles.thumbsContainer}>
                 <ScrollView
@@ -371,13 +415,12 @@ function Content() {
                 )}
               </View>
 
-              {/* MAPA DE UBICACIÓN (NUEVO BLOQUE) */}
+              {/* MAPA DE UBICACIÓN */}
               {product.ubicacion && product.ubicacion.coordinates && (
                   <View style={styles.mapContainer}>
                     <MapView
                         style={styles.map}
                         initialRegion={{
-                          // Recordatorio: MongoDB guarda como [longitud, latitud], por eso el índice 1 es la latitud
                           latitude: product.ubicacion.coordinates[1],
                           longitude: product.ubicacion.coordinates[0],
                           latitudeDelta: 0.01,
@@ -414,9 +457,7 @@ function Content() {
           >
             <View style={styles.locationRow}>
               <Ionicons name="location-outline" size={15} color="#666" />
-              <Text style={styles.location}>
-                {product.ubicacionTexto ?? 'Sin ubicación'}
-              </Text>
+              <Text style={styles.location}>{ubicacionLabel}</Text>
             </View>
 
             {product.createdAt && (
@@ -610,7 +651,6 @@ const styles = StyleSheet.create({
 
   errorText: { color: '#a33' },
 
-  // 🔥 MINIATURAS
   thumbsContainer: { marginTop: 10 },
 
   thumbsScroll: {
@@ -680,12 +720,11 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
-    // Estilos del nuevo bloque de mapa
   mapCard: {
     backgroundColor: '#f7f7f7',
     borderRadius: 14,
     padding: 16,
-    marginTop: 16, // Para que se separe de la tarjeta de descripción
+    marginTop: 16,
   },
   mapContainer: {
     height: 250,

@@ -23,13 +23,10 @@ import * as Location from 'expo-location';
 const PAD = 16;
 const TITLE_MIN = 3;
 const TITLE_MAX = 50;
-const UBIC_MIN = 3;
-const UBIC_MAX = 50;
 const DESC_MAX = 255;
 const MAX_EXTRAS = 3;
 
 const LABEL_TITLE = 'Título';
-const LABEL_UBIC = 'Ubicación';
 const LABEL_PHOTOS = 'Fotos';
 
 function unresolvedMsg(fieldLabel: string) {
@@ -39,14 +36,12 @@ function unresolvedMsg(fieldLabel: string) {
 export default function AddPostScreen() {
   const router = useRouter();
   const [titulo, setTitulo] = useState('');
-  const [ubicacion, setUbicacion] = useState('');
   const [detalles, setDetalles] = useState('');
   const [mainUri, setMainUri] = useState<string | null>(null);
   const [extras, setExtras] = useState<(string | null)[]>(() =>
     Array.from({ length: MAX_EXTRAS }, () => null)
   );
 
-  //Ver si las cambio por coordenas desde el celular
   const [coordenadas, setCoordenadas] = useState({
     latitude: -34.6037,
     longitude: -58.3816,
@@ -56,7 +51,7 @@ export default function AddPostScreen() {
 
   useEffect(() => {
     setValidationMessages([]);
-  }, [titulo, ubicacion, detalles, mainUri, extras]);
+  }, [titulo, detalles, mainUri, extras]);
 
   useEffect(() => {
     (async () => {
@@ -129,7 +124,7 @@ export default function AddPostScreen() {
       errs.push(unresolvedMsg(LABEL_PHOTOS));
     }
     return errs;
-  }, [titulo, ubicacion, detalles, mainUri]);
+  }, [titulo, detalles, mainUri]);
 
   const onPublish = useCallback(async () => {
     const errs = validate();
@@ -147,8 +142,6 @@ export default function AddPostScreen() {
       await createProduct({
         titulo: titulo.trim(),
         detalles: detalles.trim(),
-        ubicacionTexto: ubicacion.trim(),
-        //agregadas coordenadas
         latitud: coordenadas.latitude,
         longitud: coordenadas.longitude,
         imageUris: uris,
@@ -160,7 +153,7 @@ export default function AddPostScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [validate, titulo, detalles, ubicacion, mainUri, extras, coordenadas, router]);
+  }, [validate, titulo, detalles, mainUri, extras, coordenadas, router]);
 
   const addPlusDisabled =
     submitting ||
@@ -275,20 +268,6 @@ export default function AddPostScreen() {
             numberOfLines={3}
             editable={!submitting}
           />
-
-          <Text style={styles.label}>Ubicación</Text>
-          <View style={styles.inputRow}>
-            <Ionicons name="location-outline" size={22} color="#555" style={styles.inputIcon} />
-            <TextInput
-              style={[styles.input, styles.inputFlex]}
-              placeholder="Calle, altura, localidad"
-              placeholderTextColor="#999"
-              value={ubicacion}
-              onChangeText={setUbicacion}
-              maxLength={UBIC_MAX}
-              editable={!submitting}
-            />
-          </View>
 
           <Text style={styles.label}>Posición exacta en el mapa</Text>
           <Text style={styles.sectionHint}>Mantén presionado y arrastra el pin o toca en otro lugar para corregir la ubicación.</Text>
@@ -479,21 +458,6 @@ const styles = StyleSheet.create({
     minHeight: 88,
     textAlignVertical: 'top',
   },
-  inputRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  inputIcon: {
-    position: 'absolute',
-    left: 12,
-    zIndex: 1,
-  },
-  inputFlex: {
-    flex: 1,
-    marginBottom: 0,
-    paddingLeft: 40,
-  },
   publishBtn: {
     marginTop: 8,
     backgroundColor: '#0a7ea4',
@@ -514,7 +478,7 @@ const styles = StyleSheet.create({
     opacity: 0.75,
   },
 
-  // ESTILOS NUEVOS PARA EL MAPA
+  // ESTILOS DEL MAPA
   mapContainer: {
     height: 250,
     borderRadius: 8,

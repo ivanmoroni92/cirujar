@@ -20,6 +20,7 @@ export default function HomeMap() {
   const [userLocation, setUserLocation] = useState(null);
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [mapReady, setMapReady] = useState(false);
   const [selectedPost, setSelectedPost] = useState(null);
   const [cardPos, setCardPos] = useState(null);
 
@@ -65,12 +66,12 @@ export default function HomeMap() {
     } else if (!canAskAgain) {
       // Si rechazó y el SO ya no nos deja preguntar, lo mandamos a los ajustes del celu
       Alert.alert(
-          "Permiso bloqueado",
-          "Debes habilitar la ubicación manualmente desde la configuración de tu celular para ver el mapa.",
-          [
-            { text: "Cancelar", style: "cancel" },
-            { text: "Abrir Configuración", onPress: () => Linking.openSettings() }
-          ]
+        "Permiso bloqueado",
+        "Debes habilitar la ubicación manualmente desde la configuración de tu celular para ver el mapa.",
+        [
+          { text: "Cancelar", style: "cancel" },
+          { text: "Abrir Configuración", onPress: () => Linking.openSettings() }
+        ]
       );
     }
   };
@@ -103,107 +104,114 @@ export default function HomeMap() {
 
 
   return (
-      <SafeAreaView style={styles.safeArea} edges={['top']}>
+    <SafeAreaView style={styles.safeArea} edges={['top']}>
 
-        {/* 1. MODAL DE CARGA */}
-        <Modal visible={permissionGranted === null || loading} animationType="none" transparent={false}>
-          <View style={styles.center}>
-            <ActivityIndicator size="large" color="#333" />
-          </View>
-        </Modal>
+      {/* 1. MODAL DE CARGA */}
+      <Modal visible={permissionGranted === null || loading} animationType="none" transparent={false}>
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#333" />
+        </View>
+      </Modal>
 
-        {/* 2. MODAL BLOQUEANTE */}
-        <Modal visible={permissionGranted === false} animationType="fade" transparent={false}>
-          <SafeAreaView style={styles.blockedContainer}>
-            <Text style={styles.blockedText}>Necesitas dar permiso a tu ubicación para continuar</Text>
-            <Pressable style={styles.button} onPress={handleManualPermissionRequest}>
-              <Text style={styles.buttonText}>Permitir ubicación</Text>
-            </Pressable>
-          </SafeAreaView>
-        </Modal>
+      {/* 2. MODAL BLOQUEANTE */}
+      <Modal visible={permissionGranted === false} animationType="fade" transparent={false}>
+        <SafeAreaView style={styles.blockedContainer}>
+          <Text style={styles.blockedText}>Necesitas dar permiso a tu ubicación para continuar</Text>
+          <Pressable style={styles.button} onPress={handleManualPermissionRequest}>
+            <Text style={styles.buttonText}>Permitir ubicación</Text>
+          </Pressable>
+        </SafeAreaView>
+      </Modal>
 
-        {/* --- PANTALLA PRINCIPAL --- */}
+      {/* --- PANTALLA PRINCIPAL --- */}
 
-        {/* 3. HEADER GLOBAL*/}
-        <MainHeader />
+      {/* 3. HEADER GLOBAL*/}
+      <MainHeader />
 
-        {/* 4. MAP FRAME */}
-        {userLocation && (
-            <View style={styles.mapFrame}>
-              <MapView
-                  ref={mapRef}
-                  style={styles.map}
-                  initialRegion={userLocation}
-                  showsUserLocation={true}
-                  showsMyLocationButton={true}
-                  scrollEnabled={true}
-                  zoomEnabled={true}
-                  onLayout={(e) => {
-                    mapDimensions.current = {
-                      width: e.nativeEvent.layout.width,
-                      height: e.nativeEvent.layout.height,
-                    };
+      {/* 4. MAP FRAME */}
+      {userLocation && (
+        <View style={styles.mapFrame}>
+          <MapView
+            ref={mapRef}
+            style={styles.map}
+            initialRegion={userLocation}
+            onMapReady={() => setMapReady(true)}
+            showsUserLocation={true}
+            showsMyLocationButton={true}
+            scrollEnabled={true}
+            zoomEnabled={true}
+            onLayout={(e) => {
+              mapDimensions.current = {
+                width: e.nativeEvent.layout.width,
+                height: e.nativeEvent.layout.height,
+              };
+            }}
+            onPress={() => { setSelectedPost(null); setCardPos(null); selectedPostRef.current = null; }}
+            onRegionChange={(region) => {
+              currentRegion.current = region;
+              const post = selectedPostRef.current;
+              if (!post) return;
+              const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
+              const lng = post.ubicacion?.coordinates?.[0] || post.longitude;
+              if (!lat || !lng) return;
+              setCardPos(calcCardPos(lat, lng, region, mapDimensions.current));
+            }}
+          >
+            {posts.map((post) => {
+              const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
+              const lng = post.ubicacion?.coordinates?.[0] || post.longitude;
+
+              if (!lat || !lng) return null;
+
+              return (
+                <Marker
+                  key={post._id || post.id}
+                  coordinate={{ latitude: lat, longitude: lng }}
+                  pinColor="red"
+                  onPress={() => {
+                    setSelectedPost(post);
+                    selectedPostRef.current = post;
+                    if (currentRegion.current) {
+                      setCardPos(calcCardPos(lat, lng, currentRegion.current, mapDimensions.current));
+                    }
                   }}
-                  onPress={() => { setSelectedPost(null); setCardPos(null); selectedPostRef.current = null; }}
-                  onRegionChange={(region) => {
-                    currentRegion.current = region;
-                    const post = selectedPostRef.current;
-                    if (!post) return;
-                    const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
-                    const lng = post.ubicacion?.coordinates?.[0] || post.longitude;
-                    if (!lat || !lng) return;
-                    setCardPos(calcCardPos(lat, lng, region, mapDimensions.current));
-                  }}
-              >
-                {posts.map((post) => {
-                  const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
-                  const lng = post.ubicacion?.coordinates?.[0] || post.longitude;
+                />
+              );
+            })}
+          </MapView>
 
-                  if (!lat || !lng) return null;
-
-                  return (
-                      <Marker
-                          key={post._id || post.id}
-                          coordinate={{ latitude: lat, longitude: lng }}
-                          pinColor="red"
-                          onPress={() => {
-                            setSelectedPost(post);
-                            selectedPostRef.current = post;
-                            if (currentRegion.current) {
-                              setCardPos(calcCardPos(lat, lng, currentRegion.current, mapDimensions.current));
-                            }
-                          }}
-                      />
-                  );
-                })}
-              </MapView>
-
-              {selectedPost && cardPos && (
-                <View style={[styles.previewCard, { left: cardPos.left, top: cardPos.top }]}>
-                  {selectedPost.fotos?.[0] ? (
-                    <Image
-                      source={{ uri: selectedPost.fotos[0] }}
-                      style={styles.previewPhoto}
-                      resizeMode="cover"
-                    />
-                  ) : (
-                    <View style={styles.previewPhotoPlaceholder} />
-                  )}
-                  <Pressable
-                    style={styles.previewBtn}
-                    onPress={() => router.push(`/product/${selectedPost._id || selectedPost.id}`)}
-                  >
-                    <Text style={styles.previewBtnText}>Ver detalle</Text>
-                  </Pressable>
-                  <Pressable style={styles.previewClose} onPress={() => { setSelectedPost(null); setCardPos(null); }}>
-                    <Text style={styles.previewCloseText}>✕</Text>
-                  </Pressable>
-                </View>
-              )}
+          {!mapReady && (
+            <View style={styles.mapLoadingOverlay}>
+              <ActivityIndicator size="large" color="#0a7ea4" />
             </View>
-        )}
+          )}
 
-      </SafeAreaView>
+          {selectedPost && cardPos && (
+            <View style={[styles.previewCard, { left: cardPos.left, top: cardPos.top }]}>
+              {selectedPost.fotos?.[0] ? (
+                <Image
+                  source={{ uri: selectedPost.fotos[0] }}
+                  style={styles.previewPhoto}
+                  resizeMode="cover"
+                />
+              ) : (
+                <View style={styles.previewPhotoPlaceholder} />
+              )}
+              <Pressable
+                style={styles.previewBtn}
+                onPress={() => router.push(`/product/${selectedPost._id || selectedPost.id}`)}
+              >
+                <Text style={styles.previewBtnText}>Ver detalle</Text>
+              </Pressable>
+              <Pressable style={styles.previewClose} onPress={() => { setSelectedPost(null); setCardPos(null); }}>
+                <Text style={styles.previewCloseText}>✕</Text>
+              </Pressable>
+            </View>
+          )}
+        </View>
+      )}
+
+    </SafeAreaView>
   );
 }
 
@@ -231,6 +239,12 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  mapLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(240, 240, 240, 0.9)',
   },
   blockedContainer: {
     flex: 1,

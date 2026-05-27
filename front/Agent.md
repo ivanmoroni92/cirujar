@@ -205,6 +205,9 @@ const handleLogin = async () => {
 ### **app/(tabs)/home.jsx** - Feed de Productos
 **Propósito**: Mostrar grid de publicaciones (productos)
 
+**Experiencia de mapa**:
+- En la vista de mapa se agregó un spinner superpuesto mientras `MapView` termina de disparar `onMapReady`, para evitar pantalla vacía cuando el mapa tarda en cargar.
+
 **Funcionalidad**:
 ```typescript
 // 1. fetchProducts() → GET /api/products (todas las publicaciones)
@@ -227,6 +230,12 @@ const handleLogin = async () => {
 
 ### **app/(tabs)/_layout.tsx** - Tab Navigation
 **Propósito**: Estructura de navegación con 2 tabs
+
+### **Mapas en formularios y detalle**
+**Propósito**: Mejorar percepción de carga en renders lentos del mapa
+
+- `app/add-post.tsx`: el bloque de mapa muestra un `ActivityIndicator` superpuesto hasta que el mapa está listo.
+- `app/product/[id].tsx`: el mapa de ubicación también muestra spinner de carga hasta `onMapReady`.
 
 ```typescript
 export default function TabLayout() {

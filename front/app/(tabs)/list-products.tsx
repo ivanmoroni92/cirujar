@@ -85,6 +85,23 @@ function mapProductToPost(product: Product): Post {
     };
 }
 
+function normalize(text: string): string {
+    return text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '');
+}
+
+function matchesQuery(post: Post, query: string): boolean {
+    if (!query) return true;
+    const q = normalize(query);
+    return (
+        normalize(post.title).includes(q) ||
+        normalize(post.description).includes(q) ||
+        normalize(post.location).includes(q)
+    );
+}
+
 function PostCardImage({ imageUri, style }: PostCardImageProps) {
     const [remoteFailed, setRemoteFailed] = useState(false);
 
@@ -116,11 +133,11 @@ function PostCardImage({ imageUri, style }: PostCardImageProps) {
 export default function ListProducts() {
     const router = useRouter();
 
-    // Tipamos los estados
     const [posts, setPosts] = useState<Post[]>(IS_MOCK ? (MOCK_POSTS as unknown as Post[]) : []);
     const [loading, setLoading] = useState<boolean>(!IS_MOCK);
     const [refreshing, setRefreshing] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+    const [searchQuery, setSearchQuery] = useState<string>('');
 
     const loadPosts = useCallback(async (options?: { refresh?: boolean }) => {
         const isPullRefresh = Boolean(options?.refresh);
@@ -142,7 +159,6 @@ export default function ListProducts() {
         setError(null);
 
         try {
-            // Acá asumimos que fetchProducts devuelve un array de Product
             const products: Product[] = await fetchProducts();
             setPosts(products.map(mapProductToPost));
         } catch (e: any) {
@@ -162,6 +178,12 @@ export default function ListProducts() {
             loadPosts();
         }, [loadPosts])
     );
+
+    // Posts filtrados según la búsqueda (se recalcula solo cuando cambian posts o searchQuery)
+    const filteredPosts = useMemo(() => {
+        const reversed = [...posts].reverse();
+        return reversed.filter((p) => matchesQuery(p, searchQuery));
+    }, [posts, searchQuery]);
 
     const calculateTime = (creation: Date): string => {
         const diff = new Date().getTime() - creation.getTime();
@@ -190,7 +212,6 @@ export default function ListProducts() {
         return (windowWidth - H_PADDING * 2 - totalGaps) / 3;
     }, [windowWidth]);
 
-    // RenderItem tipado para FlatList
     const renderItem = ({ item }: { item: Post }) => (
         <Pressable
             style={({ pressed }) => [
@@ -225,8 +246,8 @@ export default function ListProducts() {
     return (
         <SafeAreaView style={styles.safe} edges={['top']}>
 
-            {/* 1. HEADER GLOBAL*/}
-            <MainHeader />
+            {/* 1. HEADER GLOBAL (con búsqueda) */}
+            <MainHeader onSearchChange={setSearchQuery} />
 
             {/* 2. CONTENIDO PRINCIPAL */}
             {error ? (
@@ -246,7 +267,7 @@ export default function ListProducts() {
                 </View>
             ) : (
                 <FlatList
-                    data={[...posts].reverse()} // Clonado para evitar mutar el estado directamente
+                    data={filteredPosts}
                     keyExtractor={(item) => item.id}
                     numColumns={3}
                     renderItem={renderItem}
@@ -262,9 +283,11 @@ export default function ListProducts() {
                         />
                     }
                     ListEmptyComponent={
-                        !IS_MOCK ? (
-                            <Text style={styles.emptyText}>No hay productos.</Text>
-                        ) : null
+                        <Text style={styles.emptyText}>
+                            {searchQuery.length > 0
+                                ? 'No se encontraron resultados'
+                                : (!IS_MOCK ? 'No hay productos.' : null)}
+                        </Text>
                     }
                 />
             )}
@@ -302,7 +325,7 @@ const styles = StyleSheet.create({
     },
     listContent: {
         paddingHorizontal: H_PADDING,
-        paddingBottom: 120, // Espacio para la tab bar flotante
+        paddingBottom: 120,
     },
     columnWrapper: {
         gap: COLUMN_GAP,

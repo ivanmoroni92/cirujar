@@ -16,7 +16,16 @@ export default function RootLayout() {
   const router = useRouter();
   const pathname = usePathname();
   const [authChecked, setAuthChecked] = useState(false);
+  const [startupDelayDone, setStartupDelayDone] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setStartupDelayDone(true);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -48,12 +57,12 @@ export default function RootLayout() {
     }
   }, [authChecked, isAuthenticated, pathname, router]);
 
-  if (!authChecked) {
+  if (!authChecked || !startupDelayDone) {
     return (
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <View style={styles.loaderWrap}>
           <Image
-            source={require('../assets/images/loading_screen.png')}
+            source={require('../assets/images/loading_animation.gif')}
             style={styles.loaderGif}
             contentFit="contain"
           />

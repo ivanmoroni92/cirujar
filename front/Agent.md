@@ -293,9 +293,9 @@ useEffect(() => {
 **Propósito**: Guardia de rutas global
 
 **Carga inicial**:
-- Mientras se valida el token al abrir la app, muestra una pantalla de carga con GIF animado.
-- Asset utilizado: `assets/images/loading_screen.png`
-- El splash nativo (`expo-splash-screen`) usa el mismo asset para mantener continuidad visual en el arranque.
+- Al abrir la app se muestra una pantalla inicial de 4 segundos con GIF, antes de iniciar el flujo normal.
+- Asset del loader en Root Layout: `assets/images/loading_animation.gif`
+- El splash nativo (`expo-splash-screen`) mantiene su propio asset: `assets/images/loading_screen.png`.
 
 ```typescript
 const pathname = usePathname();

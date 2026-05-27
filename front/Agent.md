@@ -282,6 +282,11 @@ useEffect(() => {
 ### **app/_layout.tsx** - Root Layout (AUTH GUARD)
 **Propósito**: Guardia de rutas global
 
+**Carga inicial**:
+- Mientras se valida el token al abrir la app, muestra una pantalla de carga con GIF animado.
+- Asset utilizado: `assets/images/loading_animation.gif`
+- El splash nativo (`expo-splash-screen`) usa el mismo asset para mantener continuidad visual en el arranque.
+
 ```typescript
 const pathname = usePathname();
 const [isReady, setIsReady] = useState(false);
@@ -297,8 +302,8 @@ useEffect(() => {
   });
 }, []);
 
-// 2. Si no está listo → muestra LoadingIndicator
-if (!isReady) return <LoadingIndicator />;
+// 2. Si no está listo → muestra pantalla de carga con GIF animado
+if (!isReady) return <GifLoadingScreen />;
 
 // 3. Si NO autenticado Y NO en ruta pública → redirige a login
 if (!isSignedIn && !PUBLIC_ROUTES.includes(pathname)) {

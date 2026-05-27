@@ -1,8 +1,9 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { Image } from 'expo-image';
 import { Stack, usePathname, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 
 import { getStoredToken } from '@/_services/authToken';
@@ -51,7 +52,11 @@ export default function RootLayout() {
     return (
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <View style={styles.loaderWrap}>
-          <ActivityIndicator size="large" color="#2a6fd6" />
+          <Image
+            source={require('../assets/images/loading_animation.gif')}
+            style={styles.loaderGif}
+            contentFit="contain"
+          />
         </View>
         <StatusBar style="auto" />
       </ThemeProvider>
@@ -77,7 +82,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f7f9fc',
+    backgroundColor: '#ffffff',
+  },
+  loaderGif: {
+    width: 220,
+    height: 220,
   },
 });
 // Initial commit dev

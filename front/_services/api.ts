@@ -32,9 +32,9 @@ export async function fetchProducts(): Promise<ApiProduct[]> {
 export interface CreateProductPayload {
   titulo: string;
   detalles: string;
-  ubicacionTexto: string;
   latitud?: number;  // <-- NUEVO
   longitud?: number; // <-- NUEVO
+  ubicacionTexto?: string;
   /** Local URIs from expo-image-picker (file:// or content://) */
   imageUris: string[];
 }
@@ -48,7 +48,9 @@ export async function createProduct(payload: CreateProductPayload): Promise<ApiP
   if (payload.detalles.trim()) {
     form.append('detalles', payload.detalles.trim());
   }
-  form.append('ubicacionTexto', payload.ubicacionTexto.trim());
+  if (payload.ubicacionTexto?.trim()) {
+    form.append('ubicacionTexto', payload.ubicacionTexto.trim());
+  }
 
   // NUEVO: Agregamos latitud y longitud si fueron seleccionadas en el mapa
   if (payload.latitud !== undefined && payload.longitud !== undefined) {

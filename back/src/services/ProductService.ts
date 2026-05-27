@@ -1,6 +1,34 @@
 import ProductDAO from '../dao/ProductDAO';
 import StorageService from './StorageService';
 
+async function reverseGeocode(lat: number, lng: number): Promise<string | undefined> {
+  try {
+    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&addressdetails=1`;
+    const res = await fetch(url, {
+      headers: {
+        'Accept-Language': 'es',
+        'User-Agent': 'CirujaApp/1.0',
+      },
+    });
+    if (!res.ok) return undefined;
+ 
+    const data = await res.json() as { address?: Record<string, string> };
+    const addr = data?.address;
+    if (!addr) return undefined;
+ 
+    const localidad =
+      addr.city ?? addr.town ?? addr.village ?? addr.suburb ?? addr.municipality ?? '';
+    const provincia = addr.state ?? '';
+ 
+    if (localidad && provincia) return `${provincia}, ${localidad}`;
+    if (provincia) return provincia;
+    if (localidad) return localidad;
+    return undefined;
+  } catch {
+    return undefined;
+  }
+}
+ 
 class ProductService {
   /**
    * Crea un producto: primero sube las imágenes a Supabase,
@@ -16,13 +44,17 @@ class ProductService {
     },
     imageFiles: Express.Multer.File[] = []
   ) {
-    // 1. Subir imágenes y obtener URLs públicas
     const fotos = imageFiles.length > 0
       ? await StorageService.uploadImages(imageFiles)
       : [];
-
-    // 2. Persistir el producto con las URLs ya resueltas
-    const created = await ProductDAO.create({ ...productData, fotos });
+ 
+    let ubicacionTexto = productData.ubicacionTexto;
+    if (!ubicacionTexto && productData.ubicacion?.coordinates) {
+      const [lng, lat] = productData.ubicacion.coordinates;
+      ubicacionTexto = await reverseGeocode(lat, lng);
+    }
+ 
+    const created = await ProductDAO.create({ ...productData, ubicacionTexto, fotos });
     const populated = await ProductDAO.findById(String(created._id));
     if (!populated) {
       throw new Error('No se pudo cargar la publicación creada.');

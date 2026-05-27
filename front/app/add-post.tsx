@@ -39,7 +39,6 @@ function unresolvedMsg(fieldLabel: string) {
 export default function AddPostScreen() {
   const router = useRouter();
   const [titulo, setTitulo] = useState('');
-  const [ubicacion, setUbicacion] = useState('');
   const [detalles, setDetalles] = useState('');
   const [mainUri, setMainUri] = useState<string | null>(null);
   const [extras, setExtras] = useState<(string | null)[]>(() =>
@@ -56,7 +55,7 @@ export default function AddPostScreen() {
 
   useEffect(() => {
     setValidationMessages([]);
-  }, [titulo, ubicacion, detalles, mainUri, extras]);
+  }, [titulo, detalles, mainUri, extras]);
 
   useEffect(() => {
     (async () => {
@@ -129,7 +128,7 @@ export default function AddPostScreen() {
       errs.push(unresolvedMsg(LABEL_PHOTOS));
     }
     return errs;
-  }, [titulo, ubicacion, detalles, mainUri]);
+  }, [titulo, detalles, mainUri]);
 
   const onPublish = useCallback(async () => {
     const errs = validate();
@@ -147,8 +146,6 @@ export default function AddPostScreen() {
       await createProduct({
         titulo: titulo.trim(),
         detalles: detalles.trim(),
-        ubicacionTexto: ubicacion.trim(),
-        //agregadas coordenadas
         latitud: coordenadas.latitude,
         longitud: coordenadas.longitude,
         imageUris: uris,
@@ -160,7 +157,7 @@ export default function AddPostScreen() {
     } finally {
       setSubmitting(false);
     }
-  }, [validate, titulo, detalles, ubicacion, mainUri, extras, coordenadas, router]);
+  }, [validate, titulo, detalles, mainUri, extras, coordenadas, router]);
 
   const addPlusDisabled =
     submitting ||
@@ -275,20 +272,6 @@ export default function AddPostScreen() {
             numberOfLines={3}
             editable={!submitting}
           />
-
-          <Text style={styles.label}>Ubicación</Text>
-          <View style={styles.inputRow}>
-            <Ionicons name="location-outline" size={22} color="#555" style={styles.inputIcon} />
-            <TextInput
-              style={[styles.input, styles.inputFlex]}
-              placeholder="Calle, altura, localidad"
-              placeholderTextColor="#999"
-              value={ubicacion}
-              onChangeText={setUbicacion}
-              maxLength={UBIC_MAX}
-              editable={!submitting}
-            />
-          </View>
 
           <Text style={styles.label}>Posición exacta en el mapa</Text>
           <Text style={styles.sectionHint}>Mantén presionado y arrastra el pin o toca en otro lugar para corregir la ubicación.</Text>

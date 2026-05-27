@@ -53,7 +53,7 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <View style={styles.loaderWrap}>
           <Image
-            source={require('../assets/images/loading_animation.gif')}
+            source={require('../assets/images/loading_screen.png')}
             style={styles.loaderGif}
             contentFit="contain"
           />

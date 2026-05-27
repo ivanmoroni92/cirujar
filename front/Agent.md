@@ -207,6 +207,7 @@ const handleLogin = async () => {
 
 **Experiencia de mapa**:
 - En la vista de mapa se agregó un spinner superpuesto mientras `MapView` termina de disparar `onMapReady`, para evitar pantalla vacía cuando el mapa tarda en cargar.
+- El loader de Home no es bloqueante: se eliminó el modal full-screen y ahora la carga se muestra solo dentro del bloque del mapa.
 
 **Funcionalidad**:
 ```typescript

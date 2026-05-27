@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator, Alert, Linking, Modal, Dimensions } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import MapView, { Marker } from 'react-native-maps';
@@ -26,7 +26,12 @@ export default function HomeMap() {
 
   const CARD_WIDTH = 140;
   const CARD_HEIGHT = 150;
-  const SCREEN_WIDTH = Dimensions.get('window').width;
+  const FALLBACK_REGION = {
+    latitude: -34.6037,
+    longitude: -58.3816,
+    latitudeDelta: 0.02,
+    longitudeDelta: 0.02,
+  };
 
   const calcCardPos = (lat, lng, region, dims) => {
     const { width, height } = dims;
@@ -38,21 +43,28 @@ export default function HomeMap() {
   };
 
   const requestLocationPermission = async () => {
-    const { status } = await Location.requestForegroundPermissionsAsync();
-    setPermissionGranted(status === 'granted');
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      setPermissionGranted(status === 'granted');
 
-    if (status === 'granted') {
-      try {
-        const location = await Location.getCurrentPositionAsync({});
-        setUserLocation({
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
-          latitudeDelta: 0.02, // Controla el zoom inicial del mapa
-          longitudeDelta: 0.02,
-        });
-      } catch (error) {
-        console.error("Error obteniendo ubicación:", error);
+      if (status === 'granted') {
+        try {
+          const location = await Location.getCurrentPositionAsync({});
+          setUserLocation({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+            latitudeDelta: 0.02,
+            longitudeDelta: 0.02,
+          });
+        } catch (error) {
+          console.error('Error obteniendo ubicación:', error);
+          setUserLocation(FALLBACK_REGION);
+        }
       }
+    } catch (error) {
+      console.error('Error solicitando permisos de ubicación:', error);
+      setPermissionGranted(false);
+      setUserLocation(FALLBACK_REGION);
     }
   };
 
@@ -77,6 +89,7 @@ export default function HomeMap() {
   };
 
   const loadMapData = useCallback(async () => {
+    setLoading(true);
     if (IS_MOCK) {
       setPosts(MOCK_POSTS);
       setLoading(false);
@@ -102,33 +115,27 @@ export default function HomeMap() {
     }, [loadMapData])
   );
 
+  useEffect(() => {
+    if (userLocation) {
+      setMapReady(false);
+    }
+  }, [userLocation]);
+
 
   return (
     <SafeAreaView style={styles.safeArea} edges={['top']}>
-
-      {/* 1. MODAL DE CARGA */}
-      <Modal visible={permissionGranted === null || loading} animationType="none" transparent={false}>
-        <View style={styles.center}>
-          <ActivityIndicator size="large" color="#333" />
-        </View>
-      </Modal>
-
-      {/* 2. MODAL BLOQUEANTE */}
-      <Modal visible={permissionGranted === false} animationType="fade" transparent={false}>
-        <SafeAreaView style={styles.blockedContainer}>
-          <Text style={styles.blockedText}>Necesitas dar permiso a tu ubicación para continuar</Text>
-          <Pressable style={styles.button} onPress={handleManualPermissionRequest}>
-            <Text style={styles.buttonText}>Permitir ubicación</Text>
-          </Pressable>
-        </SafeAreaView>
-      </Modal>
-
-      {/* --- PANTALLA PRINCIPAL --- */}
-
-      {/* 3. HEADER GLOBAL*/}
+      {/* HEADER GLOBAL */}
       <MainHeader />
 
-      {/* 4. MAP FRAME */}
+      {permissionGranted === false && (
+        <View style={styles.permissionBanner}>
+          <Text style={styles.permissionBannerText}>La ubicación está desactivada. Puedes habilitarla para centrar mejor el mapa.</Text>
+          <Pressable style={styles.permissionBannerBtn} onPress={handleManualPermissionRequest}>
+            <Text style={styles.permissionBannerBtnText}>Habilitar ubicación</Text>
+          </Pressable>
+        </View>
+      )}
+
       {userLocation && (
         <View style={styles.mapFrame}>
           <MapView
@@ -181,8 +188,15 @@ export default function HomeMap() {
           </MapView>
 
           {!mapReady && (
-            <View style={styles.mapLoadingOverlay}>
+            <View pointerEvents="none" style={styles.mapLoadingOverlay}>
               <ActivityIndicator size="large" color="#0a7ea4" />
+            </View>
+          )}
+
+          {loading && (
+            <View pointerEvents="none" style={styles.dataLoadingBadge}>
+              <ActivityIndicator size="small" color="#fff" />
+              <Text style={styles.dataLoadingText}>Actualizando publicaciones...</Text>
             </View>
           )}
 
@@ -211,6 +225,13 @@ export default function HomeMap() {
         </View>
       )}
 
+      {!userLocation && permissionGranted !== false && (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#0a7ea4" />
+          <Text style={styles.loadingText}>Cargando mapa...</Text>
+        </View>
+      )}
+
     </SafeAreaView>
   );
 }
@@ -226,6 +247,39 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f0f0f0',
+  },
+  loadingText: {
+    marginTop: 10,
+    color: '#4d5b6a',
+    fontSize: 14,
+  },
+  permissionBanner: {
+    marginHorizontal: 12,
+    marginTop: 8,
+    marginBottom: 6,
+    backgroundColor: '#fff3cd',
+    borderColor: '#f1d68a',
+    borderWidth: StyleSheet.hairlineWidth,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  permissionBannerText: {
+    color: '#6e5a22',
+    fontSize: 13,
+  },
+  permissionBannerBtn: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#4A90E2',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  permissionBannerBtnText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 12,
   },
   mapFrame: {
     flex: 1,
@@ -245,6 +299,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: 'rgba(240, 240, 240, 0.9)',
+  },
+  dataLoadingBadge: {
+    position: 'absolute',
+    top: 10,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    gap: 8,
+    alignItems: 'center',
+    backgroundColor: 'rgba(25, 25, 25, 0.72)',
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  dataLoadingText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
   },
   blockedContainer: {
     flex: 1,

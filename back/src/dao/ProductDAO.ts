@@ -12,9 +12,11 @@ class ProductDAO {
   /**
    * Obtiene todos los productos
    */
-  async findAll(): Promise<IProduct[]> {
-    return await Product.find({ estado: { $ne: 'retirado' } })
+  async findAll(includeRetired = false): Promise<IProduct[]> {
+    const query = includeRetired ? {} : { estado: { $ne: 'retirado' } };
+    return await Product.find(query)
       .populate('usuario', 'alias imagenPerfil')
+      .populate('retirado.user', 'alias imagenPerfil')
       .sort({ createdAt: -1 });
   }
 
@@ -22,7 +24,9 @@ class ProductDAO {
    * Obtiene un producto específico por su ID
    */
   async findById(id: string): Promise<IProduct | null> {
-    return await Product.findById(id).populate('usuario', 'alias imagenPerfil');
+    return await Product.findById(id)
+      .populate('usuario', 'alias imagenPerfil')
+      .populate('retirado.user', 'alias imagenPerfil');
   }
 
   /**
@@ -36,12 +40,20 @@ class ProductDAO {
     return await Product.findByIdAndDelete(id);
   }
 
-  async markAsRetirado(id: string): Promise<IProduct | null> {
+  async markAsRetirado(id: string, userId: string): Promise<IProduct | null> {
     return await Product.findByIdAndUpdate(
       id,
-      { estado: 'retirado' },
+      {
+        estado: 'retirado',
+        retirado: {
+          user: userId,
+          at: new Date(),
+        },
+      },
       { new: true }
-    ).populate('usuario', 'alias imagenPerfil');
+    )
+      .populate('usuario', 'alias imagenPerfil')
+      .populate('retirado.user', 'alias imagenPerfil');
   }
 
 }

@@ -168,6 +168,11 @@ const handleLogout = () => {
 - Nivel 4: 25-40 publicaciones (`Recolector_lv_5.png`)
 - Nivel 5: 41+ publicaciones (actualmente fallback visual con `Recolector_lv_5.png` hasta agregar `Recolector_lv_6.png` al repo)
 
+**Fuente de conteos (separados)**:
+- `Publicador`: cantidad de publicaciones creadas por el usuario (`product.usuario._id`)
+- `Recolector`: cantidad de publicaciones retiradas por el usuario (`product.retirado.user._id`)
+- Para calcular ambos en perfil propio y público se consulta `GET /api/products?includeRetired=true`.
+
 **Niveles de publicador (no acumulativos)**:
 - Nivel 0: 0-1 publicaciones (sin insignia)
 - Nivel 1: 2-4 publicaciones (`publicador_lv_2.png`)

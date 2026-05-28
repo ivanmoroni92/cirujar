@@ -22,7 +22,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { uploadImage, updateUser, fetchProducts, type ApiUser } from '@/_services/api';
+import { uploadImage, updateUser, fetchProductsForStats, type ApiUser } from '@/_services/api';
 import { clearAuth, getStoredToken, getStoredUser, setStoredUser } from '@/_services/authToken';
 
 const PAD = 24;
@@ -149,6 +149,7 @@ export default function ProfileScreen() {
     const [savingAlias, setSavingAlias] = useState(false);
     const [aliasError, setAliasError] = useState<string | null>(null);
     const [publicationCount, setPublicationCount] = useState(0);
+    const [collectorCount, setCollectorCount] = useState(0);
 
     const avatarAnim = useRef(new Animated.Value(0)).current;
     const contentAnim = useRef(new Animated.Value(0)).current;
@@ -187,9 +188,9 @@ export default function ProfileScreen() {
                     setError(null);
                     setLoading(false);
 
-                    // Load publication count
+                    // Load publication and collected counts
                     try {
-                        const products = await fetchProducts();
+                        const products = await fetchProductsForStats();
                         console.log('[profile] storedUser completo:', JSON.stringify(storedUser, null, 2));
                         console.log('[profile] storedUser._id:', storedUser._id, 'tipo:', typeof storedUser._id);
                         console.log('[profile] productos traídos:', products.length);
@@ -201,9 +202,12 @@ export default function ProfileScreen() {
                             console.log(`[profile] comparando ${p.usuario?._id} === ${storedUser._id} → ${match}`);
                             return match;
                         });
+                        const userCollected = products.filter((p) => p.retirado?.user?._id === storedUser._id);
                         console.log('[profile] publicaciones del usuario después de filtrar:', userPublications.length);
+                        console.log('[profile] recolecciones del usuario después de filtrar:', userCollected.length);
                         if (active) {
                             setPublicationCount(userPublications.length);
+                            setCollectorCount(userCollected.length);
                         }
                     } catch (err) {
                         console.error('[profile] Error al cargar publicaciones:', err);
@@ -271,8 +275,8 @@ export default function ProfileScreen() {
     );
 
     const collectorLevel = useMemo(
-        () => getCollectorLevelMeta(publicationCount),
-        [publicationCount]
+        () => getCollectorLevelMeta(collectorCount),
+        [collectorCount]
     );
 
     const publisherLevel = useMemo(
@@ -286,20 +290,20 @@ export default function ProfileScreen() {
         const span = collectorLevel.nextLevelMinPosts - collectorLevel.minPosts;
         if (span <= 0) return 0;
 
-        const progress = publicationCount - collectorLevel.minPosts;
+        const progress = collectorCount - collectorLevel.minPosts;
         const normalized = Math.max(0, Math.min(progress / span, 1));
         return normalized * 100;
-    }, [collectorLevel, publicationCount]);
+    }, [collectorLevel, collectorCount]);
 
     const progressMessage = useMemo(() => {
         if (collectorLevel.nextLevelMinPosts === null) {
             return 'Nivel máximo de recolección alcanzado';
         }
 
-        const remaining = Math.max(0, collectorLevel.nextLevelMinPosts - publicationCount);
+        const remaining = Math.max(0, collectorLevel.nextLevelMinPosts - collectorCount);
         const label = remaining === 1 ? 'publicación' : 'publicaciones';
         return `Faltan ${remaining} ${label} para nivel ${collectorLevel.level + 1}`;
-    }, [collectorLevel, publicationCount]);
+    }, [collectorLevel, collectorCount]);
 
     const performLogout = useCallback(async () => {
         await clearAuth();

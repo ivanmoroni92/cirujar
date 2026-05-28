@@ -78,7 +78,8 @@ class ProductController {
 
   async getAll(req: Request, res: Response): Promise<void> {
     try {
-      const products = await ProductService.getAllProducts();
+      const includeRetired = req.query.includeRetired === 'true';
+      const products = await ProductService.getAllProducts(includeRetired);
       res.status(200).json(products);
     } catch (error: any) {
       res.status(500).json({ error: error.message });
@@ -120,10 +121,10 @@ class ProductController {
 
 
       const updatedProduct = await ProductService.updateProduct(
-          id,
-          { titulo, detalles },
-          arrayFotosMantenidas,
-          newFiles
+        id,
+        { titulo, detalles },
+        arrayFotosMantenidas,
+        newFiles
       );
 
       if (!updatedProduct) {

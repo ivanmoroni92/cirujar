@@ -15,7 +15,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { fetchProducts, fetchUserById, type ApiUser } from '@/_services/api';
+import { fetchProductsForStats, fetchUserById, type ApiUser } from '@/_services/api';
 
 const PAD = 24;
 const AVATAR_SIZE = 120;
@@ -147,6 +147,7 @@ function Content() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [publicationCount, setPublicationCount] = useState(0);
+    const [collectorCount, setCollectorCount] = useState(0);
 
     const avatarAnim = useRef(new Animated.Value(0)).current;
     const contentAnim = useRef(new Animated.Value(0)).current;
@@ -163,13 +164,14 @@ function Content() {
 
                 const [profile, products] = await Promise.all([
                     fetchUserById(userId),
-                    fetchProducts(),
+                    fetchProductsForStats(),
                 ]);
 
                 if (!active) return;
 
                 setUser(profile);
                 setPublicationCount(products.filter((p) => p.usuario?._id === profile._id).length);
+                setCollectorCount(products.filter((p) => p.retirado?.user?._id === profile._id).length);
                 setError(null);
 
                 Animated.parallel([
@@ -232,8 +234,8 @@ function Content() {
     );
 
     const collectorLevel = useMemo(
-        () => getCollectorLevelMeta(publicationCount),
-        [publicationCount]
+        () => getCollectorLevelMeta(collectorCount),
+        [collectorCount]
     );
 
     const publisherLevel = useMemo(
@@ -247,20 +249,20 @@ function Content() {
         const span = collectorLevel.nextLevelMinPosts - collectorLevel.minPosts;
         if (span <= 0) return 0;
 
-        const progress = publicationCount - collectorLevel.minPosts;
+        const progress = collectorCount - collectorLevel.minPosts;
         const normalized = Math.max(0, Math.min(progress / span, 1));
         return normalized * 100;
-    }, [collectorLevel, publicationCount]);
+    }, [collectorLevel, collectorCount]);
 
     const progressMessage = useMemo(() => {
         if (collectorLevel.nextLevelMinPosts === null) {
             return 'Nivel máximo de recolección alcanzado';
         }
 
-        const remaining = Math.max(0, collectorLevel.nextLevelMinPosts - publicationCount);
+        const remaining = Math.max(0, collectorLevel.nextLevelMinPosts - collectorCount);
         const label = remaining === 1 ? 'publicación' : 'publicaciones';
         return `Faltan ${remaining} ${label} para nivel ${collectorLevel.level + 1}`;
-    }, [collectorLevel, publicationCount]);
+    }, [collectorLevel, collectorCount]);
 
     const activeSinceText = useMemo(() => {
         if (!user?.createdAt) return '—';

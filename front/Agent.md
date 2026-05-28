@@ -170,7 +170,7 @@ const handleLogout = () => {
 - En `profile.tsx`, las insignias de recolector (izquierda) y publicador (derecha) se distribuyen con `space-around` y márgenes laterales para mantener separación uniforme.
 
 **Barra de progreso de nivel**:
-- Se muestra debajo de la insignia
+- Se muestra debajo de la insignia, con la leyenda "Nivel de recolección" dentro del bloque de progreso
 - Inicio con círculo amarillo (nivel actual)
 - Track celeste y relleno verde según publicaciones hacia el próximo nivel
 - Mensaje contextual de publicaciones restantes

@@ -44,6 +44,7 @@ function Content() {
   const [photoIndex, setPhotoIndex] = useState(0);
   const [retirando, setRetirando] = useState(false);
   const [retirarError, setRetirarError] = useState<string | null>(null);
+  const [mapReady, setMapReady] = useState(false);
 
   const carouselRef = useRef<ScrollView>(null);
 
@@ -332,7 +333,15 @@ function Content() {
             <View style={styles.body}>
               <Text style={styles.title}>{product.titulo}</Text>
 
-              <View style={styles.authorCard}>
+              <Pressable
+                onPress={() => {
+                  const authorId = product.usuario?._id;
+                  if (!authorId) return;
+                  router.push({ pathname: '/user/[id]', params: { id: authorId } });
+                }}
+                style={({ pressed }) => [styles.authorCard, pressed && styles.pressed]}
+                disabled={!product.usuario?._id}
+              >
                 <View style={styles.authorAvatarWrap}>
                   {product.usuario?.imagenPerfil ? (
                     <Image
@@ -349,7 +358,8 @@ function Content() {
                     {product.usuario?.alias ? `@${product.usuario.alias}` : '@usuario'}
                   </Text>
                 </View>
-              </View>
+                <Ionicons name="chevron-forward" size={16} color="#73819a" />
+              </Pressable>
 
               <View style={styles.descriptionCard}>
                 <Text style={styles.descriptionLabel}>Descripción</Text>
@@ -373,34 +383,40 @@ function Content() {
 
               {/* MAPA DE UBICACIÓN (NUEVO BLOQUE) */}
               {product.ubicacion && product.ubicacion.coordinates && (
-                  <View style={styles.mapContainer}>
-                    <MapView
-                        style={styles.map}
-                        initialRegion={{
-                          // Recordatorio: MongoDB guarda como [longitud, latitud], por eso el índice 1 es la latitud
-                          latitude: product.ubicacion.coordinates[1],
-                          longitude: product.ubicacion.coordinates[0],
-                          latitudeDelta: 0.01,
-                          longitudeDelta: 0.01,
-                        }}
-                        scrollEnabled={true}
-                        zoomEnabled={true}
-                        zoomControlEnabled={true}
-                        pitchEnabled={false}
-                        rotateEnabled={false}
-                    >
-                      <UrlTile
-                          urlTemplate="https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
-                          maximumZ={19}
-                      />
-                      <Marker
-                          coordinate={{
-                            latitude: product.ubicacion.coordinates[1],
-                            longitude: product.ubicacion.coordinates[0],
-                          }}
-                      />
-                    </MapView>
-                  </View>
+                <View style={styles.mapContainer}>
+                  <MapView
+                    style={styles.map}
+                    onMapReady={() => setMapReady(true)}
+                    initialRegion={{
+                      // Recordatorio: MongoDB guarda como [longitud, latitud], por eso el índice 1 es la latitud
+                      latitude: product.ubicacion.coordinates[1],
+                      longitude: product.ubicacion.coordinates[0],
+                      latitudeDelta: 0.01,
+                      longitudeDelta: 0.01,
+                    }}
+                    scrollEnabled={true}
+                    zoomEnabled={true}
+                    zoomControlEnabled={true}
+                    pitchEnabled={false}
+                    rotateEnabled={false}
+                  >
+                    <UrlTile
+                      urlTemplate="https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
+                      maximumZ={19}
+                    />
+                    <Marker
+                      coordinate={{
+                        latitude: product.ubicacion.coordinates[1],
+                        longitude: product.ubicacion.coordinates[0],
+                      }}
+                    />
+                  </MapView>
+                  {!mapReady && (
+                    <View style={styles.mapLoadingOverlay}>
+                      <ActivityIndicator size="large" color="#0a7ea4" />
+                    </View>
+                  )}
+                </View>
               )}
             </View>
           </ScrollView>
@@ -680,7 +696,7 @@ const styles = StyleSheet.create({
     color: '#fff',
   },
 
-    // Estilos del nuevo bloque de mapa
+  // Estilos del nuevo bloque de mapa
   mapCard: {
     backgroundColor: '#f7f7f7',
     borderRadius: 14,
@@ -696,5 +712,11 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  mapLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(240, 240, 240, 0.9)',
   },
 });

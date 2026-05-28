@@ -30,6 +30,8 @@ front/
 │   │   └── [id].tsx       # Editar producto por ID
 │   └── product/           # Stack dinámico
 │       └── [id].tsx       # Detalles producto por ID
+│   └── user/              # Stack dinámico
+│       └── [id].tsx       # Perfil público de otro usuario
 │
 ├── _services/             # Lógica de negocio
 │   ├── api.ts            # Llamadas HTTP (base + endpoints)
@@ -205,6 +207,10 @@ const handleLogin = async () => {
 ### **app/(tabs)/home.jsx** - Feed de Productos
 **Propósito**: Mostrar grid de publicaciones (productos)
 
+**Experiencia de mapa**:
+- En la vista de mapa se agregó un spinner superpuesto mientras `MapView` termina de disparar `onMapReady`, para evitar pantalla vacía cuando el mapa tarda en cargar.
+- El loader de Home no es bloqueante: se eliminó el modal full-screen y ahora la carga se muestra solo dentro del bloque del mapa.
+
 **Funcionalidad**:
 ```typescript
 // 1. fetchProducts() → GET /api/products (todas las publicaciones)
@@ -227,6 +233,12 @@ const handleLogin = async () => {
 
 ### **app/(tabs)/_layout.tsx** - Tab Navigation
 **Propósito**: Estructura de navegación con 2 tabs
+
+### **Mapas en formularios y detalle**
+**Propósito**: Mejorar percepción de carga en renders lentos del mapa
+
+- `app/add-post.tsx`: el bloque de mapa muestra un `ActivityIndicator` superpuesto hasta que el mapa está listo.
+- `app/product/[id].tsx`: el mapa de ubicación también muestra spinner de carga hasta `onMapReady`.
 
 ```typescript
 export default function TabLayout() {
@@ -282,6 +294,12 @@ useEffect(() => {
 ### **app/_layout.tsx** - Root Layout (AUTH GUARD)
 **Propósito**: Guardia de rutas global
 
+**Carga inicial**:
+- Al abrir la app se muestra una pantalla inicial de 4 segundos con GIF, antes de iniciar el flujo normal.
+- Asset del loader en Root Layout: `assets/images/loading_animation.gif`
+- El GIF se renderiza en modo pantalla completa (full screen).
+- El splash nativo (`expo-splash-screen`) mantiene su propio asset: `assets/images/loading_screen.png`.
+
 ```typescript
 const pathname = usePathname();
 const [isReady, setIsReady] = useState(false);
@@ -297,8 +315,8 @@ useEffect(() => {
   });
 }, []);
 
-// 2. Si no está listo → muestra LoadingIndicator
-if (!isReady) return <LoadingIndicator />;
+// 2. Si no está listo → muestra pantalla de carga con GIF animado
+if (!isReady) return <GifLoadingScreen />;
 
 // 3. Si NO autenticado Y NO en ruta pública → redirige a login
 if (!isSignedIn && !PUBLIC_ROUTES.includes(pathname)) {
@@ -611,6 +629,7 @@ PROTECTED (requieren JWT):
 ├─ /(tabs)/profile  → app/(tabs)/profile.tsx (perfil usuario)
 ├─ /add-post        → app/add-post.tsx (crear publicación)
 ├─ /product/[id]    → app/product/[id].tsx (detalle producto)
+├─ /user/[id]       → app/user/[id].tsx (perfil público del autor)
 └─ /edit/[id]       → app/edit/[id].tsx (editar producto)
 
 ROOT:
@@ -671,6 +690,8 @@ DELETE /api/products/:id        → 204 No Content
 - ✅ Tabs muestran el avatar subido en el icono de Perfil y se refrescan al cambiar la foto
 - ✅ Alias editable en Profile: lápiz habilita edición inline y check guarda en backend + AsyncStorage
 - ✅ Detalle de publicación: los íconos de editar/eliminar solo se muestran si `product.usuario._id === getStoredUser()._id`
+- ✅ Perfil público de autor: tap en "Publicado por" abre `/user/[id]` con UI de perfil en modo solo lectura
+- ✅ Perfil público muestra cantidad de publicaciones del autor y tiempo activo desde su alta
 
 ---
 
@@ -718,6 +739,6 @@ DELETE /api/products/:id        → 204 No Content
 
 ---
 
-**Última Actualización**: 17 Mayo 2026 (estilo de register unificado con login)  
-**Estado**: Autenticación + Login/Register visualmente unificados + Profile estable + Avatar upload + Alias editable + Avatar visible en tabs + Feed + Tab bar premium flotante implementados  
-**Próximo Check**: Validación E2E de subida de avatar en Expo Go (dispositivo físico)
+**Última Actualización**: 27 Mayo 2026 (perfil público de autor desde detalle de publicación)  
+**Estado**: Autenticación + Login/Register visualmente unificados + Profile estable + Avatar upload + Alias editable + Avatar visible en tabs + Feed + Tab bar premium flotante + Perfil público del autor implementados  
+**Próximo Check**: Validación E2E de navegación detalle → perfil público y métricas de publicaciones/actividad

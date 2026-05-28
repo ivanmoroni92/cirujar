@@ -51,6 +51,7 @@ export default function AddPostScreen() {
     longitude: -58.3816,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [mapReady, setMapReady] = useState(false);
   const [validationMessages, setValidationMessages] = useState<string[]>([]);
 
   useEffect(() => {
@@ -277,25 +278,31 @@ export default function AddPostScreen() {
           <Text style={styles.sectionHint}>Mantén presionado y arrastra el pin o toca en otro lugar para corregir la ubicación.</Text>
           <View style={styles.mapContainer}>
             <MapView
-                style={styles.map}
-                region={{
-                  latitude: coordenadas.latitude,
-                  longitude: coordenadas.longitude,
-                  latitudeDelta: 0.005,
-                  longitudeDelta: 0.005,
-                }}
-                onPress={(e) => setCoordenadas(e.nativeEvent.coordinate)}
+              style={styles.map}
+              onMapReady={() => setMapReady(true)}
+              region={{
+                latitude: coordenadas.latitude,
+                longitude: coordenadas.longitude,
+                latitudeDelta: 0.005,
+                longitudeDelta: 0.005,
+              }}
+              onPress={(e) => setCoordenadas(e.nativeEvent.coordinate)}
             >
               <UrlTile
-                  urlTemplate="https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
-                  maximumZ={19}
+                urlTemplate="https://a.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}.png"
+                maximumZ={19}
               />
               <Marker
-                  draggable
-                  coordinate={coordenadas}
-                  onDragEnd={(e) => setCoordenadas(e.nativeEvent.coordinate)}
+                draggable
+                coordinate={coordenadas}
+                onDragEnd={(e) => setCoordenadas(e.nativeEvent.coordinate)}
               />
             </MapView>
+            {!mapReady && (
+              <View style={styles.mapLoadingOverlay}>
+                <ActivityIndicator size="large" color="#0a7ea4" />
+              </View>
+            )}
           </View>
 
           <Pressable
@@ -510,5 +517,11 @@ const styles = StyleSheet.create({
   map: {
     width: '100%',
     height: '100%',
+  },
+  mapLoadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(240, 240, 240, 0.9)',
   },
 });

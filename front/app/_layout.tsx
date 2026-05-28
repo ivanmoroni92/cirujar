@@ -1,8 +1,9 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
+import { Image } from 'expo-image';
 import { Stack, usePathname, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
 
 import { getStoredToken } from '@/_services/authToken';
@@ -15,7 +16,16 @@ export default function RootLayout() {
   const router = useRouter();
   const pathname = usePathname();
   const [authChecked, setAuthChecked] = useState(false);
+  const [startupDelayDone, setStartupDelayDone] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setStartupDelayDone(true);
+    }, 4000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -47,11 +57,15 @@ export default function RootLayout() {
     }
   }, [authChecked, isAuthenticated, pathname, router]);
 
-  if (!authChecked) {
+  if (!authChecked || !startupDelayDone) {
     return (
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <View style={styles.loaderWrap}>
-          <ActivityIndicator size="large" color="#2a6fd6" />
+          <Image
+            source={require('../assets/images/loading_animation.gif')}
+            style={styles.loaderGif}
+            contentFit="cover"
+          />
         </View>
         <StatusBar style="auto" />
       </ThemeProvider>
@@ -63,6 +77,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="add-post" options={{ headerShown: false }} />
+        <Stack.Screen name="user/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
@@ -75,9 +90,11 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   loaderWrap: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f7f9fc',
+    backgroundColor: '#ffffff',
+  },
+  loaderGif: {
+    width: '100%',
+    height: '100%',
   },
 });
 // Initial commit dev

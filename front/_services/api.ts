@@ -232,6 +232,15 @@ export async function updateUser(
   return res.json() as Promise<ApiUser>;
 }
 
+/**
+ * GET /api/users/:id — obtiene datos públicos del usuario.
+ */
+export async function fetchUserById(id: string): Promise<ApiUser> {
+  const data = await get(`users/${id}`);
+  if (!data) throw new Error('No se pudo cargar el usuario');
+  return data as ApiUser;
+}
+
 export async function retirarProduct(id: string): Promise<ApiProduct> {
   const auth = await getBearerAuthHeaders();
   const response = await fetch(`${API_URL}/products/${id}/retirar`, {

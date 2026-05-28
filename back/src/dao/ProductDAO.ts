@@ -13,8 +13,14 @@ class ProductDAO {
    * Obtiene todos los productos
    */
   async findAll(includeRetired = false): Promise<IProduct[]> {
-    const query = includeRetired ? {} : { estado: { $ne: 'retirado' } };
-    return await Product.find(query)
+    if (includeRetired) {
+      return await Product.find({})
+        .populate('usuario', 'alias imagenPerfil')
+        .populate('retirado.user', 'alias imagenPerfil')
+        .sort({ createdAt: -1 });
+    }
+
+    return await Product.find({ estado: { $ne: 'retirado' as const } })
       .populate('usuario', 'alias imagenPerfil')
       .populate('retirado.user', 'alias imagenPerfil')
       .sort({ createdAt: -1 });

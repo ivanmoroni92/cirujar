@@ -145,9 +145,24 @@ const handleLogout = () => {
 **UI/UX**:
 - Avatar: círculo azul 120px con icono persona
 - Información: nombre, email, stats (publicaciones, seguidores, siguiendo)
+- Sistema de nivel de recolección: insignia única por hito de publicaciones + barra de progreso al siguiente nivel
 - Card design: fondo blanco, sombra sutil, border radio
 - Animaciones: scale entrada avatar, slide entrada contenido
 - Botón Logout: gradiente azul, animación de presión
+
+**Niveles de recolección (no acumulativos)**:
+- Nivel 0: 0-1 publicaciones (sin insignia)
+- Nivel 1: 2-4 publicaciones (`Recolector_lv_2.png`)
+- Nivel 2: 5-14 publicaciones (`Recolector_lv_3.png`)
+- Nivel 3: 15-24 publicaciones (`Recolector_lv_4.png`)
+- Nivel 4: 25-40 publicaciones (`Recolector_lv_5.png`)
+- Nivel 5: 41+ publicaciones (actualmente fallback visual con `Recolector_lv_5.png` hasta agregar `Recolector_lv_6.png` al repo)
+
+**Barra de progreso de nivel**:
+- Se muestra debajo de la insignia
+- Inicio con círculo amarillo (nivel actual)
+- Track celeste y relleno verde según publicaciones hacia el próximo nivel
+- Mensaje contextual de publicaciones restantes
 
 **Errores que maneja**:
 - ✅ Usuario no encontrado en AsyncStorage

@@ -102,6 +102,16 @@ Dos tabs disponibles:
 
 ## 📋 Componentes Principales
 
+### **app/user/[id].tsx** - Perfil Público
+**Propósito**: Ver perfil de otro usuario desde detalle de publicación (solo lectura)
+
+**Incluye**:
+- Avatar, alias y email del usuario
+- Contador de publicaciones y antigüedad
+- Insignias de nivel (recolector y publicador)
+- Nivel de recolección con barra de progreso
+- Sin edición de alias/avatar y sin botón de cerrar sesión
+
 ### **app/(tabs)/profile.tsx** - COMPONENTE CRÍTICO
 **Propósito**: Mostrar perfil del usuario autenticado
 

@@ -6,6 +6,7 @@ import {
     Animated,
     Easing,
     Image,
+    type ImageSourcePropType,
     Pressable,
     ScrollView,
     StyleSheet,
@@ -20,6 +21,114 @@ const PAD = 24;
 const AVATAR_SIZE = 120;
 const AVATAR_ICON_SIZE = 56;
 const SOFT_BLUE = '#2a6fd6';
+
+type CollectorLevelMeta = {
+    level: number;
+    minPosts: number;
+    nextLevelMinPosts: number | null;
+    badgeImage: ImageSourcePropType | null;
+};
+
+function getCollectorLevelMeta(publicationCount: number): CollectorLevelMeta {
+    if (publicationCount > 40) {
+        return {
+            level: 5,
+            minPosts: 41,
+            nextLevelMinPosts: null,
+            // Fallback temporal: falta el asset Recolector_lv_6.png en el repo.
+            badgeImage: require('../../assets/levels/recolector/Recolector_lv_5.png'),
+        };
+    }
+    if (publicationCount >= 25) {
+        return {
+            level: 4,
+            minPosts: 25,
+            nextLevelMinPosts: 41,
+            badgeImage: require('../../assets/levels/recolector/Recolector_lv_5.png'),
+        };
+    }
+    if (publicationCount >= 15) {
+        return {
+            level: 3,
+            minPosts: 15,
+            nextLevelMinPosts: 25,
+            badgeImage: require('../../assets/levels/recolector/Recolector_lv_4.png'),
+        };
+    }
+    if (publicationCount >= 5) {
+        return {
+            level: 2,
+            minPosts: 5,
+            nextLevelMinPosts: 15,
+            badgeImage: require('../../assets/levels/recolector/Recolector_lv_3.png'),
+        };
+    }
+    if (publicationCount >= 2) {
+        return {
+            level: 1,
+            minPosts: 2,
+            nextLevelMinPosts: 5,
+            badgeImage: require('../../assets/levels/recolector/Recolector_lv_2.png'),
+        };
+    }
+
+    return {
+        level: 0,
+        minPosts: 0,
+        nextLevelMinPosts: 2,
+        badgeImage: null,
+    };
+}
+
+function getPublisherLevelMeta(publicationCount: number): CollectorLevelMeta {
+    if (publicationCount > 40) {
+        return {
+            level: 5,
+            minPosts: 41,
+            nextLevelMinPosts: null,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_6.png'),
+        };
+    }
+    if (publicationCount >= 25) {
+        return {
+            level: 4,
+            minPosts: 25,
+            nextLevelMinPosts: 41,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_5.png'),
+        };
+    }
+    if (publicationCount >= 15) {
+        return {
+            level: 3,
+            minPosts: 15,
+            nextLevelMinPosts: 25,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_4.png'),
+        };
+    }
+    if (publicationCount >= 5) {
+        return {
+            level: 2,
+            minPosts: 5,
+            nextLevelMinPosts: 15,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_3.png'),
+        };
+    }
+    if (publicationCount >= 2) {
+        return {
+            level: 1,
+            minPosts: 2,
+            nextLevelMinPosts: 5,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_2.png'),
+        };
+    }
+
+    return {
+        level: 0,
+        minPosts: 0,
+        nextLevelMinPosts: 2,
+        badgeImage: null,
+    };
+}
 
 export default function PublicProfileScreen() {
     return (
@@ -122,6 +231,37 @@ function Content() {
         [contentAnim]
     );
 
+    const collectorLevel = useMemo(
+        () => getCollectorLevelMeta(publicationCount),
+        [publicationCount]
+    );
+
+    const publisherLevel = useMemo(
+        () => getPublisherLevelMeta(publicationCount),
+        [publicationCount]
+    );
+
+    const progressPercent = useMemo(() => {
+        if (collectorLevel.nextLevelMinPosts === null) return 100;
+
+        const span = collectorLevel.nextLevelMinPosts - collectorLevel.minPosts;
+        if (span <= 0) return 0;
+
+        const progress = publicationCount - collectorLevel.minPosts;
+        const normalized = Math.max(0, Math.min(progress / span, 1));
+        return normalized * 100;
+    }, [collectorLevel, publicationCount]);
+
+    const progressMessage = useMemo(() => {
+        if (collectorLevel.nextLevelMinPosts === null) {
+            return 'Nivel máximo de recolección alcanzado';
+        }
+
+        const remaining = Math.max(0, collectorLevel.nextLevelMinPosts - publicationCount);
+        const label = remaining === 1 ? 'publicación' : 'publicaciones';
+        return `Faltan ${remaining} ${label} para nivel ${collectorLevel.level + 1}`;
+    }, [collectorLevel, publicationCount]);
+
     const activeSinceText = useMemo(() => {
         if (!user?.createdAt) return '—';
 
@@ -209,6 +349,55 @@ function Content() {
                     </View>
 
                     <Text style={styles.email}>{user.email}</Text>
+
+                    <View style={styles.badgeTopSection}>
+                        <View style={styles.badgeRow}>
+                            <View style={styles.badgeSlotLeft}>
+                                <Text style={styles.badgeSlotTitle}>Recolector</Text>
+                                {collectorLevel.badgeImage ? (
+                                    <Image
+                                        source={collectorLevel.badgeImage}
+                                        style={styles.collectorBadge}
+                                        resizeMode="contain"
+                                    />
+                                ) : (
+                                    <View style={styles.badgeEmptyWrap}>
+                                        <Text style={styles.badgeEmptyText}>Sin insignia</Text>
+                                    </View>
+                                )}
+                            </View>
+                            <View style={styles.badgeSlotRight}>
+                                <Text style={[styles.badgeSlotTitle, styles.badgeSlotTitleRight]}>Publicador</Text>
+                                {publisherLevel.badgeImage ? (
+                                    <Image
+                                        source={publisherLevel.badgeImage}
+                                        style={[styles.collectorBadge, styles.collectorBadgeRight]}
+                                        resizeMode="contain"
+                                    />
+                                ) : (
+                                    <View style={[styles.badgeEmptyWrap, styles.badgeEmptyWrapRight]}>
+                                        <Text style={styles.badgeEmptyText}>Sin insignia</Text>
+                                    </View>
+                                )}
+                            </View>
+                        </View>
+                    </View>
+
+                    <View style={styles.badgeSection}>
+                        <Text style={styles.badgeTitle}>Nivel de recolección</Text>
+
+                        <View style={styles.progressWrap}>
+                            <View style={styles.levelCircle}>
+                                <Text style={styles.levelCircleText}>{collectorLevel.level}</Text>
+                            </View>
+
+                            <View style={styles.progressTrack}>
+                                <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
+                            </View>
+                        </View>
+
+                        <Text style={styles.progressText}>{progressMessage}</Text>
+                    </View>
 
                     <View style={styles.infoCard}>
                         <View style={styles.infoItem}>
@@ -361,7 +550,114 @@ const styles = StyleSheet.create({
         fontSize: 14,
         color: '#62708a',
         textAlign: 'center',
-        marginBottom: 24,
+        marginBottom: 14,
+    },
+    badgeTopSection: {
+        marginBottom: 10,
+    },
+    badgeSection: {
+        backgroundColor: '#ffffff',
+        borderRadius: 16,
+        borderWidth: 1,
+        borderColor: '#e9f0fc',
+        paddingVertical: 12,
+        paddingHorizontal: 14,
+        marginBottom: 18,
+        shadowColor: '#245aa8',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 2,
+    },
+    badgeTitle: {
+        fontSize: 12,
+        color: '#8ca2c0',
+        fontWeight: '700',
+        marginBottom: 8,
+    },
+    badgeRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-around',
+        paddingHorizontal: 10,
+        marginBottom: 10,
+    },
+    badgeSlotLeft: {
+        minHeight: 62,
+        width: '42%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    badgeSlotRight: {
+        minHeight: 62,
+        width: '42%',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    badgeSlotTitle: {
+        fontSize: 11,
+        color: '#8ca2c0',
+        fontWeight: '700',
+        marginBottom: 4,
+    },
+    badgeSlotTitleRight: {
+        textAlign: 'center',
+    },
+    collectorBadge: {
+        width: 132,
+        height: 64,
+    },
+    collectorBadgeRight: {
+        alignSelf: 'center',
+    },
+    badgeEmptyWrap: {
+        minHeight: 58,
+        justifyContent: 'center',
+    },
+    badgeEmptyWrapRight: {
+        alignItems: 'center',
+    },
+    badgeEmptyText: {
+        fontSize: 12,
+        color: '#8ca2c0',
+        fontWeight: '600',
+    },
+    progressWrap: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10,
+    },
+    levelCircle: {
+        width: 28,
+        height: 28,
+        borderRadius: 14,
+        borderWidth: 2,
+        borderColor: '#b38a25',
+        backgroundColor: '#f7df8a',
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    levelCircleText: {
+        fontSize: 13,
+        fontWeight: '800',
+        color: '#7a5b0f',
+    },
+    progressTrack: {
+        flex: 1,
+        height: 12,
+        borderRadius: 999,
+        backgroundColor: '#cfeeff',
+        overflow: 'hidden',
+    },
+    progressFill: {
+        height: '100%',
+        backgroundColor: '#47b55f',
+        borderRadius: 999,
+    },
+    progressText: {
+        marginTop: 8,
+        fontSize: 12,
+        color: '#5f7391',
     },
     infoCard: {
         flexDirection: 'row',

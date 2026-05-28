@@ -166,6 +166,9 @@ const handleLogout = () => {
 - Nivel 4: 25-40 publicaciones (`publicador_lv_5.png`)
 - Nivel 5: 41+ publicaciones (`publicador_lv_6.png`)
 
+**Distribución visual de insignias**:
+- En `profile.tsx`, las insignias de recolector (izquierda) y publicador (derecha) se distribuyen con `space-around` y márgenes laterales para mantener separación uniforme.
+
 **Barra de progreso de nivel**:
 - Se muestra debajo de la insignia
 - Inicio con círculo amarillo (nivel actual)

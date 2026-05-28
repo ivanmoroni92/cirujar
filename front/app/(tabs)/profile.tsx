@@ -782,19 +782,20 @@ const styles = StyleSheet.create({
     badgeRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
+        justifyContent: 'space-around',
+        paddingHorizontal: 10,
         marginBottom: 10,
     },
     badgeSlotLeft: {
         minHeight: 62,
-        minWidth: 122,
-        alignItems: 'flex-start',
+        width: '42%',
+        alignItems: 'center',
         justifyContent: 'center',
     },
     badgeSlotRight: {
         minHeight: 62,
-        flex: 1,
-        alignItems: 'flex-end',
+        width: '42%',
+        alignItems: 'center',
         justifyContent: 'center',
     },
     badgeSlotTitle: {
@@ -804,21 +805,21 @@ const styles = StyleSheet.create({
         marginBottom: 4,
     },
     badgeSlotTitleRight: {
-        textAlign: 'right',
+        textAlign: 'center',
     },
     collectorBadge: {
         width: 118,
         height: 58,
     },
     collectorBadgeRight: {
-        alignSelf: 'flex-end',
+        alignSelf: 'center',
     },
     badgeEmptyWrap: {
         minHeight: 58,
         justifyContent: 'center',
     },
     badgeEmptyWrapRight: {
-        alignItems: 'flex-end',
+        alignItems: 'center',
     },
     badgeEmptyText: {
         fontSize: 12,

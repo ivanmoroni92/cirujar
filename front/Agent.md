@@ -178,6 +178,7 @@ const handleLogout = () => {
 
 **Distribución visual de insignias**:
 - En `profile.tsx`, las insignias de recolector (izquierda) y publicador (derecha) se distribuyen con `space-around` y márgenes laterales para mantener separación uniforme.
+- Debajo de cada insignia se muestra el texto de nivel correspondiente (por ejemplo, "Nivel 3") tanto en perfil propio como en perfil público.
 
 **Barra de progreso de nivel**:
 - Se muestra debajo de la insignia, con la leyenda "Nivel de recolección" dentro del bloque de progreso

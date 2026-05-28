@@ -530,6 +530,7 @@ export default function ProfileScreen() {
                                                 <Text style={styles.badgeEmptyText}>Sin insignia</Text>
                                             </View>
                                         )}
+                                        <Text style={styles.badgeLevelText}>Nivel {collectorLevel.level}</Text>
                                     </View>
                                     <View style={styles.badgeSlotRight}>
                                         <Text style={[styles.badgeSlotTitle, styles.badgeSlotTitleRight]}>Publicador</Text>
@@ -544,6 +545,7 @@ export default function ProfileScreen() {
                                                 <Text style={styles.badgeEmptyText}>Sin insignia</Text>
                                             </View>
                                         )}
+                                        <Text style={styles.badgeLevelText}>Nivel {publisherLevel.level}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -825,6 +827,12 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#8ca2c0',
         fontWeight: '600',
+    },
+    badgeLevelText: {
+        marginTop: 4,
+        fontSize: 12,
+        color: '#5f7391',
+        fontWeight: '700',
     },
     progressWrap: {
         flexDirection: 'row',

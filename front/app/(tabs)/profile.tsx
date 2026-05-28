@@ -460,7 +460,7 @@ export default function ProfileScreen() {
 
                             <Text style={styles.email}>{user.email}</Text>
 
-                            <View style={styles.badgeSection}>
+                            <View style={styles.badgeTopSection}>
                                 <Text style={styles.badgeTitle}>Nivel de recolección</Text>
 
                                 <View style={styles.badgeRow}>
@@ -479,7 +479,9 @@ export default function ProfileScreen() {
                                     </View>
                                     <View style={styles.badgeSlotRight} />
                                 </View>
+                            </View>
 
+                            <View style={styles.badgeSection}>
                                 <View style={styles.progressWrap}>
                                     <View style={styles.levelCircle}>
                                         <Text style={styles.levelCircleText}>{collectorLevel.level}</Text>
@@ -684,6 +686,9 @@ const styles = StyleSheet.create({
         color: '#62708a',
         textAlign: 'center',
         marginBottom: 14,
+    },
+    badgeTopSection: {
+        marginBottom: 10,
     },
     badgeSection: {
         backgroundColor: '#ffffff',

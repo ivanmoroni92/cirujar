@@ -19,6 +19,14 @@ export interface ApiProduct {
   ubicacionTexto?: string;
   fotos: string[];
   estado?: 'disponible' | 'retirado';
+  retirado?: {
+    user?: {
+      _id: string;
+      alias: string;
+      imagenPerfil?: string;
+    };
+    at?: string;
+  };
   createdAt?: string;
   updatedAt?: string;
 }
@@ -26,6 +34,11 @@ export interface ApiProduct {
 
 export async function fetchProducts(): Promise<ApiProduct[]> {
   const data = await get('products');
+  return Array.isArray(data) ? data : [];
+}
+
+export async function fetchProductsForStats(): Promise<ApiProduct[]> {
+  const data = await get('products', { includeRetired: 'true' });
   return Array.isArray(data) ? data : [];
 }
 

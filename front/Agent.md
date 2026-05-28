@@ -102,6 +102,16 @@ Dos tabs disponibles:
 
 ## 📋 Componentes Principales
 
+### **app/user/[id].tsx** - Perfil Público
+**Propósito**: Ver perfil de otro usuario desde detalle de publicación (solo lectura)
+
+**Incluye**:
+- Avatar, alias y email del usuario
+- Contador de publicaciones y antigüedad
+- Insignias de nivel (recolector y publicador)
+- Nivel de recolección con barra de progreso
+- Sin edición de alias/avatar y sin botón de cerrar sesión
+
 ### **app/(tabs)/profile.tsx** - COMPONENTE CRÍTICO
 **Propósito**: Mostrar perfil del usuario autenticado
 
@@ -145,9 +155,42 @@ const handleLogout = () => {
 **UI/UX**:
 - Avatar: círculo azul 120px con icono persona
 - Información: nombre, email, stats (publicaciones, seguidores, siguiendo)
+- Sistema de nivel de recolección: insignia única por hito de publicaciones + barra de progreso al siguiente nivel
 - Card design: fondo blanco, sombra sutil, border radio
 - Animaciones: scale entrada avatar, slide entrada contenido
 - Botón Logout: gradiente azul, animación de presión
+
+**Niveles de recolección (no acumulativos)**:
+- Nivel 0: 0-1 publicaciones (sin insignia)
+- Nivel 1: 2-4 publicaciones (`Recolector_lv_2.png`)
+- Nivel 2: 5-14 publicaciones (`Recolector_lv_3.png`)
+- Nivel 3: 15-24 publicaciones (`Recolector_lv_4.png`)
+- Nivel 4: 25-40 publicaciones (`Recolector_lv_5.png`)
+- Nivel 5: 41+ publicaciones (actualmente fallback visual con `Recolector_lv_5.png` hasta agregar `Recolector_lv_6.png` al repo)
+
+**Fuente de conteos (separados)**:
+- `Publicador`: cantidad de publicaciones creadas por el usuario (`product.usuario._id`)
+- `Recolector`: cantidad de publicaciones retiradas por el usuario (`product.retirado.user._id`)
+- Para calcular ambos en perfil propio y público se consulta `GET /api/products?includeRetired=true`.
+
+**Niveles de publicador (no acumulativos)**:
+- Nivel 0: 0-1 publicaciones (sin insignia)
+- Nivel 1: 2-4 publicaciones (`publicador_lv_2.png`)
+- Nivel 2: 5-14 publicaciones (`publicador_lv_3.png`)
+- Nivel 3: 15-24 publicaciones (`publicador_lv_4.png`)
+- Nivel 4: 25-40 publicaciones (`publicador_lv_5.png`)
+- Nivel 5: 41+ publicaciones (`publicador_lv_6.png`)
+
+**Distribución visual de insignias**:
+- En `profile.tsx`, las insignias de recolector (izquierda) y publicador (derecha) se distribuyen con `space-around` y márgenes laterales para mantener separación uniforme.
+- Debajo de cada insignia se muestra el texto de nivel correspondiente (por ejemplo, "Nivel 3") tanto en perfil propio como en perfil público.
+
+**Barra de progreso de nivel**:
+- Se muestra debajo de la insignia, con la leyenda "Nivel de recolección" dentro del bloque de progreso
+- Inicio con círculo amarillo (nivel actual)
+- Track celeste y relleno verde según publicaciones hacia el próximo nivel
+- Mensaje contextual de publicaciones restantes
+- La barra aplica al nivel de recolección; para publicador se muestran solo insignias.
 
 **Errores que maneja**:
 - ✅ Usuario no encontrado en AsyncStorage
@@ -239,6 +282,7 @@ const handleLogin = async () => {
 
 - `app/add-post.tsx`: el bloque de mapa muestra un `ActivityIndicator` superpuesto hasta que el mapa está listo.
 - `app/product/[id].tsx`: el mapa de ubicación también muestra spinner de carga hasta `onMapReady`.
+- Los `Marker` visibles en mapas usan el asset `assets/pins/pin_30x30_1.png` en lugar del pin rojo nativo.
 
 ```typescript
 export default function TabLayout() {

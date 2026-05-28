@@ -737,6 +737,12 @@ DELETE /api/products/:id        → 204 No Content
 - ✅ Perfil público de autor: tap en "Publicado por" abre `/user/[id]` con UI de perfil en modo solo lectura
 - ✅ Perfil público muestra cantidad de publicaciones del autor y tiempo activo desde su alta
 
+### **Resuelto**: Preview no mostraba primera imagen en Crear Publicación
+**Resultado actual**:
+- ✅ `app/add-post.tsx`: el preview de imagen principal vuelve a renderizar al regresar del selector de galería.
+- ✅ Se normaliza URI seleccionada (`trim`) antes de guardarla en estado para evitar valores inválidos.
+- ✅ En Android, se desactiva recorte inline del picker para evitar URIs editadas que no siempre previsualizan correctamente.
+
 ---
 
 ## 📝 TODOs y Próximos Pasos
@@ -783,6 +789,6 @@ DELETE /api/products/:id        → 204 No Content
 
 ---
 
-**Última Actualización**: 27 Mayo 2026 (perfil público de autor desde detalle de publicación)  
-**Estado**: Autenticación + Login/Register visualmente unificados + Profile estable + Avatar upload + Alias editable + Avatar visible en tabs + Feed + Tab bar premium flotante + Perfil público del autor implementados  
-**Próximo Check**: Validación E2E de navegación detalle → perfil público y métricas de publicaciones/actividad
+**Última Actualización**: 28 Mayo 2026 (fix preview de imagen principal en crear publicación)  
+**Estado**: Autenticación + Login/Register visualmente unificados + Profile estable + Avatar upload + Alias editable + Avatar visible en tabs + Feed + Tab bar premium flotante + Perfil público del autor implementados + preview de imagen principal estable en add-post  
+**Próximo Check**: Validación E2E de creación de publicación en Android/iOS (selección y preview de imagen principal)

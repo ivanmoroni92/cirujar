@@ -22,6 +22,7 @@ import { getStoredUser } from '@/_services/authToken';
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
+const MAP_PIN_IMAGE = require('../../assets/pins/pin_30x30_1.png');
 
 export default function ProductDetail() {
   return (
@@ -405,6 +406,7 @@ function Content() {
                       maximumZ={19}
                     />
                     <Marker
+                      image={MAP_PIN_IMAGE}
                       coordinate={{
                         latitude: product.ubicacion.coordinates[1],
                         longitude: product.ubicacion.coordinates[0],

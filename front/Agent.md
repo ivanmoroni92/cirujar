@@ -239,6 +239,7 @@ const handleLogin = async () => {
 
 - `app/add-post.tsx`: el bloque de mapa muestra un `ActivityIndicator` superpuesto hasta que el mapa está listo.
 - `app/product/[id].tsx`: el mapa de ubicación también muestra spinner de carga hasta `onMapReady`.
+- Los `Marker` visibles en mapas usan el asset `assets/pins/pin_30x30_1.png` en lugar del pin rojo nativo.
 
 ```typescript
 export default function TabLayout() {

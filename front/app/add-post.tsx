@@ -27,6 +27,7 @@ const UBIC_MIN = 3;
 const UBIC_MAX = 50;
 const DESC_MAX = 255;
 const MAX_EXTRAS = 3;
+const MAP_PIN_IMAGE = require('../assets/pins/pin_30x30_1.png');
 
 const LABEL_TITLE = 'Título';
 const LABEL_UBIC = 'Ubicación';
@@ -295,6 +296,7 @@ export default function AddPostScreen() {
               <Marker
                 draggable
                 coordinate={coordenadas}
+                image={MAP_PIN_IMAGE}
                 onDragEnd={(e) => setCoordenadas(e.nativeEvent.coordinate)}
               />
             </MapView>

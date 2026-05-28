@@ -9,6 +9,8 @@ import { fetchProducts } from '@/_services/api';
 import { IS_MOCK, MOCK_POSTS } from '@/_fake';
 import MainHeader from '@/components/MainHeader';
 
+const MAP_PIN_IMAGE = require('../../assets/pins/pin_30x30_1.png');
+
 function normalize(text) {
     return text
         .toLowerCase()
@@ -203,7 +205,7 @@ export default function HomeMap() {
                                 <Marker
                                     key={post._id || post.id}
                                     coordinate={{ latitude: lat, longitude: lng }}
-                                    pinColor="red"
+                                    image={MAP_PIN_IMAGE}
                                     onPress={() => {
                                         setSelectedPost(post);
                                         selectedPostRef.current = post;

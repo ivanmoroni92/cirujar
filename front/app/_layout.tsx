@@ -64,7 +64,7 @@ export default function RootLayout() {
           <Image
             source={require('../assets/images/loading_animation.gif')}
             style={styles.loaderGif}
-            contentFit="contain"
+            contentFit="cover"
           />
         </View>
         <StatusBar style="auto" />
@@ -77,6 +77,7 @@ export default function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="add-post" options={{ headerShown: false }} />
+        <Stack.Screen name="user/[id]" options={{ headerShown: false }} />
         <Stack.Screen name="register" options={{ headerShown: false }} />
         <Stack.Screen name="login" options={{ headerShown: false }} />
         <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
@@ -89,13 +90,11 @@ export default function RootLayout() {
 const styles = StyleSheet.create({
   loaderWrap: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
     backgroundColor: '#ffffff',
   },
   loaderGif: {
-    width: 220,
-    height: 220,
+    width: '100%',
+    height: '100%',
   },
 });
 // Initial commit dev

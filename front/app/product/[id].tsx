@@ -333,7 +333,15 @@ function Content() {
             <View style={styles.body}>
               <Text style={styles.title}>{product.titulo}</Text>
 
-              <View style={styles.authorCard}>
+              <Pressable
+                onPress={() => {
+                  const authorId = product.usuario?._id;
+                  if (!authorId) return;
+                  router.push({ pathname: '/user/[id]', params: { id: authorId } });
+                }}
+                style={({ pressed }) => [styles.authorCard, pressed && styles.pressed]}
+                disabled={!product.usuario?._id}
+              >
                 <View style={styles.authorAvatarWrap}>
                   {product.usuario?.imagenPerfil ? (
                     <Image
@@ -350,7 +358,8 @@ function Content() {
                     {product.usuario?.alias ? `@${product.usuario.alias}` : '@usuario'}
                   </Text>
                 </View>
-              </View>
+                <Ionicons name="chevron-forward" size={16} color="#73819a" />
+              </Pressable>
 
               <View style={styles.descriptionCard}>
                 <Text style={styles.descriptionLabel}>Descripción</Text>

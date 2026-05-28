@@ -96,12 +96,14 @@ export default function AddPostScreen() {
       if (!(await ensureLibraryPermission())) return;
       const result = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ImagePicker.MediaTypeOptions.Images,
-        allowsEditing: true,
+        // On Android, edited assets can come back in a URI format that fails local preview.
+        allowsEditing: Platform.OS === 'ios',
         aspect: [1, 1],
         quality: 0.85,
       });
       if (result.canceled || !result.assets?.[0]) return;
-      const uri = result.assets[0].uri;
+      const uri = result.assets[0].uri?.trim();
+      if (!uri) return;
       if (target === 'main') {
         setMainUri(uri);
       } else {
@@ -199,18 +201,17 @@ export default function AddPostScreen() {
           ) : null}
 
           <Pressable
+            key={mainUri ?? 'empty'}
             onPress={() => pickImage('main')}
             style={[styles.mainPhoto, !mainUri && styles.mainPhotoEmpty]}
             accessibilityRole="button"
             accessibilityLabel="Foto principal">
             {mainUri ? (
-              <View style={styles.mainPhotoImageWrap}>
-                <Image
-                  source={{ uri: mainUri }}
-                  style={styles.mainPhotoImg}
-                  resizeMode="cover"
-                />
-              </View>
+              <Image
+                source={{ uri: mainUri }}
+                style={styles.mainPhotoImg}
+                resizeMode="cover"
+              />
             ) : (
               <Text style={styles.mainPhotoLabel}>Toca para subir una imagen</Text>
             )}
@@ -395,9 +396,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#C1D9D5',
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: '#9ec4d4',
-  },
-  mainPhotoImageWrap: {
-    ...StyleSheet.absoluteFillObject,
   },
   mainPhotoImg: {
     width: '100%',

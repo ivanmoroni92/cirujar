@@ -88,6 +88,56 @@ function getCollectorLevelMeta(publicationCount: number): CollectorLevelMeta {
     };
 }
 
+function getPublisherLevelMeta(publicationCount: number): CollectorLevelMeta {
+    if (publicationCount > 40) {
+        return {
+            level: 5,
+            minPosts: 41,
+            nextLevelMinPosts: null,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_6.png'),
+        };
+    }
+    if (publicationCount >= 25) {
+        return {
+            level: 4,
+            minPosts: 25,
+            nextLevelMinPosts: 41,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_5.png'),
+        };
+    }
+    if (publicationCount >= 15) {
+        return {
+            level: 3,
+            minPosts: 15,
+            nextLevelMinPosts: 25,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_4.png'),
+        };
+    }
+    if (publicationCount >= 5) {
+        return {
+            level: 2,
+            minPosts: 5,
+            nextLevelMinPosts: 15,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_3.png'),
+        };
+    }
+    if (publicationCount >= 2) {
+        return {
+            level: 1,
+            minPosts: 2,
+            nextLevelMinPosts: 5,
+            badgeImage: require('../../assets/levels/publicador/publicador_lv_2.png'),
+        };
+    }
+
+    return {
+        level: 0,
+        minPosts: 0,
+        nextLevelMinPosts: 2,
+        badgeImage: null,
+    };
+}
+
 export default function ProfileScreen() {
     const router = useRouter();
     const [user, setUser] = useState<ApiUser | null>(null);
@@ -222,6 +272,11 @@ export default function ProfileScreen() {
 
     const collectorLevel = useMemo(
         () => getCollectorLevelMeta(publicationCount),
+        [publicationCount]
+    );
+
+    const publisherLevel = useMemo(
+        () => getPublisherLevelMeta(publicationCount),
         [publicationCount]
     );
 
@@ -465,6 +520,7 @@ export default function ProfileScreen() {
 
                                 <View style={styles.badgeRow}>
                                     <View style={styles.badgeSlotLeft}>
+                                        <Text style={styles.badgeSlotTitle}>Recolector</Text>
                                         {collectorLevel.badgeImage ? (
                                             <Image
                                                 source={collectorLevel.badgeImage}
@@ -477,7 +533,20 @@ export default function ProfileScreen() {
                                             </View>
                                         )}
                                     </View>
-                                    <View style={styles.badgeSlotRight} />
+                                    <View style={styles.badgeSlotRight}>
+                                        <Text style={[styles.badgeSlotTitle, styles.badgeSlotTitleRight]}>Publicador</Text>
+                                        {publisherLevel.badgeImage ? (
+                                            <Image
+                                                source={publisherLevel.badgeImage}
+                                                style={[styles.collectorBadge, styles.collectorBadgeRight]}
+                                                resizeMode="contain"
+                                            />
+                                        ) : (
+                                            <View style={[styles.badgeEmptyWrap, styles.badgeEmptyWrapRight]}>
+                                                <Text style={styles.badgeEmptyText}>Sin insignia</Text>
+                                            </View>
+                                        )}
+                                    </View>
                                 </View>
                             </View>
 
@@ -725,14 +794,31 @@ const styles = StyleSheet.create({
     badgeSlotRight: {
         minHeight: 62,
         flex: 1,
+        alignItems: 'flex-end',
+        justifyContent: 'center',
+    },
+    badgeSlotTitle: {
+        fontSize: 11,
+        color: '#8ca2c0',
+        fontWeight: '700',
+        marginBottom: 4,
+    },
+    badgeSlotTitleRight: {
+        textAlign: 'right',
     },
     collectorBadge: {
         width: 118,
         height: 58,
     },
+    collectorBadgeRight: {
+        alignSelf: 'flex-end',
+    },
     badgeEmptyWrap: {
         minHeight: 58,
         justifyContent: 'center',
+    },
+    badgeEmptyWrapRight: {
+        alignItems: 'flex-end',
     },
     badgeEmptyText: {
         fontSize: 12,

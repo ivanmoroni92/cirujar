@@ -158,11 +158,20 @@ const handleLogout = () => {
 - Nivel 4: 25-40 publicaciones (`Recolector_lv_5.png`)
 - Nivel 5: 41+ publicaciones (actualmente fallback visual con `Recolector_lv_5.png` hasta agregar `Recolector_lv_6.png` al repo)
 
+**Niveles de publicador (no acumulativos)**:
+- Nivel 0: 0-1 publicaciones (sin insignia)
+- Nivel 1: 2-4 publicaciones (`publicador_lv_2.png`)
+- Nivel 2: 5-14 publicaciones (`publicador_lv_3.png`)
+- Nivel 3: 15-24 publicaciones (`publicador_lv_4.png`)
+- Nivel 4: 25-40 publicaciones (`publicador_lv_5.png`)
+- Nivel 5: 41+ publicaciones (`publicador_lv_6.png`)
+
 **Barra de progreso de nivel**:
 - Se muestra debajo de la insignia
 - Inicio con círculo amarillo (nivel actual)
 - Track celeste y relleno verde según publicaciones hacia el próximo nivel
 - Mensaje contextual de publicaciones restantes
+- La barra aplica al nivel de recolección; para publicador se muestran solo insignias.
 
 **Errores que maneja**:
 - ✅ Usuario no encontrado en AsyncStorage

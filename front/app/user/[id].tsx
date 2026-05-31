@@ -243,27 +243,6 @@ function Content() {
         [publicationCount]
     );
 
-    const progressPercent = useMemo(() => {
-        if (collectorLevel.nextLevelMinPosts === null) return 100;
-
-        const span = collectorLevel.nextLevelMinPosts - collectorLevel.minPosts;
-        if (span <= 0) return 0;
-
-        const progress = collectorCount - collectorLevel.minPosts;
-        const normalized = Math.max(0, Math.min(progress / span, 1));
-        return normalized * 100;
-    }, [collectorLevel, collectorCount]);
-
-    const progressMessage = useMemo(() => {
-        if (collectorLevel.nextLevelMinPosts === null) {
-            return 'Nivel máximo de recolección alcanzado';
-        }
-
-        const remaining = Math.max(0, collectorLevel.nextLevelMinPosts - collectorCount);
-        const label = remaining === 1 ? 'publicación' : 'publicaciones';
-        return `Faltan ${remaining} ${label} para nivel ${collectorLevel.level + 1}`;
-    }, [collectorLevel, collectorCount]);
-
     const activeSinceText = useMemo(() => {
         if (!user?.createdAt) return '—';
 
@@ -385,22 +364,6 @@ function Content() {
                                 <Text style={styles.badgeLevelText}>Nivel {publisherLevel.level}</Text>
                             </View>
                         </View>
-                    </View>
-
-                    <View style={styles.badgeSection}>
-                        <Text style={styles.badgeTitle}>Nivel de recolección</Text>
-
-                        <View style={styles.progressWrap}>
-                            <View style={styles.levelCircle}>
-                                <Text style={styles.levelCircleText}>{collectorLevel.level}</Text>
-                            </View>
-
-                            <View style={styles.progressTrack}>
-                                <View style={[styles.progressFill, { width: `${progressPercent}%` }]} />
-                            </View>
-                        </View>
-
-                        <Text style={styles.progressText}>{progressMessage}</Text>
                     </View>
 
                     <View style={styles.infoCard}>
@@ -559,26 +522,6 @@ const styles = StyleSheet.create({
     badgeTopSection: {
         marginBottom: 10,
     },
-    badgeSection: {
-        backgroundColor: '#ffffff',
-        borderRadius: 16,
-        borderWidth: 1,
-        borderColor: '#e9f0fc',
-        paddingVertical: 12,
-        paddingHorizontal: 14,
-        marginBottom: 18,
-        shadowColor: '#245aa8',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.08,
-        shadowRadius: 12,
-        elevation: 2,
-    },
-    badgeTitle: {
-        fontSize: 12,
-        color: '#8ca2c0',
-        fontWeight: '700',
-        marginBottom: 8,
-    },
     badgeRow: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -631,43 +574,6 @@ const styles = StyleSheet.create({
         fontSize: 12,
         color: '#5f7391',
         fontWeight: '700',
-    },
-    progressWrap: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 10,
-    },
-    levelCircle: {
-        width: 28,
-        height: 28,
-        borderRadius: 14,
-        borderWidth: 2,
-        borderColor: '#b38a25',
-        backgroundColor: '#f7df8a',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    levelCircleText: {
-        fontSize: 13,
-        fontWeight: '800',
-        color: '#7a5b0f',
-    },
-    progressTrack: {
-        flex: 1,
-        height: 12,
-        borderRadius: 999,
-        backgroundColor: '#cfeeff',
-        overflow: 'hidden',
-    },
-    progressFill: {
-        height: '100%',
-        backgroundColor: '#47b55f',
-        borderRadius: 999,
-    },
-    progressText: {
-        marginTop: 8,
-        fontSize: 12,
-        color: '#5f7391',
     },
     infoCard: {
         flexDirection: 'row',

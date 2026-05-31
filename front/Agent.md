@@ -109,7 +109,6 @@ Dos tabs disponibles:
 - Avatar, alias y email del usuario
 - Contador de publicaciones y antigüedad
 - Insignias de nivel (recolector y publicador)
-- Nivel de recolección con barra de progreso
 - Sin edición de alias/avatar y sin botón de cerrar sesión
 
 ### **app/(tabs)/profile.tsx** - COMPONENTE CRÍTICO
@@ -155,7 +154,7 @@ const handleLogout = () => {
 **UI/UX**:
 - Avatar: círculo azul 120px con icono persona
 - Información: nombre, email, stats (publicaciones, seguidores, siguiendo)
-- Sistema de nivel de recolección: insignia única por hito de publicaciones + barra de progreso al siguiente nivel
+- Sistema de nivel de recolección: insignia única por hito de publicaciones
 - Card design: fondo blanco, sombra sutil, border radio
 - Animaciones: scale entrada avatar, slide entrada contenido
 - Botón Logout: gradiente azul, animación de presión
@@ -186,11 +185,8 @@ const handleLogout = () => {
 - Debajo de cada insignia se muestra el texto de nivel correspondiente (por ejemplo, "Nivel 3") tanto en perfil propio como en perfil público.
 
 **Barra de progreso de nivel**:
-- Se muestra debajo de la insignia, con la leyenda "Nivel de recolección" dentro del bloque de progreso
-- Inicio con círculo amarillo (nivel actual)
-- Track celeste y relleno verde según publicaciones hacia el próximo nivel
-- Mensaje contextual de publicaciones restantes
-- La barra aplica al nivel de recolección; para publicador se muestran solo insignias.
+- Eliminada en perfil propio y perfil público.
+- Se mantienen únicamente las insignias de recolector/publicador con su nivel.
 
 **Errores que maneja**:
 - ✅ Usuario no encontrado en AsyncStorage

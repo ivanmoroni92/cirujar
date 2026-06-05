@@ -4,12 +4,18 @@ import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
 import { BUCKET_NAME, PUBLIC_URL, s3Client } from '../config/storage';
 
+export interface UploadedImageFile {
+  originalname: string;
+  mimetype: string;
+  buffer: Buffer;
+}
+
 /**
  * Uploads images to Supabase Storage (S3-compatible).
  * Works from Expo Go without depending on the machine's LAN IP.
  */
 class StorageService {
-  async uploadImage(file: Express.Multer.File): Promise<string> {
+  async uploadImage(file: UploadedImageFile): Promise<string> {
     const extension = file.originalname.split('.').pop() ?? 'jpg';
     const fileName = `productos/${uuidv4()}.${extension}`;
 
@@ -25,7 +31,7 @@ class StorageService {
     return `${PUBLIC_URL}/${BUCKET_NAME}/${fileName}`;
   }
 
-  async uploadImages(files: Express.Multer.File[]): Promise<string[]> {
+  async uploadImages(files: UploadedImageFile[]): Promise<string[]> {
     return Promise.all(files.map((file) => this.uploadImage(file)));
   }
 

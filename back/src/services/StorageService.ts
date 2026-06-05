@@ -1,44 +1,46 @@
-import { PutObjectCommand } from '@aws-sdk/client-s3';
-import { s3Client, BUCKET_NAME, PUBLIC_URL } from '../config/storage';
+import fs from 'fs';
+import path from 'path';
 import { v4 as uuidv4 } from 'uuid';
 
-/**
- * Servicio responsable de interactuar con el storage de Supabase (S3).
-*/
+const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
+const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3000';
+
+// Crea la carpeta si no existe
+if (!fs.existsSync(UPLOADS_DIR)) {
+  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+}
 
 class StorageService {
-  /**
-   * Sube un archivo al bucket de Supabase y retorna la URL pública.
-   * @param file - El archivo recibido por multer (en memoria)
-   * @returns La URL pública del archivo subido
-   */
   async uploadImage(file: Express.Multer.File): Promise<string> {
-
     const extension = file.originalname.split('.').pop();
-    const fileName = `productos/${uuidv4()}.${extension}`;
+    const fileName = `${uuidv4()}.${extension}`;
+    const filePath = path.join(UPLOADS_DIR, fileName);
 
-    const command = new PutObjectCommand({
-      Bucket: BUCKET_NAME,
-      Key: fileName,
-      Body: file.buffer,
-      ContentType: file.mimetype,
-    });
+    fs.writeFileSync(filePath, file.buffer);
 
-    await s3Client.send(command);
-
-
-    return `${PUBLIC_URL}/${BUCKET_NAME}/${fileName}`;
+    return `${BASE_URL}/uploads/${fileName}`;
   }
 
-  /**
-   * Sube múltiples archivos en paralelo y retorna todas las URLs.
-   * @param files - Array de archivos recibidos por multer
-   * @returns Array de URLs públicas
-   */
   async uploadImages(files: Express.Multer.File[]): Promise<string[]> {
     const uploadPromises = files.map((file) => this.uploadImage(file));
     return await Promise.all(uploadPromises);
   }
+
+  async deleteImage(url: string): Promise<void> {
+  try {
+    // Extraer la ruta relativa desde la URL
+    // "http://192.168.0.118:3000/uploads/productos/uuid.jpg" → "uploads/productos/uuid.jpg"
+    const urlPath = new URL(url).pathname; // "/uploads/productos/uuid.jpg"
+    const filePath = path.join(process.cwd(), urlPath);
+
+    if (fs.existsSync(filePath)) {
+      fs.unlinkSync(filePath);
+    }
+  } catch {
+    // Si falla no rompemos el flujo, el producto se elimina igual
+  }
 }
+}
+
 
 export default new StorageService();

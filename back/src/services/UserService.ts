@@ -1,5 +1,6 @@
 import UserDAO from '../dao/UserDAO';
 import { hashPassword } from '../utils/passwordHash';
+import StorageService from './StorageService';
 
 export interface CreateUserInput {
   alias: string;
@@ -35,6 +36,14 @@ class UserService {
   }
 
   async updateUser(id: string, data: UpdateUserInput) {
+    // Si viene una imagen nueva, borrar la vieja del disco
+    if (data.imagenPerfil !== undefined) {
+      const user = await UserDAO.findById(id);
+      if (user?.imagenPerfil) {
+        await StorageService.deleteImage(user.imagenPerfil);
+      }
+    }
+
     const payload: Record<string, unknown> = {};
 
     if (data.alias !== undefined) {

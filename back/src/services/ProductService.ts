@@ -81,6 +81,16 @@ class ProductService {
       throw new Error('La publicación debe tener al menos una imagen.');
     }
 
+    // Borrar del disco las fotos que se quitaron
+    const productoActual = await ProductDAO.findById(id);
+    if (productoActual?.fotos) {
+      for (const fotoUrl of productoActual.fotos) {
+        if (!fotosExistentes.includes(fotoUrl)) {
+          await StorageService.deleteImage(fotoUrl);
+        }
+      }
+    }
+
     // Se suben las fotos a supabase
     let nuevasFotosUrls: string[] = [];
     if (newImageFiles.length > 0) {
@@ -104,11 +114,17 @@ class ProductService {
   }
 
   async deleteProduct(id: string) {
-    const deletedProduct = await ProductDAO.delete(id);
-    if (!deletedProduct) {
+    const product = await ProductDAO.findById(id);
+    if (!product) {
       throw new Error('El producto no existe.');
     }
-    return deletedProduct;
+
+    // Borrar imágenes del disco
+    for (const fotoUrl of product.fotos ?? []) {
+      await StorageService.deleteImage(fotoUrl);
+    }
+
+    return await ProductDAO.delete(id);
   }
 
   async retirarProduct(id: string, userId: string) {

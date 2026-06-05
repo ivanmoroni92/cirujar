@@ -1,46 +1,57 @@
 import fs from 'fs';
 import path from 'path';
+import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
+import { BUCKET_NAME, PUBLIC_URL, s3Client } from '../config/storage';
 
-const UPLOADS_DIR = path.join(process.cwd(), 'uploads');
-const BASE_URL = process.env.BASE_URL ?? 'http://localhost:3000';
-
-// Crea la carpeta si no existe
-if (!fs.existsSync(UPLOADS_DIR)) {
-  fs.mkdirSync(UPLOADS_DIR, { recursive: true });
-}
-
+/**
+ * Uploads images to Supabase Storage (S3-compatible).
+ * Works from Expo Go without depending on the machine's LAN IP.
+ */
 class StorageService {
   async uploadImage(file: Express.Multer.File): Promise<string> {
-    const extension = file.originalname.split('.').pop();
-    const fileName = `${uuidv4()}.${extension}`;
-    const filePath = path.join(UPLOADS_DIR, fileName);
+    const extension = file.originalname.split('.').pop() ?? 'jpg';
+    const fileName = `productos/${uuidv4()}.${extension}`;
 
-    fs.writeFileSync(filePath, file.buffer);
+    await s3Client.send(
+      new PutObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: fileName,
+        Body: file.buffer,
+        ContentType: file.mimetype,
+      })
+    );
 
-    return `${BASE_URL}/uploads/${fileName}`;
+    return `${PUBLIC_URL}/${BUCKET_NAME}/${fileName}`;
   }
 
   async uploadImages(files: Express.Multer.File[]): Promise<string[]> {
-    const uploadPromises = files.map((file) => this.uploadImage(file));
-    return await Promise.all(uploadPromises);
+    return Promise.all(files.map((file) => this.uploadImage(file)));
   }
 
   async deleteImage(url: string): Promise<void> {
-  try {
-    // Extraer la ruta relativa desde la URL
-    // "http://192.168.0.118:3000/uploads/productos/uuid.jpg" → "uploads/productos/uuid.jpg"
-    const urlPath = new URL(url).pathname; // "/uploads/productos/uuid.jpg"
-    const filePath = path.join(process.cwd(), urlPath);
+    try {
+      const supabasePrefix = `${PUBLIC_URL}/${BUCKET_NAME}/`;
+      if (url.startsWith(supabasePrefix)) {
+        const key = url.slice(supabasePrefix.length);
+        await s3Client.send(
+          new DeleteObjectCommand({
+            Bucket: BUCKET_NAME,
+            Key: key,
+          })
+        );
+        return;
+      }
 
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+      const urlPath = new URL(url).pathname;
+      const filePath = path.join(process.cwd(), urlPath);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    } catch {
+      // Do not break the main flow if cleanup fails.
     }
-  } catch {
-    // Si falla no rompemos el flujo, el producto se elimina igual
   }
 }
-}
-
 
 export default new StorageService();

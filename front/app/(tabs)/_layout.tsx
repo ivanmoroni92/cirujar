@@ -294,8 +294,8 @@ const styles = StyleSheet.create({
     elevation: 7,
   },
   profileAvatarClip: {
-    width: 54,
-    height: 54,
+    width: 50,
+    height: 50,
     borderRadius: 27,
     overflow: 'hidden',
     alignItems: 'center',

@@ -1,5 +1,8 @@
 .idea/
 
+# Local dev uploads (USE_LOCAL_DB sync + runtime)
+back/uploads/
+
 # Logs
 logs
 *.log

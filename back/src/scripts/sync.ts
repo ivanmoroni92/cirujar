@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import '../loadEnv';
+import { readDevConfig } from '../config/readDevConfig';
 import Product from '../models/Product';
 import User from '../models/User';
+import { mirrorSeedImages } from './mirrorRemoteImages';
 import { connectMongoUri, disconnectMongo } from './scriptUtils';
 
 const SEED_DIR = path.resolve(__dirname, '../../seed');
@@ -69,20 +71,32 @@ async function importJsonToLocal(data: SyncExport): Promise<void> {
     console.warn(`Skipped ${skipped} product(s) without valid usuario.`);
   }
 
+  let usersToImport = data.users;
+  let productsToImport = products;
+
+  if (readDevConfig().useLocalDb) {
+    const mirrored = await mirrorSeedImages(usersToImport, productsToImport);
+    usersToImport = mirrored.users;
+    productsToImport = mirrored.products;
+    console.log(
+      `Local images: ${mirrored.downloaded} downloaded, ${mirrored.failed} failed.`
+    );
+  }
+
   await connectMongoUri(localUri);
   await Product.deleteMany({});
   await User.deleteMany({});
 
-  if (data.users.length > 0) {
-    await User.insertMany(data.users, { ordered: false });
+  if (usersToImport.length > 0) {
+    await User.insertMany(usersToImport, { ordered: false });
   }
-  if (products.length > 0) {
-    await Product.insertMany(products, { ordered: false });
+  if (productsToImport.length > 0) {
+    await Product.insertMany(productsToImport, { ordered: false });
   }
 
   await disconnectMongo();
   console.log(
-    `Imported ${data.users.length} users and ${products.length} products into local MongoDB.`
+    `Imported ${usersToImport.length} users and ${productsToImport.length} products into local MongoDB.`
   );
 }
 

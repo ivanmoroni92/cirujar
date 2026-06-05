@@ -1,8 +1,12 @@
 import fs from 'fs';
-import path from 'path';
 import { DeleteObjectCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { v4 as uuidv4 } from 'uuid';
+import { readDevConfig } from '../config/readDevConfig';
 import { BUCKET_NAME, PUBLIC_URL, s3Client } from '../config/storage';
+import {
+  resolveLocalUploadPath,
+  saveUploadedFileToLocalUploads,
+} from '../utils/localImageStorage';
 
 export interface UploadedImageFile {
   originalname: string;
@@ -11,11 +15,18 @@ export interface UploadedImageFile {
 }
 
 /**
- * Uploads images to Supabase Storage (S3-compatible).
- * Works from Expo Go without depending on the machine's LAN IP.
+ * Stores images on local disk when USE_LOCAL_DB is true, otherwise Supabase S3.
  */
 class StorageService {
+  private useLocalDisk(): boolean {
+    return readDevConfig().useLocalDb;
+  }
+
   async uploadImage(file: UploadedImageFile): Promise<string> {
+    if (this.useLocalDisk()) {
+      return saveUploadedFileToLocalUploads(file.buffer, file.originalname);
+    }
+
     const extension = file.originalname.split('.').pop() ?? 'jpg';
     const fileName = `productos/${uuidv4()}.${extension}`;
 
@@ -49,10 +60,9 @@ class StorageService {
         return;
       }
 
-      const urlPath = new URL(url).pathname;
-      const filePath = path.join(process.cwd(), urlPath);
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      const localPath = resolveLocalUploadPath(url);
+      if (localPath && fs.existsSync(localPath)) {
+        fs.unlinkSync(localPath);
       }
     } catch {
       // Do not break the main flow if cleanup fails.

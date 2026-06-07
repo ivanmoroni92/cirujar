@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator, Alert, Linking } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator, Alert, Linking, Modal } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
 import MapView, { Marker, Circle } from 'react-native-maps';
@@ -34,6 +34,8 @@ export default function HomeMap() {
     const selectedPostRef = useRef(null);
     const currentRegion = useRef(null);
     const mapDimensions = useRef({ width: 0, height: 0 });
+
+    // El estado inicia en null (cargando). false activa el modal bloqueante. true lo oculta.
     const [permissionGranted, setPermissionGranted] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [posts, setPosts] = useState([]);
@@ -45,12 +47,6 @@ export default function HomeMap() {
 
     const CARD_WIDTH = 140;
     const CARD_HEIGHT = 150;
-    const FALLBACK_REGION = {
-        latitude: -34.6037,
-        longitude: -58.3816,
-        latitudeDelta: 0.02,
-        longitudeDelta: 0.02,
-    };
 
     const filteredPosts = searchQuery
         ? posts.filter((p) => postMatchesQuery(p, searchQuery))
@@ -67,31 +63,61 @@ export default function HomeMap() {
 
     const requestLocationPermission = async () => {
         try {
+            // 1. Verificar si el GPS físico del dispositivo está encendido
+            const gpsEnabled = await Location.hasServicesEnabledAsync();
+            if (!gpsEnabled) {
+                setPermissionGranted(false);
+                setUserLocation(null);
+                return;
+            }
+
+            // 2. Solicitar los permisos de software
             const { status } = await Location.requestForegroundPermissionsAsync();
-            setPermissionGranted(status === 'granted');
 
             if (status === 'granted') {
                 try {
-                    const location = await Location.getCurrentPositionAsync({});
+                    // 3. Obtener la ubicación real antes de cerrar el modal
+                    const location = await Location.getCurrentPositionAsync({
+                        accuracy: Location.Accuracy.Balanced,
+                    });
+
                     setUserLocation({
                         latitude: location.coords.latitude,
                         longitude: location.coords.longitude,
                         latitudeDelta: 0.02,
                         longitudeDelta: 0.02,
                     });
+
+                    // 4. Confirmar el permiso recién cuando los datos reales existen
+                    setPermissionGranted(true);
                 } catch (error) {
-                    console.error('Error obteniendo ubicacion:', error);
-                    setUserLocation(FALLBACK_REGION);
+                    console.error('Error obteniendo coordenadas físicas:', error);
+                    setPermissionGranted(false);
+                    setUserLocation(null);
                 }
+            } else {
+                setPermissionGranted(false);
+                setUserLocation(null);
             }
         } catch (error) {
-            console.error('Error solicitando permisos de ubicacion:', error);
+            console.error('Error en el flujo de verificacion de ubicacion:', error);
             setPermissionGranted(false);
-            setUserLocation(FALLBACK_REGION);
+            setUserLocation(null);
         }
     };
 
     const handleManualPermissionRequest = async () => {
+        const gpsEnabled = await Location.hasServicesEnabledAsync();
+
+        if (!gpsEnabled) {
+            Alert.alert(
+                'GPS Apagado',
+                'Debes activar la ubicación desde la barra de notificaciones o ajustes rápidos de tu celular.',
+                [{ text: 'Entendido' }]
+            );
+            return;
+        }
+
         const { status, canAskAgain } = await Location.requestForegroundPermissionsAsync();
 
         if (status === 'granted') {
@@ -99,10 +125,10 @@ export default function HomeMap() {
         } else if (!canAskAgain) {
             Alert.alert(
                 'Permiso bloqueado',
-                'Debes habilitar la ubicacion manualmente desde la configuracion de tu celular para ver el mapa.',
+                'Debes habilitar la ubicación manualmente desde la configuración de tu celular para usar la app.',
                 [
                     { text: 'Cancelar', style: 'cancel' },
-                    { text: 'Abrir Configuracion', onPress: () => Linking.openSettings() },
+                    { text: 'Abrir Configuración', onPress: () => Linking.openSettings() },
                 ]
             );
         }
@@ -151,18 +177,21 @@ export default function HomeMap() {
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
-            <MainHeader onSearchChange={setSearchQuery} />
 
-            {permissionGranted === false && (
-                <View style={styles.permissionBanner}>
-                    <Text style={styles.permissionBannerText}>
-                        La ubicacion esta desactivada. Puedes habilitarla para centrar mejor el mapa.
+            {/* MODAL BLOQUEANTE A PANTALLA COMPLETA */}
+            <Modal visible={permissionGranted === false} animationType="fade" transparent={false}>
+                <SafeAreaView style={styles.blockedContainer}>
+                    <Text style={styles.blockedTitle}>Ubicación requerida</Text>
+                    <Text style={styles.blockedText}>
+                        Para buscar objetos, necesitas habilitar el acceso a tu ubicación y tener el GPS encendido.
                     </Text>
-                    <Pressable style={styles.permissionBannerBtn} onPress={handleManualPermissionRequest}>
-                        <Text style={styles.permissionBannerBtnText}>Habilitar ubicacion</Text>
+                    <Pressable style={styles.button} onPress={handleManualPermissionRequest}>
+                        <Text style={styles.buttonText}>Habilitar ubicación</Text>
                     </Pressable>
-                </View>
-            )}
+                </SafeAreaView>
+            </Modal>
+
+            <MainHeader onSearchChange={setSearchQuery} />
 
             {userLocation && (
                 <View style={styles.mapFrame}>
@@ -196,19 +225,17 @@ export default function HomeMap() {
                             setCardPos(calcCardPos(lat, lng, region, mapDimensions.current));
                         }}>
 
-                        {/* CÍRCULO DE RADIO DE BÚSQUEDA */}
-                        {permissionGranted && (
-                            <Circle
-                                center={{
-                                    latitude: userLocation.latitude,
-                                    longitude: userLocation.longitude,
-                                }}
-                                radius={200}
-                                fillColor="rgba(0, 150, 255, 0.15)"
-                                strokeColor="rgba(0, 150, 255, 0.5)"
-                                strokeWidth={1}
-                            />
-                        )}
+                        {/* RADIO DE 200 METROS REAL */}
+                        <Circle
+                            center={{
+                                latitude: userLocation.latitude,
+                                longitude: userLocation.longitude,
+                            }}
+                            radius={200}
+                            fillColor="rgba(0, 150, 255, 0.15)"
+                            strokeColor="rgba(0, 150, 255, 0.5)"
+                            strokeWidth={1}
+                        />
 
                         {filteredPosts.map((post) => {
                             const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
@@ -301,33 +328,38 @@ const styles = StyleSheet.create({
         color: '#4d5b6a',
         fontSize: 14,
     },
-    permissionBanner: {
-        marginHorizontal: 12,
-        marginTop: 8,
-        marginBottom: 6,
-        backgroundColor: '#fff3cd',
-        borderColor: '#f1d68a',
-        borderWidth: StyleSheet.hairlineWidth,
-        borderRadius: 10,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
-        gap: 8,
+    blockedContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#f8f9fa',
+        padding: 32,
     },
-    permissionBannerText: {
-        color: '#6e5a22',
-        fontSize: 13,
+    blockedTitle: {
+        fontSize: 22,
+        fontWeight: 'bold',
+        color: '#343a40',
+        marginBottom: 12,
     },
-    permissionBannerBtn: {
-        alignSelf: 'flex-start',
+    blockedText: {
+        fontSize: 16,
+        color: '#6c757d',
+        textAlign: 'center',
+        lineHeight: 24,
+        marginBottom: 32,
+    },
+    button: {
         backgroundColor: '#4A90E2',
+        paddingVertical: 14,
+        paddingHorizontal: 24,
         borderRadius: 8,
-        paddingVertical: 8,
-        paddingHorizontal: 12,
+        width: '100%',
+        alignItems: 'center',
     },
-    permissionBannerBtnText: {
-        color: '#fff',
-        fontWeight: '700',
-        fontSize: 12,
+    buttonText: {
+        color: '#ffffff',
+        fontSize: 16,
+        fontWeight: 'bold',
     },
     mapFrame: {
         flex: 1,

@@ -18,6 +18,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapView, { UrlTile, Marker } from 'react-native-maps';
 import { createProduct } from '@/_services/api';
+import PublishSuccessModal from '@/components/publish-success-modal';
 import * as Location from 'expo-location';
 
 const PAD = 16;
@@ -52,6 +53,7 @@ export default function AddPostScreen() {
     longitude: -58.3816,
   });
   const [submitting, setSubmitting] = useState(false);
+  const [successVisible, setSuccessVisible] = useState(false);
   const [mapReady, setMapReady] = useState(false);
   const [validationMessages, setValidationMessages] = useState<string[]>([]);
 
@@ -154,7 +156,7 @@ export default function AddPostScreen() {
         longitud: coordenadas.longitude,
         imageUris: uris,
       });
-      router.replace('/(tabs)/home');
+      setSuccessVisible(true);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'No se pudo publicar';
       Alert.alert('Error', msg);
@@ -326,6 +328,16 @@ export default function AddPostScreen() {
           </Pressable>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      <PublishSuccessModal
+        visible={successVisible}
+        productTitle={titulo.trim()}
+        productPhoto={mainUri ?? undefined}
+        onAccept={() => {
+          setSuccessVisible(false);
+          router.replace('/(tabs)/home');
+        }}
+      />
     </SafeAreaView>
   );
 }

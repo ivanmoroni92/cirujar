@@ -1,5 +1,4 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useMemo } from 'react';
 import {
     Image,
     Modal,
@@ -15,27 +14,14 @@ type Props = {
     onAccept: () => void;
     productTitle: string;
     productPhoto?: string;
-    ubicacionTexto?: string;
-    retiradoAt?: string | Date | null;
 };
 
-export default function RetiroSuccessModal({
+export default function PublishSuccessModal({
     visible,
     onAccept,
     productTitle,
     productPhoto,
-    ubicacionTexto,
-    retiradoAt,
 }: Props) {
-    const dateLabel = useMemo(() => {
-        const d = retiradoAt ? new Date(retiradoAt) : new Date();
-        return d.toLocaleDateString('es-AR', {
-            day: 'numeric',
-            month: 'long',
-            year: 'numeric',
-        });
-    }, [retiradoAt]);
-
     return (
         <Modal visible={visible} transparent animationType="fade" onRequestClose={onAccept}>
             <View style={styles.backdrop}>
@@ -46,8 +32,10 @@ export default function RetiroSuccessModal({
                         <Ionicons name="checkmark" size={36} color="#fff" />
                     </View>
 
-                    <Text style={styles.title}>¡Retiro confirmado!</Text>
-                    <Text style={styles.subtitle}>Gracias por darle una segunda vida a este objeto.</Text>
+                    <Text style={styles.title}>¡Publicación creada!</Text>
+                    <Text style={styles.subtitle}>
+                        Tu objeto ya está visible para la comunidad.
+                    </Text>
 
                     <View style={styles.summary}>
                         {productPhoto ? (
@@ -61,18 +49,6 @@ export default function RetiroSuccessModal({
                             <Text style={styles.productTitle} numberOfLines={2}>
                                 {productTitle}
                             </Text>
-                            {ubicacionTexto ? (
-                                <View style={styles.row}>
-                                    <Ionicons name="location-outline" size={13} color="#666" />
-                                    <Text style={styles.metaText} numberOfLines={1}>
-                                        {ubicacionTexto}
-                                    </Text>
-                                </View>
-                            ) : null}
-                            <View style={styles.row}>
-                                <Ionicons name="calendar-outline" size={13} color="#666" />
-                                <Text style={styles.metaText}>{dateLabel}</Text>
-                            </View>
                         </View>
                     </View>
 
@@ -110,7 +86,7 @@ const styles = StyleSheet.create({
         width: 64,
         height: 64,
         borderRadius: 32,
-        backgroundColor: '#2a9d5c',
+        backgroundColor: '#0a7ea4',
         alignItems: 'center',
         justifyContent: 'center',
         marginBottom: 12,
@@ -149,11 +125,9 @@ const styles = StyleSheet.create({
     },
     summaryText: { flex: 1, gap: 4, justifyContent: 'center' },
     productTitle: { fontSize: 15, fontWeight: '600', color: '#111' },
-    row: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-    metaText: { fontSize: 12, color: '#666', flexShrink: 1 },
     acceptBtn: {
         width: '100%',
-        backgroundColor: '#2a9d5c',
+        backgroundColor: '#0a7ea4',
         borderRadius: 12,
         paddingVertical: 13,
         alignItems: 'center',

@@ -69,7 +69,7 @@ export default function MainHeader({ style, onSearchChange }: MainHeaderProps) {
                     style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
                     hitSlop={6}
                 >
-                    <Ionicons name="add" size={26} color="#fff" />
+                    <Ionicons name="add" size={30} color="#0a7ea4" />
                 </Pressable>
             </View>
         </View>
@@ -143,18 +143,13 @@ const styles = StyleSheet.create({
         width: 42,
         height: 42,
         borderRadius: 21,
-        backgroundColor: '#2a9d5c',
+        backgroundColor: 'transparent',
         alignItems: 'center',
         justifyContent: 'center',
-        elevation: 6,
-        shadowColor: '#0f3d24',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.25,
-        shadowRadius: 5,
     },
     addButtonPressed: {
-        opacity: 0.85,
-        transform: [{ scale: 0.96 }],
+        opacity: 0.6,
+        transform: [{ scale: 0.94 }],
     },
     addButtonText: {
         fontSize: 28,

@@ -7,304 +7,299 @@ import { Ionicons } from '@expo/vector-icons';
 import { getStoredUser } from '@/_services/authToken';
 
 type TabButtonProps = {
-  accessibilityState?: any;
-  onPress?: ((...args: any[]) => void) | null;
-  onLongPress?: ((...args: any[]) => void) | null;
-  children?: React.ReactNode;
+    accessibilityState?: any;
+    onPress?: ((...args: any[]) => void) | null;
+    onLongPress?: ((...args: any[]) => void) | null;
+    children?: React.ReactNode;
 };
 
 type StoredUser = Awaited<ReturnType<typeof getStoredUser>>;
 
+// AVATAR AJUSTADO PARA EL BOTÓN LATERAL
 function ProfileAvatarIcon({ color, focused, user }: { color: string; focused: boolean; user: StoredUser }) {
-  const avatarUri = user?.imagenPerfil?.trim();
+    const avatarUri = user?.imagenPerfil?.trim();
 
-  return (
-    <View style={[styles.profileAvatarShadow, focused && styles.profileAvatarShadowFocused]}>
-      <View style={styles.profileAvatarClip}>
-        {avatarUri ? (
-          <Image source={{ uri: avatarUri }} style={styles.profileAvatarImage} />
-        ) : (
-          <Ionicons name="person-outline" size={26} color={color} />
-        )}
-      </View>
-    </View>
-  );
+    return (
+        <View style={[styles.sideIconWrap, focused && styles.sideIconWrapFocused]}>
+            {avatarUri ? (
+                <Image source={{ uri: avatarUri }} style={styles.sideAvatarImage} />
+            ) : (
+                <Ionicons name="person-outline" size={22} color={color} />
+            )}
+        </View>
+    );
 }
 
-function HomeTabButton({ accessibilityState, onPress, onLongPress, children }: TabButtonProps) {
-  const focused = !!accessibilityState?.selected;
-  const activeAnim = useRef(new Animated.Value(focused ? 1 : 0)).current;
+// BOTÓN ESTÁNDAR (Izquierda y Derecha)
+function SideTabButton({ accessibilityState, onPress, onLongPress, children }: TabButtonProps) {
+    const focused = !!accessibilityState?.selected;
+    const activeAnim = useRef(new Animated.Value(focused ? 1 : 0)).current;
 
-  useEffect(() => {
-    Animated.spring(activeAnim, {
-      toValue: focused ? 1 : 0,
-      friction: 7,
-      tension: 160,
-      useNativeDriver: true,
-    }).start();
-  }, [focused, activeAnim]);
+    useEffect(() => {
+        Animated.spring(activeAnim, {
+            toValue: focused ? 1 : 0,
+            friction: 7,
+            tension: 160,
+            useNativeDriver: true,
+        }).start();
+    }, [focused, activeAnim]);
 
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      onLongPress={onLongPress}
-      style={({ pressed }) => [styles.homeButton, pressed && styles.homeButtonPressed]}>
-      <Animated.View
-        style={{
-          transform: [
-            {
-              translateY: activeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0, -8],
-              }),
-            },
-            {
-              scale: activeAnim.interpolate({
-                inputRange: [0, 1],
-                outputRange: [1, 1.05],
-              }),
-            },
-          ],
-        }}>
-        {children}
-      </Animated.View>
-    </Pressable>
-  );
+    return (
+        <Pressable
+            accessibilityRole="button"
+            onPress={onPress}
+            onLongPress={onLongPress}
+            style={({ pressed }) => [styles.sideButton, pressed && styles.sideButtonPressed]}>
+            <Animated.View
+                style={{
+                    transform: [
+                        {
+                            translateY: activeAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [0, -8],
+                            }),
+                        },
+                        {
+                            scale: activeAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: [1, 1.05],
+                            }),
+                        },
+                    ],
+                }}>
+                {children}
+            </Animated.View>
+        </Pressable>
+    );
 }
 
-function ProfileTabButton({ accessibilityState, onPress, onLongPress, children }: TabButtonProps) {
-  const focused = !!accessibilityState?.selected;
-  const activeAnim = useRef(new Animated.Value(focused ? 1 : 0)).current;
+// BOTÓN FLOTANTE (Centro)
+function CenterTabButton({ accessibilityState, onPress, onLongPress, children }: TabButtonProps) {
+    const focused = !!accessibilityState?.selected;
+    const activeAnim = useRef(new Animated.Value(focused ? 1 : 0)).current;
 
-  useEffect(() => {
-    Animated.timing(activeAnim, {
-      toValue: focused ? 1 : 0,
-      duration: 260,
-      useNativeDriver: false,
-    }).start();
-  }, [focused, activeAnim]);
+    useEffect(() => {
+        Animated.timing(activeAnim, {
+            toValue: focused ? 1 : 0,
+            duration: 260,
+            useNativeDriver: false,
+        }).start();
+    }, [focused, activeAnim]);
 
-  return (
-    <Pressable
-      accessibilityRole="button"
-      onPress={onPress}
-      onLongPress={onLongPress}
-      style={({ pressed }) => [styles.profileButton, pressed && styles.profileButtonPressed]}>
-      <Animated.View
-        style={[
-          styles.profileButtonInner,
-          {
-            shadowOpacity: activeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0.22, 0.35],
-            }) as unknown as number,
-            shadowRadius: activeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [16, 24],
-            }) as unknown as number,
-            elevation: activeAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [8, 12],
-            }) as unknown as number,
-            transform: [
-              {
-                translateY: activeAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [0, -6],
-                }),
-              },
-              {
-                scale: activeAnim.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [1, 1.03],
-                }),
-              },
-            ],
-          },
-        ]}>
-        {children}
-      </Animated.View>
-    </Pressable>
-  );
+    return (
+        <Pressable
+            accessibilityRole="button"
+            onPress={onPress}
+            onLongPress={onLongPress}
+            style={({ pressed }) => [styles.centerButton, pressed && styles.centerButtonPressed]}>
+            <Animated.View
+                style={[
+                    styles.centerButtonInner,
+                    {
+                        shadowOpacity: activeAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [0.22, 0.35],
+                        }) as unknown as number,
+                        shadowRadius: activeAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [16, 24],
+                        }) as unknown as number,
+                        elevation: activeAnim.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [8, 12],
+                        }) as unknown as number,
+                        transform: [
+                            {
+                                translateY: activeAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [0, -6],
+                                }),
+                            },
+                            {
+                                scale: activeAnim.interpolate({
+                                    inputRange: [0, 1],
+                                    outputRange: [1, 1.03],
+                                }),
+                            },
+                        ],
+                    },
+                ]}>
+                {children}
+            </Animated.View>
+        </Pressable>
+    );
 }
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
-  const [storedUser, setStoredUser] = useState<StoredUser>(null);
-  const router = useRouter();
+    const colorScheme = useColorScheme();
+    const [storedUser, setStoredUser] = useState<StoredUser>(null);
+    const router = useRouter();
 
-  const refreshStoredUser = useCallback(async () => {
-    const user = await getStoredUser();
-    setStoredUser(user);
-  }, []);
+    const refreshStoredUser = useCallback(async () => {
+        const user = await getStoredUser();
+        setStoredUser(user);
+    }, []);
 
-  useEffect(() => {
-    refreshStoredUser();
+    useEffect(() => {
+        refreshStoredUser();
 
-    const subscription = DeviceEventEmitter.addListener('cirujar:auth-user-updated', refreshStoredUser);
-    return () => {
-      subscription.remove();
-    };
-  }, [refreshStoredUser]);
+        const subscription = DeviceEventEmitter.addListener('cirujar:auth-user-updated', refreshStoredUser);
+        return () => {
+            subscription.remove();
+        };
+    }, [refreshStoredUser]);
 
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        tabBarInactiveTintColor: '#8b96ad',
-        headerShown: false,
-        tabBarShowLabel: false,
-        tabBarStyle: styles.tabBar,
-      }}>
+    return (
+        <Tabs
+            initialRouteName="home"
+            screenOptions={{
+                tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
+                tabBarInactiveTintColor: '#8b96ad',
+                headerShown: false,
+                tabBarShowLabel: false,
+                tabBarStyle: styles.tabBar,
+            }}>
 
-      {/* BOTÓN IZQUIERDO: Vista Mapa */}
-      <Tabs.Screen
-          name="home"
-          options={{
-            tabBarButton: (props) => <HomeTabButton {...props} />,
-            tabBarItemStyle: styles.homeTabItem,
-            tabBarIcon: ({ color, focused }) => (
-                <View style={[styles.homeIconWrap, focused && styles.homeIconWrapFocused]}>
-                  <Ionicons name="map-outline" size={22} color={color} />
-                </View>
-            ),
-          }}
-      />
-      {/* BOTÓN CENTRAL: Perfil Ciruja (Avatar flotante) */}
-      <Tabs.Screen
-        name="profile"
-        options={{
-          tabBarButton: (props) => <ProfileTabButton {...props} />,
-          tabBarItemStyle: styles.profileTabItem,
-          tabBarIcon: ({ color, focused }) => (
-            <ProfileAvatarIcon color={color} focused={focused} user={storedUser} />
-          ),
-        }}
-      />
-      {/* BOTÓN DERECHO: Vista Listado  */}
-      <Tabs.Screen
-          name="list-products"
-          options={{
-            tabBarButton: (props) => <HomeTabButton {...props} />,
-            tabBarItemStyle: styles.listTabItem,
-            tabBarIcon: ({ color, focused }) => (
-                <View style={[styles.homeIconWrap, focused && styles.homeIconWrapFocused]}>
-                  <Ionicons name="list-outline" size={22} color={color} />
-                </View>
-            ),
-          }}
-      />
-    </Tabs>
-  );
+            {/* BOTÓN IZQUIERDO: Perfil Ciruja */}
+            <Tabs.Screen
+                name="profile"
+                options={{
+                    tabBarButton: (props) => <SideTabButton {...props} />,
+                    tabBarItemStyle: styles.leftTabItem,
+                    tabBarIcon: ({ color, focused }) => (
+                        <ProfileAvatarIcon color={color} focused={focused} user={storedUser} />
+                    ),
+                }}
+            />
+
+            {/* BOTÓN CENTRAL: Vista Mapa (Flotante) */}
+            <Tabs.Screen
+                name="home"
+                options={{
+                    tabBarButton: (props) => <CenterTabButton {...props} />,
+                    tabBarItemStyle: styles.centerTabItem,
+                    tabBarIcon: ({ color, focused }) => (
+                        <View style={[styles.centerIconShadow, focused && styles.centerIconShadowFocused]}>
+                            <Ionicons name={focused ? "map" : "map-outline"} size={28} color={color} />
+                        </View>
+                    ),
+                }}
+            />
+
+            {/* BOTÓN DERECHO: Vista Listado  */}
+            <Tabs.Screen
+                name="list-products"
+                options={{
+                    tabBarButton: (props) => <SideTabButton {...props} />,
+                    tabBarItemStyle: styles.rightTabItem,
+                    tabBarIcon: ({ color, focused }) => (
+                        <View style={[styles.sideIconWrap, focused && styles.sideIconWrapFocused]}>
+                            <Ionicons name={focused ? "list" : "list-outline"} size={22} color={color} />
+                        </View>
+                    ),
+                }}
+            />
+        </Tabs>
+    );
 }
 
 const styles = StyleSheet.create({
-  tabBar: {
-    position: 'absolute',
-    left: 20,
-    right: 20,
-    bottom: 14,
-    height: 68,
-    borderTopWidth: 0,
-    borderRadius: 30,
-    backgroundColor: 'rgba(248, 251, 255, 0.94)',
-    shadowColor: '#0f1c3d',
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.1,
-    shadowRadius: 20,
-    elevation: 10,
-    paddingHorizontal: 16,
-  },
-  homeTabItem: {
-    maxWidth: 72,
-    marginLeft: 4,
-  },
-  listTabItem: {
-    maxWidth: 72,
-    marginRight: 4,
-    marginLeft: 'auto',
-  },
-  profileTabItem: {
-    position: 'absolute',
-    left: '50%',
-    marginLeft: -32,
-    top: -20,
-    width: 64,
-    height: 64,
-  },
-  homeButton: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  homeButtonPressed: {
-    opacity: 0.9,
-  },
-  homeIconWrap: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'rgba(40, 76, 128, 0.06)',
-  },
-  homeIconWrapFocused: {
-    backgroundColor: 'rgba(41, 111, 214, 0.18)',
-  },
-  profileButton: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  profileButtonPressed: {
-    opacity: 0.95,
-  },
-  profileButtonInner: {
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#ffffff',
-    shadowColor: '#1a3a6b',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.18,
-    shadowRadius: 16,
-    elevation: 8,
-  },
-  profileAvatarShadow: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    backgroundColor: '#eef2fb',
-    borderWidth: 1,
-    borderColor: 'rgba(41, 111, 214, 0.18)',
-    shadowColor: '#1a3a6b',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.18,
-    shadowRadius: 6,
-    elevation: 5,
-  },
-  profileAvatarShadowFocused: {
-    borderColor: 'rgba(41, 111, 214, 0.45)',
-    borderWidth: 1.5,
-    shadowOpacity: 0.28,
-    shadowRadius: 9,
-    elevation: 7,
-  },
-  profileAvatarClip: {
-    width: 54,
-    height: 54,
-    borderRadius: 27,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#eef2fb',
-  },
-  profileAvatarImage: {
-    width: '100%',
-    height: '100%',
-  },
-});
+    tabBar: {
+        position: 'absolute',
+        left: 20,
+        right: 20,
+        bottom: 14,
+        height: 68,
+        borderTopWidth: 0,
+        borderRadius: 30,
+        backgroundColor: 'rgba(248, 251, 255, 0.94)',
+        shadowColor: '#0f1c3d',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.1,
+        shadowRadius: 20,
+        elevation: 10,
+        paddingHorizontal: 16,
+    },
+    leftTabItem: {
+        maxWidth: 72,
+        marginLeft: 4,
+    },
+    rightTabItem: {
+        maxWidth: 72,
+        marginRight: 4,
+        marginLeft: 'auto',
+    },
+    centerTabItem: {
+        position: 'absolute',
+        left: '50%',
+        marginLeft: -32,
+        top: -20,
+        width: 64,
+        height: 64,
+    },
 
+    // ESTILOS PARA BOTONES LATERALES
+    sideButton: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    sideButtonPressed: {
+        opacity: 0.9,
+    },
+    sideIconWrap: {
+        width: 40,
+        height: 40,
+        borderRadius: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'rgba(40, 76, 128, 0.06)',
+        overflow: 'hidden',
+    },
+    sideIconWrapFocused: {
+        backgroundColor: 'rgba(41, 111, 214, 0.18)',
+    },
+    sideAvatarImage: {
+        width: '100%',
+        height: '100%',
+        borderRadius: 20,
+    },
+
+    // ESTILOS PARA EL BOTÓN CENTRAL FLOTANTE
+    centerButton: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+    },
+    centerButtonPressed: {
+        opacity: 0.95,
+    },
+    centerButtonInner: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#ffffff',
+        shadowColor: '#1a3a6b',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.18,
+        shadowRadius: 16,
+        elevation: 8,
+    },
+    centerIconShadow: {
+        width: 54,
+        height: 54,
+        borderRadius: 27,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#eef2fb',
+        borderWidth: 1,
+        borderColor: 'rgba(41, 111, 214, 0.18)',
+    },
+    centerIconShadowFocused: {
+        borderColor: 'rgba(41, 111, 214, 0.45)',
+        borderWidth: 1.5,
+        backgroundColor: '#e5edfa',
+    },
+});

@@ -3,7 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { View, Text, Image, StyleSheet, Pressable, ActivityIndicator, Alert, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Location from 'expo-location';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Circle } from 'react-native-maps';
 import { useRouter } from 'expo-router';
 import { fetchProducts } from '@/_services/api';
 import { IS_MOCK, MOCK_POSTS } from '@/_fake';
@@ -195,6 +195,21 @@ export default function HomeMap() {
                             if (!lat || !lng) return;
                             setCardPos(calcCardPos(lat, lng, region, mapDimensions.current));
                         }}>
+
+                        {/* CÍRCULO DE RADIO DE BÚSQUEDA */}
+                        {permissionGranted && (
+                            <Circle
+                                center={{
+                                    latitude: userLocation.latitude,
+                                    longitude: userLocation.longitude,
+                                }}
+                                radius={200}
+                                fillColor="rgba(0, 150, 255, 0.15)"
+                                strokeColor="rgba(0, 150, 255, 0.5)"
+                                strokeWidth={1}
+                            />
+                        )}
+
                         {filteredPosts.map((post) => {
                             const lat = post.ubicacion?.coordinates?.[1] || post.latitude;
                             const lng = post.ubicacion?.coordinates?.[0] || post.longitude;

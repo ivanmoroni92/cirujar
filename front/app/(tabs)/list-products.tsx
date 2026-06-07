@@ -19,6 +19,7 @@ import { IS_MOCK, MOCK_POSTS } from '@/_fake';
 import { IMAGE_PLACEHOLDER } from '@/_constants';
 import { fetchProducts } from '@/_services/api';
 import MainHeader from '@/components/MainHeader';
+import FloatingAddButton from '@/components/floating-add-button';
 
 // 1. DEFINICIÓN DE TIPOS (INTERFACES)
 interface ProductLocation {
@@ -291,6 +292,8 @@ export default function ListProducts() {
                     }
                 />
             )}
+
+            <FloatingAddButton />
         </SafeAreaView>
     );
 }

@@ -30,7 +30,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "La app accede a tus fotos para publicar objetos encontrados."
+          "photosPermission": "La app accede a tus fotos para publicar objetos encontrados.",
+          "cameraPermission": "La app accede a la cámara para tomar fotos de tus publicaciones."
         }
       ],
       [

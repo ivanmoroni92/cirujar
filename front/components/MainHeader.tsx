@@ -1,6 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Pressable, Text, TextInput, StyleProp, ViewStyle } from 'react-native';
-import { useRouter } from 'expo-router';
 
 interface MainHeaderProps {
     style?: StyleProp<ViewStyle>;
@@ -8,7 +7,6 @@ interface MainHeaderProps {
 }
 
 export default function MainHeader({ style, onSearchChange }: MainHeaderProps) {
-    const router = useRouter();
     const [query, setQuery] = useState('');
 
     const handleChange = useCallback((text: string) => {
@@ -57,18 +55,6 @@ export default function MainHeader({ style, onSearchChange }: MainHeaderProps) {
                         <Text style={styles.searchIcon}>⌕</Text>
                     </View>
                 </View>
-            </View>
-
-            {/* BOTÓN AGREGAR */}
-            <View style={styles.headerRight}>
-                <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Agregar publicación"
-                    onPress={() => router.push('/add-post')}
-                    style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
-                >
-                    <Text style={styles.addButtonText}>+</Text>
-                </Pressable>
             </View>
         </View>
     );
@@ -133,33 +119,5 @@ const styles = StyleSheet.create({
         fontSize: 11,
         color: '#888',
         fontWeight: '700',
-    },
-    headerRight: {
-        justifyContent: 'center',
-    },
-    addButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#e8e8e8',
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: '#ccc',
-        alignItems: 'center',
-        justifyContent: 'center',
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-    },
-    addButtonPressed: {
-        opacity: 0.7,
-    },
-    addButtonText: {
-        fontSize: 28,
-        lineHeight: 32,
-        color: '#333',
-        fontWeight: '300',
-        marginTop: -2,
     },
 });

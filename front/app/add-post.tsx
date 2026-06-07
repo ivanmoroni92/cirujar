@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -40,6 +40,8 @@ function unresolvedMsg(fieldLabel: string) {
 
 export default function AddPostScreen() {
   const router = useRouter();
+  const { source } = useLocalSearchParams<{ source?: string }>();
+  const cameraAutoTriggered = useRef(false);
   const [titulo, setTitulo] = useState('');
   const [detalles, setDetalles] = useState('');
   const [mainUri, setMainUri] = useState<string | null>(null);
@@ -93,6 +95,30 @@ export default function AddPostScreen() {
     return true;
   }, []);
 
+  const ensureCameraPermission = useCallback(async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') {
+      Alert.alert(
+        'Permisos',
+        'Necesitamos acceso a la cámara para tomar fotos.'
+      );
+      return false;
+    }
+    return true;
+  }, []);
+
+  const applyUri = useCallback((target: 'main' | number, uri: string) => {
+    if (target === 'main') {
+      setMainUri(uri);
+    } else {
+      setExtras((prev) => {
+        const next = [...prev];
+        next[target] = uri;
+        return next;
+      });
+    }
+  }, []);
+
   const pickImage = useCallback(
     async (target: 'main' | number) => {
       if (!(await ensureLibraryPermission())) return;
@@ -106,18 +132,50 @@ export default function AddPostScreen() {
       if (result.canceled || !result.assets?.[0]) return;
       const uri = result.assets[0].uri?.trim();
       if (!uri) return;
-      if (target === 'main') {
-        setMainUri(uri);
-      } else {
-        setExtras((prev) => {
-          const next = [...prev];
-          next[target] = uri;
-          return next;
-        });
-      }
+      applyUri(target, uri);
     },
-    [ensureLibraryPermission]
+    [ensureLibraryPermission, applyUri]
   );
+
+  const takePhoto = useCallback(
+    async (target: 'main' | number) => {
+      if (!(await ensureCameraPermission())) return;
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: Platform.OS === 'ios',
+        aspect: [1, 1],
+        quality: 0.85,
+      });
+      if (result.canceled || !result.assets?.[0]) return;
+      const uri = result.assets[0].uri?.trim();
+      if (!uri) return;
+      applyUri(target, uri);
+    },
+    [ensureCameraPermission, applyUri]
+  );
+
+  const chooseImageSource = useCallback(
+    (target: 'main' | number) => {
+      Alert.alert(
+        'Agregar imagen',
+        '¿De dónde querés tomar la foto?',
+        [
+          { text: 'Cámara', onPress: () => void takePhoto(target) },
+          { text: 'Galería', onPress: () => void pickImage(target) },
+          { text: 'Cancelar', style: 'cancel' },
+        ],
+        { cancelable: true }
+      );
+    },
+    [takePhoto, pickImage]
+  );
+
+  useEffect(() => {
+    if (source === 'camera' && !cameraAutoTriggered.current && !mainUri) {
+      cameraAutoTriggered.current = true;
+      void takePhoto('main');
+    }
+  }, [source, mainUri, takePhoto]);
 
   const validate = useCallback((): string[] => {
     const errs: string[] = [];
@@ -204,7 +262,7 @@ export default function AddPostScreen() {
 
           <Pressable
             key={mainUri ?? 'empty'}
-            onPress={() => pickImage('main')}
+            onPress={() => chooseImageSource('main')}
             style={[styles.mainPhoto, !mainUri && styles.mainPhotoEmpty]}
             accessibilityRole="button"
             accessibilityLabel="Foto principal">
@@ -226,7 +284,7 @@ export default function AddPostScreen() {
               return (
                 <Pressable
                   key={index}
-                  onPress={() => pickImage(index)}
+                  onPress={() => chooseImageSource(index)}
                   style={[styles.extraCell, !uri && styles.extraCellEmpty]}
                   accessibilityRole="button"
                   accessibilityLabel={`Imagen adicional ${index + 1}`}>
@@ -241,10 +299,10 @@ export default function AddPostScreen() {
             <Pressable
               onPress={() => {
                 if (addPlusDisabled) return;
-                if (!mainUri) void pickImage('main');
+                if (!mainUri) chooseImageSource('main');
                 else {
                   const idx = extras.findIndex((x) => !x);
-                  if (idx >= 0) void pickImage(idx);
+                  if (idx >= 0) chooseImageSource(idx);
                 }
               }}
               style={[styles.extraCell, styles.addCell, addPlusDisabled && styles.addCellDisabled]}

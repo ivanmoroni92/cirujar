@@ -14,8 +14,8 @@ export default function FloatingAddButton({ bottom = 96, right = 20 }: Props) {
         <View pointerEvents="box-none" style={StyleSheet.absoluteFill}>
             <Pressable
                 accessibilityRole="button"
-                accessibilityLabel="Agregar publicación"
-                onPress={() => router.push('/add-post')}
+                accessibilityLabel="Crear publicación con foto"
+                onPress={() => router.push('/add-post?source=camera')}
                 hitSlop={8}
                 style={({ pressed }) => [
                     styles.fab,
@@ -24,6 +24,9 @@ export default function FloatingAddButton({ bottom = 96, right = 20 }: Props) {
                 ]}
             >
                 <Ionicons name="camera" size={24} color="#fff" />
+                <View style={styles.badge}>
+                    <Ionicons name="add" size={14} color="#0a7ea4" />
+                </View>
             </Pressable>
         </View>
     );
@@ -48,4 +51,18 @@ const styles = StyleSheet.create({
         opacity: 0.85,
         transform: [{ scale: 0.95 }],
     },
+    badge: {
+        position: 'absolute',
+        top: -4,
+        right: -4,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: '#fff',
+        alignItems: 'center',
+        justifyContent: 'center',
+        borderWidth: 1.5,
+        borderColor: '#0a7ea4',
+    },
 });
+

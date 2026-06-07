@@ -1,7 +1,5 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Pressable, Text, TextInput, StyleProp, ViewStyle } from 'react-native';
-import { useRouter } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 
 interface MainHeaderProps {
     style?: StyleProp<ViewStyle>;
@@ -9,7 +7,6 @@ interface MainHeaderProps {
 }
 
 export default function MainHeader({ style, onSearchChange }: MainHeaderProps) {
-    const router = useRouter();
     const [query, setQuery] = useState('');
 
     const handleChange = useCallback((text: string) => {
@@ -58,19 +55,6 @@ export default function MainHeader({ style, onSearchChange }: MainHeaderProps) {
                         <Text style={styles.searchIcon}>⌕</Text>
                     </View>
                 </View>
-            </View>
-
-            {/* BOTÓN AGREGAR */}
-            <View style={styles.headerRight}>
-                <Pressable
-                    accessibilityRole="button"
-                    accessibilityLabel="Agregar publicación"
-                    onPress={() => router.push('/add-post')}
-                    style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
-                    hitSlop={6}
-                >
-                    <Ionicons name="add" size={30} color="#0a7ea4" />
-                </Pressable>
             </View>
         </View>
     );
@@ -135,27 +119,5 @@ const styles = StyleSheet.create({
         fontSize: 11,
         color: '#888',
         fontWeight: '700',
-    },
-    headerRight: {
-        justifyContent: 'center',
-    },
-    addButton: {
-        width: 42,
-        height: 42,
-        borderRadius: 21,
-        backgroundColor: 'transparent',
-        alignItems: 'center',
-        justifyContent: 'center',
-    },
-    addButtonPressed: {
-        opacity: 0.6,
-        transform: [{ scale: 0.94 }],
-    },
-    addButtonText: {
-        fontSize: 28,
-        lineHeight: 32,
-        color: '#333',
-        fontWeight: '300',
-        marginTop: -2,
     },
 });

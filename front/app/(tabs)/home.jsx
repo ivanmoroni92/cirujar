@@ -8,6 +8,7 @@ import { useRouter } from 'expo-router';
 import { fetchProducts } from '@/_services/api';
 import { IS_MOCK, MOCK_POSTS } from '@/_fake';
 import MainHeader from '@/components/MainHeader';
+import FloatingAddButton from '@/components/floating-add-button';
 
 const MAP_PIN_IMAGE = require('../../assets/pins/pin_30x30_1.png');
 
@@ -308,6 +309,8 @@ export default function HomeMap() {
                     <Text style={styles.loadingText}>Cargando mapa...</Text>
                 </View>
             )}
+
+            <FloatingAddButton />
         </SafeAreaView>
     );
 }

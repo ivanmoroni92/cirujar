@@ -23,7 +23,7 @@ export default function FloatingAddButton({ bottom = 96, right = 20 }: Props) {
                     pressed && styles.fabPressed,
                 ]}
             >
-                <Ionicons name="add" size={32} color="#fff" />
+                <Ionicons name="camera" size={24} color="#fff" />
             </Pressable>
         </View>
     );
@@ -32,17 +32,17 @@ export default function FloatingAddButton({ bottom = 96, right = 20 }: Props) {
 const styles = StyleSheet.create({
     fab: {
         position: 'absolute',
-        width: 56,
-        height: 56,
-        borderRadius: 28,
+        width: 48,
+        height: 48,
+        borderRadius: 24,
         backgroundColor: '#0a7ea4',
         alignItems: 'center',
         justifyContent: 'center',
         shadowColor: '#0a3a52',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 10,
+        shadowOffset: { width: 0, height: 5 },
+        shadowOpacity: 0.28,
+        shadowRadius: 8,
+        elevation: 8,
     },
     fabPressed: {
         opacity: 0.85,

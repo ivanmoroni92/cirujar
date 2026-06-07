@@ -23,16 +23,28 @@ export default function RootLayout() {
   const introPlayer = useVideoPlayer(INTRO_VIDEO, (player) => {
     player.loop = false;
     player.muted = true;
-    player.play();
   });
 
   useEffect(() => {
-    const subscription = introPlayer.addListener('playToEnd', () => {
-      setIntroDone(true);
+    let mounted = true;
+
+    try {
+      introPlayer.play();
+    } catch {
+      // player puede haber sido liberado por fast refresh
+    }
+
+    const endSub = introPlayer.addListener('playToEnd', () => {
+      if (mounted) setIntroDone(true);
+    });
+    const statusSub = introPlayer.addListener('statusChange', ({ status }) => {
+      if (mounted && status === 'error') setIntroDone(true);
     });
 
     return () => {
-      subscription.remove();
+      mounted = false;
+      try { endSub.remove(); } catch { }
+      try { statusSub.remove(); } catch { }
     };
   }, [introPlayer]);
 

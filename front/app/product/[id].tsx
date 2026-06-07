@@ -19,6 +19,7 @@ import MapView, { UrlTile, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { fetchProductById, deleteProduct, retirarProduct, type ApiProduct } from '@/_services/api';
 import { getStoredUser } from '@/_services/authToken';
+import RetiroSuccessModal from '@/components/retiro-success-modal';
 
 const { width } = Dimensions.get('window');
 const PAD = 16;
@@ -46,6 +47,7 @@ function Content() {
   const [retirando, setRetirando] = useState(false);
   const [retirarError, setRetirarError] = useState<string | null>(null);
   const [mapReady, setMapReady] = useState(false);
+  const [retiroSuccessVisible, setRetiroSuccessVisible] = useState(false);
 
   const carouselRef = useRef<ScrollView>(null);
 
@@ -158,6 +160,7 @@ function Content() {
 
       const updated = await retirarProduct(productId);
       setProduct(updated);
+      setRetiroSuccessVisible(true);
     } catch (err) {
       const msg = err instanceof Error ? err.message : 'No se pudo retirar la publicación.';
       setRetirarError(msg);
@@ -478,6 +481,18 @@ function Content() {
           </View>
         </View>
       )}
+
+      <RetiroSuccessModal
+        visible={retiroSuccessVisible}
+        productTitle={product?.titulo ?? ''}
+        productPhoto={product?.fotos?.[0]}
+        ubicacionTexto={product?.ubicacionTexto}
+        retiradoAt={product?.updatedAt ?? null}
+        onAccept={() => {
+          setRetiroSuccessVisible(false);
+          router.replace('/(tabs)/home');
+        }}
+      />
     </SafeAreaView>
   );
 }

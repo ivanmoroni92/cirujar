@@ -24,7 +24,7 @@ function ProfileAvatarIcon({ color, focused, user }: { color: string; focused: b
             {avatarUri ? (
                 <Image source={{ uri: avatarUri }} style={styles.sideAvatarImage} />
             ) : (
-                <Ionicons name="person-outline" size={26} color={color} />
+                <Ionicons name="person-outline" size={30} color={color} />
             )}
         </View>
     );
@@ -112,13 +112,13 @@ function CenterTabButton({ accessibilityState, onPress, onLongPress, children }:
                             {
                                 translateY: activeAnim.interpolate({
                                     inputRange: [0, 1],
-                                    outputRange: [0, -6],
+                                    outputRange: [0, -10],
                                 }),
                             },
                             {
                                 scale: activeAnim.interpolate({
                                     inputRange: [0, 1],
-                                    outputRange: [1, 1.03],
+                                    outputRange: [1, 1.06],
                                 }),
                             },
                         ],
@@ -180,7 +180,7 @@ export default function TabLayout() {
                     tabBarItemStyle: styles.centerTabItem,
                     tabBarIcon: ({ color, focused }) => (
                         <View style={[styles.centerIconShadow, focused && styles.centerIconShadowFocused]}>
-                            <Ionicons name={focused ? "map" : "map-outline"} size={32} color={color} />
+                            <Ionicons name={focused ? "map" : "map-outline"} size={36} color={color} />
                         </View>
                     ),
                 }}
@@ -194,7 +194,7 @@ export default function TabLayout() {
                     tabBarItemStyle: styles.rightTabItem,
                     tabBarIcon: ({ color, focused }) => (
                         <View style={[styles.sideIconWrap, focused && styles.sideIconWrapFocused]}>
-                            <Ionicons name={focused ? "list" : "list-outline"} size={26} color={color} />
+                            <Ionicons name={focused ? "list" : "list-outline"} size={30} color={color} />
                         </View>
                     ),
                 }}
@@ -234,8 +234,8 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: 0,
         right: 0,
-        top: -22,
-        height: 64,
+        top: -28,
+        height: 72,
         alignItems: 'center',
         justifyContent: 'center',
         pointerEvents: 'box-none',
@@ -251,9 +251,9 @@ const styles = StyleSheet.create({
         opacity: 0.9,
     },
     sideIconWrap: {
-        width: 46,
-        height: 46,
-        borderRadius: 23,
+        width: 50,
+        height: 50,
+        borderRadius: 25,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(40, 76, 128, 0.06)',
@@ -265,13 +265,13 @@ const styles = StyleSheet.create({
     sideAvatarImage: {
         width: '100%',
         height: '100%',
-        borderRadius: 23,
+        borderRadius: 25,
     },
 
     // ESTILOS PARA EL BOTÓN CENTRAL FLOTANTE
     centerButton: {
-        width: 64,
-        height: 64,
+        width: 72,
+        height: 72,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -279,22 +279,22 @@ const styles = StyleSheet.create({
         opacity: 0.95,
     },
     centerButtonInner: {
-        width: 64,
-        height: 64,
-        borderRadius: 32,
+        width: 72,
+        height: 72,
+        borderRadius: 36,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#ffffff',
         shadowColor: '#1a3a6b',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.18,
-        shadowRadius: 16,
-        elevation: 8,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.22,
+        shadowRadius: 18,
+        elevation: 10,
     },
     centerIconShadow: {
-        width: 56,
-        height: 56,
-        borderRadius: 28,
+        width: 64,
+        height: 64,
+        borderRadius: 32,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#eef2fb',

@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { View, StyleSheet, Pressable, Text, TextInput, StyleProp, ViewStyle } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 
 interface MainHeaderProps {
     style?: StyleProp<ViewStyle>;
@@ -66,8 +67,9 @@ export default function MainHeader({ style, onSearchChange }: MainHeaderProps) {
                     accessibilityLabel="Agregar publicación"
                     onPress={() => router.push('/add-post')}
                     style={({ pressed }) => [styles.addButton, pressed && styles.addButtonPressed]}
+                    hitSlop={6}
                 >
-                    <Text style={styles.addButtonText}>+</Text>
+                    <Ionicons name="add" size={26} color="#fff" />
                 </Pressable>
             </View>
         </View>
@@ -138,22 +140,21 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     addButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
-        backgroundColor: '#e8e8e8',
-        borderWidth: StyleSheet.hairlineWidth,
-        borderColor: '#ccc',
+        width: 42,
+        height: 42,
+        borderRadius: 21,
+        backgroundColor: '#2a9d5c',
         alignItems: 'center',
         justifyContent: 'center',
-        elevation: 5,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        elevation: 6,
+        shadowColor: '#0f3d24',
+        shadowOffset: { width: 0, height: 3 },
         shadowOpacity: 0.25,
-        shadowRadius: 3.84,
+        shadowRadius: 5,
     },
     addButtonPressed: {
-        opacity: 0.7,
+        opacity: 0.85,
+        transform: [{ scale: 0.96 }],
     },
     addButtonText: {
         fontSize: 28,

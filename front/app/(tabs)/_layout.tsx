@@ -24,7 +24,7 @@ function ProfileAvatarIcon({ color, focused, user }: { color: string; focused: b
             {avatarUri ? (
                 <Image source={{ uri: avatarUri }} style={styles.sideAvatarImage} />
             ) : (
-                <Ionicons name="person-outline" size={22} color={color} />
+                <Ionicons name="person-outline" size={26} color={color} />
             )}
         </View>
     );
@@ -180,7 +180,7 @@ export default function TabLayout() {
                     tabBarItemStyle: styles.centerTabItem,
                     tabBarIcon: ({ color, focused }) => (
                         <View style={[styles.centerIconShadow, focused && styles.centerIconShadowFocused]}>
-                            <Ionicons name={focused ? "map" : "map-outline"} size={28} color={color} />
+                            <Ionicons name={focused ? "map" : "map-outline"} size={32} color={color} />
                         </View>
                     ),
                 }}
@@ -194,7 +194,7 @@ export default function TabLayout() {
                     tabBarItemStyle: styles.rightTabItem,
                     tabBarIcon: ({ color, focused }) => (
                         <View style={[styles.sideIconWrap, focused && styles.sideIconWrapFocused]}>
-                            <Ionicons name={focused ? "list" : "list-outline"} size={22} color={color} />
+                            <Ionicons name={focused ? "list" : "list-outline"} size={26} color={color} />
                         </View>
                     ),
                 }}
@@ -209,33 +209,36 @@ const styles = StyleSheet.create({
         left: 20,
         right: 20,
         bottom: 14,
-        height: 68,
+        height: 64,
         borderTopWidth: 0,
-        borderRadius: 30,
+        borderRadius: 32,
         backgroundColor: 'rgba(248, 251, 255, 0.94)',
         shadowColor: '#0f1c3d',
         shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 10,
-        paddingHorizontal: 16,
+        paddingHorizontal: 8,
+        paddingTop: 0,
+        paddingBottom: 0,
     },
     leftTabItem: {
-        maxWidth: 72,
-        marginLeft: 4,
+        flex: 1,
+        height: '100%',
     },
     rightTabItem: {
-        maxWidth: 72,
-        marginRight: 4,
-        marginLeft: 'auto',
+        flex: 1,
+        height: '100%',
     },
     centerTabItem: {
         position: 'absolute',
-        left: '50%',
-        marginLeft: -32,
-        top: -20,
-        width: 64,
+        left: 0,
+        right: 0,
+        top: -22,
         height: 64,
+        alignItems: 'center',
+        justifyContent: 'center',
+        pointerEvents: 'box-none',
     },
 
     // ESTILOS PARA BOTONES LATERALES
@@ -248,9 +251,9 @@ const styles = StyleSheet.create({
         opacity: 0.9,
     },
     sideIconWrap: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 46,
+        height: 46,
+        borderRadius: 23,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: 'rgba(40, 76, 128, 0.06)',
@@ -262,12 +265,13 @@ const styles = StyleSheet.create({
     sideAvatarImage: {
         width: '100%',
         height: '100%',
-        borderRadius: 20,
+        borderRadius: 23,
     },
 
     // ESTILOS PARA EL BOTÓN CENTRAL FLOTANTE
     centerButton: {
-        flex: 1,
+        width: 64,
+        height: 64,
         alignItems: 'center',
         justifyContent: 'center',
     },
@@ -288,9 +292,9 @@ const styles = StyleSheet.create({
         elevation: 8,
     },
     centerIconShadow: {
-        width: 54,
-        height: 54,
-        borderRadius: 27,
+        width: 56,
+        height: 56,
+        borderRadius: 28,
         alignItems: 'center',
         justifyContent: 'center',
         backgroundColor: '#eef2fb',

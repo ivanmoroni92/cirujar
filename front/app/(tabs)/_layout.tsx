@@ -194,7 +194,7 @@ export default function TabLayout() {
                     tabBarItemStyle: styles.rightTabItem,
                     tabBarIcon: ({ color, focused }) => (
                         <View style={[styles.sideIconWrap, focused && styles.sideIconWrapFocused]}>
-                            <Ionicons name={focused ? "list" : "list-outline"} size={30} color={color} />
+                            <Ionicons name={focused ? "grid" : "grid-outline"} size={30} color={color} />
                         </View>
                     ),
                 }}

@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import { useRouter, type Href } from 'expo-router';
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
     ActivityIndicator,
     Alert,
@@ -22,7 +22,13 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { uploadImage, updateUser, fetchProductsForStats, type ApiUser } from '@/_services/api';
+import {
+    uploadImage,
+    updateUser,
+    fetchProductsForStats,
+    fetchUserById,
+    type ApiUser,
+} from '@/_services/api';
 import { clearAuth, getStoredToken, getStoredUser, setStoredUser } from '@/_services/authToken';
 
 const PAD = 24;
@@ -154,15 +160,46 @@ export default function ProfileScreen() {
     const avatarAnim = useRef(new Animated.Value(0)).current;
     const contentAnim = useRef(new Animated.Value(0)).current;
 
+    const refreshProfileUser = useCallback(async (): Promise<ApiUser | null> => {
+        let storedUser = await getStoredUser();
+        if (!storedUser?._id) {
+            return storedUser;
+        }
+
+        try {
+            const fresh = await fetchUserById(storedUser._id);
+            storedUser = { ...storedUser, ...fresh };
+            await setStoredUser(storedUser);
+        } catch {
+            // Keep cached user when the API is unreachable.
+        }
+
+        return storedUser;
+    }, []);
+
+    useEffect(() => {
+        const subscription = DeviceEventEmitter.addListener('cirujar:auth-user-updated', () => {
+            void (async () => {
+                const refreshed = await refreshProfileUser();
+                if (refreshed) {
+                    setUser(refreshed);
+                    setAliasInput(refreshed.alias ?? '');
+                }
+            })();
+        });
+
+        return () => {
+            subscription.remove();
+        };
+    }, [refreshProfileUser]);
+
     useFocusEffect(
         useCallback(() => {
             let active = true;
             (async () => {
                 try {
-                    // Try to get user from local storage first
-                    let storedUser = await getStoredUser();
+                    let storedUser = await refreshProfileUser();
 
-                    // If not in local storage, try to fetch from backend
                     if (!storedUser) {
                         const token = await getStoredToken();
                         if (!token) {
@@ -241,7 +278,7 @@ export default function ProfileScreen() {
             return () => {
                 active = false;
             };
-        }, [avatarAnim, contentAnim, router])
+        }, [avatarAnim, contentAnim, refreshProfileUser, router])
     );
 
     const avatarStyle = useMemo(
@@ -310,11 +347,18 @@ export default function ProfileScreen() {
         if (!user) return;
 
         const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
-        if (!permission.granted) return;
+        if (permission.status !== 'granted') {
+            Alert.alert(
+                'Permisos',
+                'Necesitamos acceso a la galería para cambiar tu foto de perfil.'
+            );
+            return;
+        }
 
         const result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
+            // On Android, cropped assets can return URIs that fail multipart upload.
+            allowsEditing: Platform.OS === 'ios',
             aspect: [1, 1],
             quality: 0.8,
         });

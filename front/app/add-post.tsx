@@ -273,7 +273,13 @@ export default function AddPostScreen() {
                 resizeMode="cover"
               />
             ) : (
-              <Text style={styles.mainPhotoLabel}>Toca para subir una imagen</Text>
+              <View style={styles.mainPhotoPlaceholder}>
+                <View style={styles.mainPhotoIconWrap}>
+                  <Ionicons name="camera-outline" size={36} color="#0a7ea4" />
+                </View>
+                <Text style={styles.mainPhotoLabel}>Agregar foto principal</Text>
+                <Text style={styles.mainPhotoHint}>Tocá para usar cámara o galería</Text>
+              </View>
             )}
           </Pressable>
 
@@ -471,11 +477,33 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+  mainPhotoPlaceholder: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    gap: 10,
+  },
+  mainPhotoIconWrap: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    backgroundColor: 'rgba(255, 255, 255, 0.13)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: 'rgba(10, 126, 164, 0.25)',
+    marginBottom: 4,
+  },
   mainPhotoLabel: {
-    fontSize: 15,
+    fontSize: 16,
     fontWeight: '700',
     color: '#333C45',
-    letterSpacing: 2,
+    textAlign: 'center',
+  },
+  mainPhotoHint: {
+    fontSize: 13,
+    color: '#333C45',
+    textAlign: 'center',
   },
   sectionHint: {
     fontSize: 13,

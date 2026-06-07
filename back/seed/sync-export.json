@@ -1,0 +1,888 @@
+{
+  "users": [
+    {
+      "_id": "6a065bda32a7365bfa113ad1",
+      "alias": "ciruja_demo",
+      "email": "demo@cirujar.local",
+      "contraseña": "87e14461f87190fb4d3f713dd7b86aaa:d097bc8d17bb6f3e3ad25d6d9bfa96b5b25f5a55a0efd283083872628b3064fc",
+      "imagenPerfil": "https://ejemplo.com/foto.png",
+      "createdAt": "2026-05-14T23:33:46.075Z",
+      "updatedAt": "2026-05-14T23:33:46.075Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a065be732a7365bfa113ad2",
+      "alias": "otro_alias",
+      "email": "otro@mail.com",
+      "contraseña": "91cc4085b5797ce3657ee4a28642f6db:b87b56f1416127b63773b505f72c5f747be54ee74ed1405af9fac5039a99f754",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-14T23:33:59.443Z",
+      "updatedAt": "2026-05-14T23:33:59.443Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a066126344a3d4974720168",
+      "alias": "Fran Raffin",
+      "email": "correo@gmail.com",
+      "contraseña": "c6897858b9692775cacfe288eeab636b:1bb716d42be0bc638174c186b9693264f702045a67d866c7d4aef47e04edb7e7",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-14T23:56:22.709Z",
+      "updatedAt": "2026-05-14T23:56:22.709Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a08ee2cf9e47e5b580a0a67",
+      "alias": "djpeña",
+      "email": "djpenalver@gmail.com",
+      "contraseña": "9e2444e8a3870ea62ca81127410af175:cb79c11cb9892b2ea6f2f9749e4d394e757ea5e86bee98218bb6da0eab271f61",
+      "imagenPerfil": "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/61751986-e8d4-4678-8635-d64d04fe9466.jpeg",
+      "createdAt": "2026-05-16T22:22:36.597Z",
+      "updatedAt": "2026-05-17T22:56:34.908Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a08eea3f9e47e5b580a0a68",
+      "alias": "a",
+      "email": "a@b.com",
+      "contraseña": "636c5722728c8294c7dd826a2fbe777c:b42983b48423839d3b37eb60930e2fcf40f92da9a24a9dc129a3adc84d2c8d68",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-16T22:24:35.009Z",
+      "updatedAt": "2026-05-16T22:24:35.009Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0a028c3ee91a0e55b579d3",
+      "alias": "ab",
+      "email": "ab@gmail.com",
+      "contraseña": "a38cae6c93eb46ce226e7b02c499068c:30f0d71de15047f97e27064bba4e3141e584e6af332b4faafdd19f4e688b8ad1",
+      "imagenPerfil": "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/6de43d08-1a23-4e07-8991-3f008cb6b685.jpg",
+      "createdAt": "2026-05-17T18:01:48.010Z",
+      "updatedAt": "2026-05-17T18:04:52.437Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0a0e33bc02139ca64b9a99",
+      "alias": "Fran Raffin",
+      "email": "francisco.s.raffin@gmail.com",
+      "contraseña": "335fd2c4b75a3956afad8eeaf1ae12b4:1ea37bd51de9c8309c477f73dbf7b0c2d4e0032dc75648b60e0b91e248cec24b",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-17T18:51:31.027Z",
+      "updatedAt": "2026-05-17T18:51:31.027Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0a2529cd8bae28e8d86dc5",
+      "alias": "Mauro",
+      "email": "mauro@gmail.com",
+      "contraseña": "d388ae60a32a77ee6b197a26243a996e:49ff15fce774c1a9581842ab8d6e70d171e928ed4129c72bea60e2094178c8c5",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-17T20:29:29.771Z",
+      "updatedAt": "2026-05-17T20:29:29.771Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0a35fea35da25060c7f643",
+      "alias": "test",
+      "email": "test@gmail.com",
+      "contraseña": "affe7a0d5dc7b0a4e206392a7aab697c:88ea1471fcdd127d51138156cd129e867c038a1220c960112364ba72661b2035",
+      "imagenPerfil": "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/4e741df6-48b4-404d-951d-f6a34a0a8bfa.jpeg",
+      "createdAt": "2026-05-17T21:41:18.163Z",
+      "updatedAt": "2026-05-17T22:20:41.992Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0b7a173b993407ca3cab01",
+      "alias": "ReyCiru",
+      "email": "rey.ciru@gmail.com",
+      "contraseña": "44be7276b325b5d42859820926bec6f0:ee0ec71b03eefa26b77d33abd0ff920b41beecd1e46a3ab8ce38f48eadbc63c9",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-18T20:44:07.222Z",
+      "updatedAt": "2026-05-18T20:44:07.222Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0b9472688e7e61610deb77",
+      "alias": "pepe",
+      "email": "ciru1@gmail.com",
+      "contraseña": "a9bc39c5d1d34e9108856d6ced7ce3e5:e1aae425efce7703c2de28ee40533330e7dda9019b62d4aa488e54a3eca69507",
+      "imagenPerfil": "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/8463acdb-86b1-49bc-8371-dd9ce8119383.JPG",
+      "createdAt": "2026-05-18T22:36:34.267Z",
+      "updatedAt": "2026-05-18T22:49:42.455Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0f3dad838347de60ed6277",
+      "alias": "ivan",
+      "email": "ivan@gmail.com",
+      "contraseña": "f287a1e4ee5f78de08432c67a8891079:ed9b7e19b14da5c17e8b392097f063ba6bda0c2ce78a0c5ed28fdc33ad2bf378",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-21T17:15:25.499Z",
+      "updatedAt": "2026-05-21T17:15:25.499Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0f4ce3ef386d8382ac705c",
+      "alias": "ciru",
+      "email": "ciru@gmail.com",
+      "contraseña": "f6503bc4c32ccdee824eae2f347e4519:a215c08c28f5e4f6effddc6aed4b390cfe3014f41f3df574757bf5a3cf444aa9",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-21T18:20:19.470Z",
+      "updatedAt": "2026-05-21T18:20:19.470Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a15e84dd3cf18faa4a0d3e3",
+      "alias": "L",
+      "email": "l@l.com",
+      "contraseña": "a6d6cfd5bb6fc36c96b04b863b6d1992:90f737b07b6963b0e7434cf1523e52f92a995f7a3a5f7907a31bffe2a1c9765d",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-26T18:37:01.660Z",
+      "updatedAt": "2026-05-26T18:40:20.663Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a18d3997d2bfc27546f0cd0",
+      "alias": "camila",
+      "email": "camila@gmail.com",
+      "contraseña": "5bfe11a2b0d91b1d484b9a026b9abac8:e44704654b6bd6ff4c6f2f5af44580de43a901df4a1dd7db51213852e6ff7e25",
+      "imagenPerfil": "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/f11cdf12-4e45-4b09-a0d2-81942aa15b00.jpeg",
+      "createdAt": "2026-05-28T23:45:29.528Z",
+      "updatedAt": "2026-05-28T23:47:31.328Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a1a1d9e5c30fa7a9b3cc618",
+      "alias": "Pepe",
+      "email": "pepe@argento.com",
+      "contraseña": "91f9ec10d22694e4192a68034c813945:aa76fd52a4b847185ee27ce0ebe891442da1d5a731001e0a1fecc0ab5249efcd",
+      "imagenPerfil": "",
+      "createdAt": "2026-05-29T23:13:34.199Z",
+      "updatedAt": "2026-05-29T23:13:34.199Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a233fcac2db7edffb7f9369",
+      "alias": "Fran",
+      "email": "aaa@gmail.com",
+      "contraseña": "f0c59a34d93d6b92fc9f7fb56d9892e7:67551ed385957ffcf90efefe13b79ddca5df215c0af581b8c687fac5b88eacc0",
+      "imagenPerfil": "",
+      "createdAt": "2026-06-05T21:29:46.026Z",
+      "updatedAt": "2026-06-05T21:29:46.026Z",
+      "__v": 0
+    }
+  ],
+  "products": [
+    {
+      "_id": "6a05d34692914196ff02fd38",
+      "titulo": "Mesa usada",
+      "ubicacionTexto": "Av. Hipólito Yrigoyen,777, Quilmes",
+      "detalles": "Buen estado",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/dd598ca5-2e91-44a4-8852-9c954997168b.jpeg"
+      ],
+      "createdAt": "2026-05-14T13:51:02.132Z",
+      "updatedAt": "2026-05-21T17:21:16.151Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0a0e74bc02139ca64b9a9a",
+      "titulo": "Coso de tele",
+      "ubicacionTexto": "A la vuelta de mi casa",
+      "detalles": "Pateado pero zafa",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/2ae0d30d-8e37-458b-ba7a-c926dc087ed4.jpeg"
+      ],
+      "usuario": "6a0a0e33bc02139ca64b9a99",
+      "createdAt": "2026-05-17T18:52:36.192Z",
+      "updatedAt": "2026-05-21T17:21:27.957Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0a2587cd8bae28e8d86dc6",
+      "titulo": "test titulo",
+      "ubicacionTexto": "Lebensohn 100, Bernal",
+      "detalles": "test desc",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/d2442d8a-08ca-4294-a1d9-6d0833279775.jpeg"
+      ],
+      "usuario": "6a0a2529cd8bae28e8d86dc5",
+      "createdAt": "2026-05-17T20:31:03.183Z",
+      "updatedAt": "2026-05-21T18:36:10.109Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0a2a36d4ba36e31e6fb0ec",
+      "titulo": "Una pizza",
+      "ubicacionTexto": "Algún lugat",
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/729d65b3-9519-4413-b44a-0f8e60bc7f1c.jpeg",
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/e98ab251-509b-4d15-a67d-44c1a2174d6d.jpeg",
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/0a60092d-a7e5-495f-86ec-f3dcc8ee0936.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "createdAt": "2026-05-17T20:51:02.833Z",
+      "updatedAt": "2026-05-21T18:35:52.834Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0a3e81a35da25060c7f645",
+      "titulo": "Mesa usada",
+      "ubicacionTexto": "Av Hipólito Yrigoyen, 777, Quilmes",
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/1879bfe3-147c-4b6a-9526-6aba285cfaf4.jpeg"
+      ],
+      "usuario": "6a0a35fea35da25060c7f643",
+      "createdAt": "2026-05-17T22:17:37.413Z",
+      "updatedAt": "2026-05-21T18:35:35.083Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0a4828f65153de475cc31f",
+      "titulo": "un mundo",
+      "ubicacionTexto": "univeerso",
+      "detalles": "",
+      "fotos": [],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "createdAt": "2026-05-17T22:58:48.879Z",
+      "updatedAt": "2026-05-21T17:23:40.880Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0a4ae9cd53a0f9d1b6065e",
+      "titulo": "equipo de trabajo",
+      "ubicacionTexto": "en el laburo",
+      "detalles": "",
+      "fotos": [],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "createdAt": "2026-05-17T23:10:33.720Z",
+      "updatedAt": "2026-05-21T17:24:11.560Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0a5a20414ae2481cc6a624",
+      "titulo": "Cpu",
+      "ubicacionTexto": "Quilmes",
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/7aadeed8-e305-4cff-be19-8fb60be764b2.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "createdAt": "2026-05-18T00:15:28.642Z",
+      "updatedAt": "2026-05-21T17:20:52.531Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0a5e6ad35808199e8f2de1",
+      "titulo": "Bondiola",
+      "ubicacionTexto": "Roque Sáenz Peña, 300, Bernal",
+      "detalles": "Esta buenísima",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/3ec5c9ae-cba2-487f-9f24-caf75d94bdbf.jpeg"
+      ],
+      "usuario": "6a0a35fea35da25060c7f643",
+      "createdAt": "2026-05-18T00:33:46.965Z",
+      "updatedAt": "2026-05-21T17:23:29.911Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0b9663688e7e61610deb78",
+      "titulo": "Ffdfd",
+      "ubicacionTexto": "fdfd23",
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/e73b7397-41b1-4a08-933b-017558c376e4.jpg"
+      ],
+      "usuario": "6a0b9472688e7e61610deb77",
+      "createdAt": "2026-05-18T22:44:51.368Z",
+      "updatedAt": "2026-05-21T17:21:05.302Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0c86ad0c1ab8dd9bf7b14b",
+      "titulo": "Estante de madera",
+      "ubicacionTexto": "Roque Sáenz Peña, 300, Bernal",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.27723603695632,
+          -34.70655897722385
+        ]
+      },
+      "detalles": "Esta en buen estado",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/a1266e70-a30f-4ca9-b6e6-d5dc68bf48d8.jpeg"
+      ],
+      "usuario": "6a0a2529cd8bae28e8d86dc5",
+      "createdAt": "2026-05-19T15:50:05.530Z",
+      "updatedAt": "2026-05-31T20:17:53.649Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0ccd9e53aaefcf6130b073",
+      "titulo": "Silla de plástico",
+      "ubicacionTexto": "Lebensohn, 50, Bernal",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.267995491623886,
+          -34.7128548033751
+        ]
+      },
+      "detalles": "Le falta una pata nomás",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/6d04cfe7-bcc6-4379-833c-045bb02d177e.jpeg"
+      ],
+      "usuario": "6a0a2529cd8bae28e8d86dc5",
+      "createdAt": "2026-05-19T20:52:46.112Z",
+      "updatedAt": "2026-05-31T22:54:47.338Z",
+      "__v": 0,
+      "estado": "retirado",
+      "retirado": {
+        "user": "6a08eea3f9e47e5b580a0a68",
+        "at": "2026-05-31T22:54:47.338Z"
+      }
+    },
+    {
+      "_id": "6a0cce2053aaefcf6130b074",
+      "titulo": "Escritorio de melanina",
+      "ubicacionTexto": "9 de Julio, 20, Bernal",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.280346393585205,
+          -34.70992564877019
+        ]
+      },
+      "detalles": "Esta como puede",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/09e373d8-8a1d-481c-a596-c24c8074f7a5.jpeg"
+      ],
+      "usuario": "6a0a2529cd8bae28e8d86dc5",
+      "createdAt": "2026-05-19T20:54:56.338Z",
+      "updatedAt": "2026-05-31T20:18:19.014Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0f3404e0b5873838c41e3d",
+      "titulo": "Tests",
+      "ubicacionTexto": "Test",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -122.406417,
+          37.785834
+        ]
+      },
+      "detalles": "Tests",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/bc5d0612-1eb1-47d3-ab84-edd762fefc54.jpg",
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/dd017ba2-cf62-4857-925a-b368015271b7.jpg"
+      ],
+      "usuario": "6a0b9472688e7e61610deb77",
+      "createdAt": "2026-05-21T16:34:12.097Z",
+      "updatedAt": "2026-05-21T17:16:11.277Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a0f41ca838347de60ed6278",
+      "titulo": "Tests",
+      "ubicacionTexto": "Assassin",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -122.41244905438734,
+          37.791399490181156
+        ]
+      },
+      "detalles": "Assassins",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/281be97f-c39e-4fc0-8f5e-dbf1eee0183b.jpg"
+      ],
+      "usuario": "6a0f3dad838347de60ed6277",
+      "estado": "disponible",
+      "createdAt": "2026-05-21T17:32:58.145Z",
+      "updatedAt": "2026-05-21T17:32:58.145Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0f4ac5f3c55000c978e643",
+      "titulo": "Foto",
+      "ubicacionTexto": "Asdasd",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -122.40806853752596,
+          37.785904281091064
+        ]
+      },
+      "detalles": "Assassin",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/57d2f672-e1e2-43ca-9a84-b055c8dd6128.jpg"
+      ],
+      "usuario": "6a0f3dad838347de60ed6277",
+      "estado": "retirado",
+      "createdAt": "2026-05-21T18:11:17.087Z",
+      "updatedAt": "2026-05-21T18:20:44.756Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a0f73c24239870effe0c14e",
+      "titulo": "Auto en la calle",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.26108746230603,
+          -34.7420670834315
+        ]
+      },
+      "detalles": "Auto",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/5965ff17-288e-4f61-84a5-1c3b78b02c46.jpeg",
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/ba65b857-8d35-4809-80a5-457f9a9e99bc.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "createdAt": "2026-05-21T21:06:10.697Z",
+      "updatedAt": "2026-05-24T21:57:36.409Z",
+      "__v": 0,
+      "estado": "retirado"
+    },
+    {
+      "_id": "6a10e61b85ab68d8bbfdb066",
+      "titulo": "Un pizzaron enlace.UNQ",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.27834781259298,
+          -34.70725437218589
+        ]
+      },
+      "detalles": "Pizarrón de la clase de hoy",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/a0d0baa8-8214-4d98-8335-2627af86fb45.jpeg"
+      ],
+      "usuario": "6a08eea3f9e47e5b580a0a68",
+      "estado": "disponible",
+      "createdAt": "2026-05-22T23:26:19.280Z",
+      "updatedAt": "2026-05-22T23:26:19.280Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a13516d101e3f24bf66baf7",
+      "titulo": "Una pizza",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.262881860136986,
+          -34.74129456363126
+        ]
+      },
+      "detalles": "Una pizza",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/e98a61a8-447e-4d7e-aa95-9e5cc63b64f4.jpeg"
+      ],
+      "usuario": "6a08eea3f9e47e5b580a0a68",
+      "estado": "retirado",
+      "createdAt": "2026-05-24T19:28:45.274Z",
+      "updatedAt": "2026-05-24T19:29:20.072Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a135425101e3f24bf66baf8",
+      "titulo": "Bebidas",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.26278630644083,
+          -34.7411207181299
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/65967ed1-658b-44bc-939c-b7877faa7617.jpeg"
+      ],
+      "usuario": "6a08eea3f9e47e5b580a0a68",
+      "estado": "retirado",
+      "createdAt": "2026-05-24T19:40:21.097Z",
+      "updatedAt": "2026-05-24T21:54:46.488Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a135966d6b88232e18d895e",
+      "titulo": "Una silla",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.263433054089546,
+          -34.74251036988391
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/047c9e98-0646-4273-b314-45e91f9f3699.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "retirado",
+      "createdAt": "2026-05-24T20:02:46.628Z",
+      "updatedAt": "2026-05-24T21:57:18.420Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a135ef5d06fcf841d9c30eb",
+      "titulo": "algo",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.2956783,
+          -34.6989541
+        ]
+      },
+      "detalles": "ajshd",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/4bfb3931-a720-491b-899f-a9aa9b89e1ac.jpeg"
+      ],
+      "usuario": "6a0f3dad838347de60ed6277",
+      "estado": "disponible",
+      "createdAt": "2026-05-24T20:26:29.049Z",
+      "updatedAt": "2026-05-24T20:26:29.049Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a137f3c2b7e5e2d0bdd56ce",
+      "titulo": "Un código",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.2606965303421,
+          -34.7421048276161
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/a3320f20-9776-47f0-bd49-4673a03615e5.jpeg"
+      ],
+      "usuario": "6a08eea3f9e47e5b580a0a68",
+      "estado": "retirado",
+      "createdAt": "2026-05-24T22:44:12.886Z",
+      "updatedAt": "2026-05-25T02:38:22.726Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a14c192686a9811d5c0e544",
+      "titulo": "Hola",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -122.406417,
+          37.785834
+        ]
+      },
+      "detalles": "como estas",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/aab713f2-e545-4bda-a3a7-069a680c1ccf.jpg"
+      ],
+      "usuario": "6a0f3dad838347de60ed6277",
+      "estado": "disponible",
+      "createdAt": "2026-05-25T21:39:30.627Z",
+      "updatedAt": "2026-05-25T21:39:30.627Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a178e1eeb9dbd12b311ce7b",
+      "titulo": "Silla",
+      "ubicacionTexto": "Buenos Aires, Partido de Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.2956479,
+          -34.6989572
+        ]
+      },
+      "detalles": "silla",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/ec38156a-b76b-47dd-b5af-28fd45bba9d5.jpeg",
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/0863ec57-e199-4220-8bac-bd85b9479cab.jpeg"
+      ],
+      "usuario": "6a0f3dad838347de60ed6277",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T00:36:46.403Z",
+      "updatedAt": "2026-05-28T00:36:46.403Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a179333eb9dbd12b311ce7e",
+      "titulo": "Mueble",
+      "ubicacionTexto": "Jujuy, Municipio de Purmamarca",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -65.49904491752386,
+          -23.746826045063223
+        ]
+      },
+      "detalles": "Un poco roto",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/dffce683-2d3f-4051-b84d-f9e85b1f3b65.jpeg"
+      ],
+      "usuario": "6a0f3dad838347de60ed6277",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T00:58:27.590Z",
+      "updatedAt": "2026-05-28T00:58:27.590Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a1794ffeb9dbd12b311ce80",
+      "titulo": "Escritorio",
+      "ubicacionTexto": "Río Negro, San Carlos de Bariloche",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -71.30440704524517,
+          -41.13821392234787
+        ]
+      },
+      "detalles": "Esta bueno!",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/baffe551-226b-450f-901c-d71c56bbce78.jpeg"
+      ],
+      "usuario": "6a0f3dad838347de60ed6277",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T01:06:07.265Z",
+      "updatedAt": "2026-05-28T01:06:07.265Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a17960328c7250b1c417367",
+      "titulo": "Una Ferrary",
+      "ubicacionTexto": "Buenos Aires, Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.26331134885549,
+          -34.74084851556412
+        ]
+      },
+      "detalles": "En el garage",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/ad41037f-2ee1-41c4-bbd1-39a8ddf4bb2c.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T01:10:27.243Z",
+      "updatedAt": "2026-05-28T01:10:27.243Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a17964b28c7250b1c417368",
+      "titulo": "Un toyota",
+      "ubicacionTexto": "Buenos Aires, Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.27098313719035,
+          -34.737534900888164
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/32136c94-a040-492e-b89b-aa7000e10de8.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T01:11:39.919Z",
+      "updatedAt": "2026-05-28T01:11:39.919Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a17b2b428c7250b1c41736a",
+      "titulo": "Un perro",
+      "ubicacionTexto": "Buenos Aires, Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.25979229062796,
+          -34.741721874869995
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/89a16f9b-26dd-4e58-a62c-3e87fbef00ca.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T03:12:52.514Z",
+      "updatedAt": "2026-05-28T03:12:52.514Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a17b2db28c7250b1c41736b",
+      "titulo": "Decoración",
+      "ubicacionTexto": "Buenos Aires, Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.26558250933886,
+          -34.743438811737526
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/731fef86-399b-4199-b294-4441c61a7495.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T03:13:31.234Z",
+      "updatedAt": "2026-05-28T03:13:31.234Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a17b54428c7250b1c41736c",
+      "titulo": "Codigo",
+      "ubicacionTexto": "Buenos Aires, Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.25615890324116,
+          -34.726551937010015
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/95c680f5-77f6-4abb-bbbf-60362ed96e17.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "retirado",
+      "createdAt": "2026-05-28T03:23:48.501Z",
+      "updatedAt": "2026-05-28T03:24:03.480Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a17b8d7b26148f85b3ea7b2",
+      "titulo": "Codigo",
+      "ubicacionTexto": "Buenos Aires, Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.256450928747654,
+          -34.726457145420106
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/6645b265-d26b-433a-8f27-f34ec802126a.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "retirado",
+      "createdAt": "2026-05-28T03:39:03.275Z",
+      "updatedAt": "2026-05-28T03:39:21.206Z",
+      "__v": 0,
+      "retirado": {
+        "user": "6a08eea3f9e47e5b580a0a68",
+        "at": "2026-05-28T03:39:21.204Z"
+      }
+    },
+    {
+      "_id": "6a17b910b26148f85b3ea7b3",
+      "titulo": "Harina",
+      "ubicacionTexto": "Buenos Aires, Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.255621120333664,
+          -34.7262287082641
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/ef2560ba-d478-4715-9a40-e42eb4ddbb7a.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "retirado",
+      "createdAt": "2026-05-28T03:40:00.325Z",
+      "updatedAt": "2026-05-28T03:40:13.113Z",
+      "__v": 0,
+      "retirado": {
+        "user": "6a08eea3f9e47e5b580a0a68",
+        "at": "2026-05-28T03:40:13.113Z"
+      }
+    },
+    {
+      "_id": "6a17bbfeb26148f85b3ea7b4",
+      "titulo": "Pizza sca al lado",
+      "ubicacionTexto": "Buenos Aires, Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.25803209096193,
+          -34.74206983848205
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/9e9266fb-1ade-4248-804c-fa931a464df4.jpeg",
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/3769c3f0-a5eb-4f04-b5d6-87066113b824.jpeg",
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/1a6a4717-ec01-44ad-9307-2b793c7e618b.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T03:52:30.072Z",
+      "updatedAt": "2026-05-28T03:52:30.072Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a17be4bb26148f85b3ea7b5",
+      "titulo": "Un meme",
+      "ubicacionTexto": "Buenos Aires, Quilmes",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.27038533985615,
+          -34.73258530827033
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/2757c7f0-e224-45c4-be0e-082271f4c59e.jpeg"
+      ],
+      "usuario": "6a08ee2cf9e47e5b580a0a67",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T04:02:19.326Z",
+      "updatedAt": "2026-05-28T04:02:19.326Z",
+      "__v": 0
+    },
+    {
+      "_id": "6a18d5f97d2bfc27546f0cd2",
+      "titulo": "mueble",
+      "ubicacionTexto": "Buenos Aires, Wilde",
+      "ubicacion": {
+        "type": "Point",
+        "coordinates": [
+          -58.3240796,
+          -34.7037783
+        ]
+      },
+      "detalles": "",
+      "fotos": [
+        "https://oijnlpqthnoetbkcyvpb.supabase.co/storage/v1/object/public/Cirujear/productos/85243767-a8b9-4653-9957-609436240f6f.jpeg"
+      ],
+      "usuario": "6a18d3997d2bfc27546f0cd0",
+      "estado": "disponible",
+      "createdAt": "2026-05-28T23:55:37.201Z",
+      "updatedAt": "2026-05-28T23:55:37.201Z",
+      "__v": 0
+    }
+  ],
+  "exportedAt": "2026-06-05T23:48:02.733Z"
+}

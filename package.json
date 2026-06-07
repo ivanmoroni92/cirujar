@@ -9,7 +9,8 @@
   "scripts": {
     "app": "concurrently -n back,front -c cyan,magenta \"npm run back\" \"npm run front\"",
     "back": "npm run dev -w back",
-    "front": "npm start -w front"
+    "front": "npm start -w front",
+    "sync": "npm run sync -w back"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

@@ -1,7 +1,7 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Image } from 'expo-image';
 import { Stack, usePathname, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useVideoPlayer, VideoView } from 'expo-video';
 import { useEffect, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import 'react-native-reanimated';
@@ -10,22 +10,31 @@ import { getStoredToken } from '@/_services/authToken';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const PUBLIC_ROUTES = ['/login', '/register'];
+const INTRO_VIDEO = require('../assets/images/loading_animation.mp4');
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   const router = useRouter();
   const pathname = usePathname();
   const [authChecked, setAuthChecked] = useState(false);
-  const [startupDelayDone, setStartupDelayDone] = useState(false);
+  const [introDone, setIntroDone] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setStartupDelayDone(true);
-    }, 4000);
+  const introPlayer = useVideoPlayer(INTRO_VIDEO, (player) => {
+    player.loop = false;
+    player.muted = true;
+    player.play();
+  });
 
-    return () => clearTimeout(timer);
-  }, []);
+  useEffect(() => {
+    const subscription = introPlayer.addListener('playToEnd', () => {
+      setIntroDone(true);
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [introPlayer]);
 
   useEffect(() => {
     let active = true;
@@ -57,14 +66,15 @@ export default function RootLayout() {
     }
   }, [authChecked, isAuthenticated, pathname, router]);
 
-  if (!authChecked || !startupDelayDone) {
+  if (!authChecked || !introDone) {
     return (
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <View style={styles.loaderWrap}>
-          <Image
-            source={require('../assets/images/loading_animation.gif')}
-            style={styles.loaderGif}
+          <VideoView
+            player={introPlayer}
+            style={styles.loaderVideo}
             contentFit="cover"
+            nativeControls={false}
           />
         </View>
         <StatusBar style="auto" />
@@ -92,7 +102,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#ffffff',
   },
-  loaderGif: {
+  loaderVideo: {
     width: '100%',
     height: '100%',
   },

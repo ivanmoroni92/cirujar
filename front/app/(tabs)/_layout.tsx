@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 10,
-        paddingHorizontal: 18,
+        paddingHorizontal: 40,
         paddingTop: 0,
         paddingBottom: 0,
         flexDirection: 'row',

@@ -218,7 +218,7 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 10,
-        paddingHorizontal: 0,
+        paddingHorizontal: 18,
         paddingTop: 0,
         paddingBottom: 0,
         flexDirection: 'row',
@@ -227,10 +227,14 @@ const styles = StyleSheet.create({
     leftTabItem: {
         flex: 1,
         height: '100%',
+        alignItems: 'flex-start',
+        justifyContent: 'center',
     },
     rightTabItem: {
         flex: 1,
         height: '100%',
+        alignItems: 'flex-end',
+        justifyContent: 'center',
     },
     centerTabItem: {
         position: 'absolute',
@@ -245,7 +249,8 @@ const styles = StyleSheet.create({
 
     // ESTILOS PARA BOTONES LATERALES
     sideButton: {
-        flex: 1,
+        width: 60,
+        height: '100%',
         justifyContent: 'center',
         alignItems: 'center',
     },

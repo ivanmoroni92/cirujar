@@ -218,11 +218,11 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.1,
         shadowRadius: 20,
         elevation: 10,
-        paddingHorizontal: 0,
+        paddingHorizontal: 24,
         paddingTop: 0,
         paddingBottom: 0,
         flexDirection: 'row',
-        justifyContent: 'space-evenly',
+        justifyContent: 'space-between',
         alignItems: 'center',
     },
     leftTabItem: {

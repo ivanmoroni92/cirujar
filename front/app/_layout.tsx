@@ -1,16 +1,14 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack, usePathname, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useVideoPlayer, VideoView } from 'expo-video';
-import { useEffect, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
 import 'react-native-reanimated';
 
 import { getStoredToken } from '@/_services/authToken';
+import IntroSplash from '@/components/intro-splash';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const PUBLIC_ROUTES = ['/login', '/register'];
-const INTRO_VIDEO = require('../assets/images/loading_animation.mp4');
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
@@ -20,33 +18,9 @@ export default function RootLayout() {
   const [introDone, setIntroDone] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const introPlayer = useVideoPlayer(INTRO_VIDEO, (player) => {
-    player.loop = false;
-    player.muted = true;
-  });
-
-  useEffect(() => {
-    let mounted = true;
-
-    try {
-      introPlayer.play();
-    } catch {
-      // player puede haber sido liberado por fast refresh
-    }
-
-    const endSub = introPlayer.addListener('playToEnd', () => {
-      if (mounted) setIntroDone(true);
-    });
-    const statusSub = introPlayer.addListener('statusChange', ({ status }) => {
-      if (mounted && status === 'error') setIntroDone(true);
-    });
-
-    return () => {
-      mounted = false;
-      try { endSub.remove(); } catch { }
-      try { statusSub.remove(); } catch { }
-    };
-  }, [introPlayer]);
+  const handleIntroFinish = useCallback(() => {
+    setIntroDone(true);
+  }, []);
 
   useEffect(() => {
     let active = true;
@@ -81,14 +55,7 @@ export default function RootLayout() {
   if (!authChecked || !introDone) {
     return (
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <View style={styles.loaderWrap}>
-          <VideoView
-            player={introPlayer}
-            style={styles.loaderVideo}
-            contentFit="cover"
-            nativeControls={false}
-          />
-        </View>
+        <IntroSplash onFinish={handleIntroFinish} />
         <StatusBar style="auto" />
       </ThemeProvider>
     );
@@ -109,16 +76,6 @@ export default function RootLayout() {
   );
 }
 
-const styles = StyleSheet.create({
-  loaderWrap: {
-    flex: 1,
-    backgroundColor: '#ffffff',
-  },
-  loaderVideo: {
-    width: '100%',
-    height: '100%',
-  },
-});
 // Initial commit dev
 
 
